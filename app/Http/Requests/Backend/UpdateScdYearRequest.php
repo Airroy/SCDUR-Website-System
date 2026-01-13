@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Http\Requests\Backend;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
+
+class UpdateScdYearRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true; // Add proper authorization logic if needed
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     */
+    public function rules(): array
+    {
+        $yearId = $this->route('year')->id ?? $this->route('year');
+        
+        return [
+            'year_value' => [
+                'required',
+                'string',
+                'size:4',
+                Rule::unique('scd_years', 'year')->ignore($yearId),
+            ],
+            'created_date' => 'required|date',
+            'is_published' => 'boolean',
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'year_value.required' => 'กรุณากรอกปี',
+            'year_value.size' => 'ปีต้องเป็นตัวเลข 4 หลัก',
+            'year_value.unique' => 'ปีนี้มีอยู่ในระบบแล้ว',
+            'created_date.required' => 'กรุณาเลือกวันที่สร้าง',
+            'created_date.date' => 'รูปแบบวันที่ไม่ถูกต้อง',
+        ];
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     */
+    protected function failedValidation(Validator $validator): void
+    {
+        throw new HttpResponseException(response()->json([
+            'success' => false,
+            'errors' => $validator->errors()
+        ], 422));
+    }
+}
