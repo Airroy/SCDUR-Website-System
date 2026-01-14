@@ -17,7 +17,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     // 2.2.1 หน้า Dashboard
     Route::view('/dashboard', 'admin.pages.dashboard')->name('dashboard');
 
-    // 2.2.2 จัดการปี SCD
+    // 2.2.2 หน้า Profile
+    Route::view('/profile', 'admin.pages.profile')->name('profile');
+
+    // 2.2.3 จัดการปี SCD
     Route::resource('scd-years', ScdYearController::class)->except(['show', 'create', 'edit']);
     Route::post('scd-years/{year}/toggle-publish', [ScdYearController::class, 'togglePublish'])->name('years.toggle');
     
