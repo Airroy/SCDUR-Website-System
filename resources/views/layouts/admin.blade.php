@@ -67,7 +67,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('profile') }}" 
+                                    <a href="{{ route('admin.profile') }}" 
                                        class="block px-4 py-2 hover:bg-red-50 hover:text-red-600">
                                         โปรไฟล์
                                     </a>
