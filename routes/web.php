@@ -11,14 +11,6 @@ Route::get('/about', [FrontendController::class, 'about'])->name('about');
 Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
 Route::get('/announcements/{year}', [FrontendController::class, 'announcements'])->name('announcements');
 
-Route::view('dashboard', 'admin.pages.dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-
-Route::view('profile', 'admin.pages.profile')
-    ->middleware(['auth'])
-    ->name('profile');
-
 // กลุ่ม Route สำหรับ Admin เท่านั้น
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     
