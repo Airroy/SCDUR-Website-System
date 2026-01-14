@@ -79,7 +79,7 @@ docker run --rm \
 
 ### 8. สร้าง Admin User
 ```bash
-./vendor/bin/sail artisan make:admin
+./vendor/bin/sail artisan admin:create --email=admin@aru.ac.th --name=Admin --password=1234
 ```
 ทำตาม prompts เพื่อสร้าง admin user สำหรับเข้าระบบ
 
