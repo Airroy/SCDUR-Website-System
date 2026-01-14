@@ -12,7 +12,7 @@ Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
 Route::get('/announcements/{year}', [FrontendController::class, 'announcements'])->name('announcements');
 
 // กลุ่ม Route สำหรับ Admin เท่านั้น
-Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     
     // 2.2.1 หน้า Dashboard
     Route::view('/dashboard', 'admin.pages.dashboard')->name('dashboard');
