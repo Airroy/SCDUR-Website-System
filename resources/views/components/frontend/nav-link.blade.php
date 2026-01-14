@@ -2,7 +2,10 @@
 
 <a 
     href="{{ $href }}" 
-    {{ $attributes->merge(['class' => 'text-white hover:bg-red-700 px-4 py-3 text-sm font-medium transition-colors border-b-2 border-transparent hover:border-white']) }}
+    {{ $attributes->merge([
+        'class' => 'block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-300 hover:bg-[#ff9f8e] hover:text-black whitespace-nowrap ' . 
+        ($active ? 'bg-[#ff9f8e] text-black' : '')
+    ]) }}
 >
     {{ $slot }}
 </a>

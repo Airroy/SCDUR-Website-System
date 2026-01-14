@@ -1,13 +1,13 @@
 @props(['title' => 'Menu'])
 
 <div class="relative group">
-    <button class="text-white hover:bg-red-700 px-4 py-3 text-sm font-medium transition-colors inline-flex items-center border-b-2 border-transparent hover:border-white">
+    <button class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-300 hover:bg-[#ff9f8e] hover:text-black whitespace-nowrap inline-flex items-center">
         {{ $title }}
-        <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
+        <span class="ml-1 text-xs">▾</span>
     </button>
-    <div class="absolute left-0 top-full w-56 bg-white shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+    
+    <!-- Dropdown Menu -->
+    <div class="absolute top-full left-0 bg-white min-w-[250px] list-none py-2.5 px-0 m-0 shadow-[0_4px_15px_rgba(0,0,0,0.2)] opacity-0 invisible translate-y-[-10px] group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 rounded-b-lg z-50">
         {{ $slot }}
     </div>
 </div>

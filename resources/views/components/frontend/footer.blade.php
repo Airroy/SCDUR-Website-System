@@ -1,38 +1,55 @@
 <!-- Footer -->
-<footer class="bg-gray-800 text-white mt-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-                <h3 class="text-lg font-semibold mb-4">แนะนำหน่วยงาน</h3>
-                <p class="text-gray-300 text-sm leading-relaxed">
-                    มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน<br>
-                    มหาวิทยาลัยราชภัฏพระนครศรีอยุธยา
-                </p>
-            </div>
-            <div>
-                <h3 class="text-lg font-semibold mb-4">เอกสารประชาสัมพันธ์</h3>
-                <ul class="space-y-2 text-sm">
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors">เอกสารแบบฟอร์ม</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors">คู่มือการใช้งาน</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors">ประกาศ/คำสั่ง</a></li>
-                </ul>
-            </div>
-            <div>
-                <h3 class="text-lg font-semibold mb-4">ติดต่อเรา</h3>
-                <p class="text-gray-300 text-sm leading-relaxed">
-                    เลขที่ 96 ถ.ปรีดีพนมยงค์ ต.ประตูชัย<br>
-                    อ.พระนครศรีอยุธยา จ.พระนครศรีอยุธยา 13000<br>
-                    Email: ISC@aru.ac.th<br>
-                    <span class="text-lg font-semibold mt-2 block">TEL: 0-3532-2589</span>
-                </p>
-            </div>
+<footer class="bg-white text-gray-800 pt-[50px] px-5 mt-20">
+    
+    <div class="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 mb-0 pb-10">
+        
+        <!-- แนะนำหน่วยงาน -->
+        <div>
+            <h3 class="text-[#af1a00] text-xl font-semibold mb-5">
+                แนะนำหน่วยงาน
+            </h3>
+            <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
+                มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน
+            </p>
+        </div>
+
+        <!-- เอกสารประชาสัมพันธ์ -->
+        <div>
+            <h3 class="text-[#af1a00] text-xl font-semibold mb-5">
+                เอกสารประชาสัมพันธ์
+            </h3>
+            <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
+                เอกสารแนบฟอร์ม
+            </p>
+        </div>
+
+        <!-- ติดต่อเรา -->
+        <div>
+            <h3 class="text-[#af1a00] text-xl font-semibold mb-5">
+                ติดต่อเรา
+            </h3>
+            <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
+                มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน<br>
+                มหาวิทยาลัยราชภัฏพระนครศรีอยุธยา
+            </p>
+            <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
+                เลขที่ 96 ถ.ปรีดีพนมยงค์ ต.ประตูชัย อ.พระนครศรีอยุธยา<br>
+                จ.พระนครศรีอยุธยา 13000
+            </p>
+            <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
+                Email: <a href="mailto:ISC@aru.ac.th" class="text-[#af1a00] no-underline transition-colors duration-300 hover:text-[#ff6d54]">ISC@aru.ac.th</a>
+            </p>
+            <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
+                TEL: <a href="tel:0-3532-2589" class="text-[#af1a00] no-underline transition-colors duration-300 hover:text-[#ff6d54]">0-3532-2589</a>
+            </p>
         </div>
     </div>
-</footer>
 
-<!-- Footer Copyright -->
-<div class="bg-gray-900 text-gray-400 py-4">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
-        <p>Sustainable Community Development University Ranking: SCDUR . Designed By Thitirat Kawborisut</p>
+    <!-- Footer Bottom -->
+    <div class="bg-[#2d2921] text-center py-5 text-white text-sm -mx-5">
+        <p>
+            Sustainable Community Development University Ranking: SCDUR . 
+            Designed By <a href="#" class="text-[#cba351] no-underline hover:underline">Thitirat Kawbonsut</a>
+        </p>
     </div>
-</div>
+</footer>
