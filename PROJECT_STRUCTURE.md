@@ -1,5 +1,8 @@
 # โครงสร้างโปรเจกต์และฟังก์ชันแต่ละไฟล์
 
+> **📌 อัปเดตล่าสุด:** 14 มกราคม 2026  
+> **โครงสร้าง:** Laravel 12 Standard - แบ่งโซน Frontend/Backend ชัดเจน
+
 ## 📁 Root Directory Files
 
 ### ไฟล์ Configuration
@@ -259,45 +262,74 @@ GuestLayout.php
 
 ## 📂 resources/ - Views & Assets (552KB)
 
-### resources/views/admin/
+> **โครงสร้าง Laravel 12 Standard:**
+> - `layouts/` - Layouts หลัก (guest, app, admin) อยู่ในตำแหน่งมาตรฐาน
+> - `components/` - Blade components แยกตาม zone (frontend/backend)
+> - `admin/` - View สำหรับหลังบ้าน ใช้ @extends('layouts.admin')
+> - `frontend/` - View สำหรับหน้าบ้าน ใช้ x-layouts.frontend
+> - `auth/` - View สำหรับ authentication ใช้ layout จาก layouts/
 
-#### layouts/
+### resources/views/layouts/
 ```
+guest.blade.php
+  ฟังก์ชัน: Layout สำหรับหน้า authentication
+  - ใช้กับ Login, Register, Forgot Password
+  - Simple centered layout
+  - Breeze default design
+
+app.blade.php
+  ฟังก์ชัน: Layout สำหรับ authenticated users
+  - ใช้กับ Dashboard, Profile
+  - มี navigation bar
+  - Breeze default design
+
 admin.blade.php
-  ฟังก์ชัน: Layout หลักสำหรับหลังบ้าน
+  ฟังก์ชัน: Layout หลักสำหรับหลังบ้าน (Backend)
   - Sidebar navigation
   - Header with user menu
-  - Content area
+  - Content area สำหรับ admin pages
+  - ใช้โดย: @extends('layouts.admin')
 ```
+
+### resources/views/admin/
 
 #### pages/
 ```
 dashboard.blade.php
   ฟังก์ชัน: หน้า Dashboard แสดงสถิติ
+  - @extends('layouts.admin')
 
 profile.blade.php
   ฟังก์ชัน: หน้าจัดการโปรไฟล์ admin
+  - @extends('layouts.admin')
 
 scd-years/index.blade.php
   ฟังก์ชัน: รายการปี SCD ทั้งหมด
+  - @extends('layouts.admin')
 
 scd-years/manage.blade.php
   ฟังก์ชัน: จัดการข้อมูลปี SCD
+  - @extends('layouts.admin')
 
 scd-years/banners.blade.php
   ฟังก์ชัน: จัดการ Banners ของปีนั้นๆ
+  - @extends('layouts.admin')
 
 scd-years/contents.blade.php
   ฟังก์ชัน: จัดการ Content Sections
+  - @extends('layouts.admin')
 
 scd-years/reports.blade.php
   ฟังก์ชัน: จัดการไฟล์รายงาน
+  - @extends('layouts.admin')
 
 scd-years/announcements.blade.php
   ฟังก์ชัน: จัดการประกาศ/คำสั่ง
+  - @extends('layouts.admin')
 
 scd-years/announcement-category.blade.php
   ฟังก์ชัน: จัดการหมวดหมู่ประกาศ
+  - @extends('layouts.admin')
 ```
 
 #### components/
@@ -346,6 +378,11 @@ welcome.blade.php
 
 ### resources/views/components/
 
+> **Component Organization:**
+> - `layouts/frontend.blade.php` - Main frontend layout wrapper
+> - `frontend/` - Frontend components (navigation, header, footer)
+> - Components ใช้ผ่าน `<x-...>` syntax
+
 #### layouts/
 ```
 frontend.blade.php
@@ -360,13 +397,13 @@ frontend.blade.php
 #### frontend/
 ```
 header.blade.php
-  ฟังก์ชัน: Header ของเว็บไซต์
-  - Top bar (Phranakhon Si Ayutthaya...)
-  - Header banner image
-  - Navbar (sticky)
+  ฟังก์ชัน: Header ของเว็บไซต์ (refactored)
+  - Header banner image เดียว (single image)
+  - Include navigation component
+  - ไม่มี top bar แล้ว (removed)
 
 navigation.blade.php
-  ฟังก์ชัน: Navbar สีแดงเข้ม (sticky)
+  ฟังก์ชัน: Navbar สีแดงเข้ม (sticky single bar)
   - หน้าหลัก
   - เกี่ยวกับหน่วยงาน
   - SCD Ranking (dropdown)
@@ -374,14 +411,12 @@ navigation.blade.php
   - ประกาศ/คำสั่ง (dropdown)
   - ติดต่อเรา
   - Mobile responsive
+  - Hover effects (bg-red-800)
 
 footer.blade.php
   ฟังก์ชัน: Footer 2 ส่วน
   - Footer 1: แนะนำหน่วยงาน, เอกสาร, ติดต่อเรา
   - Footer 2: Copyright
-
-sticky-nav.blade.php
-  ฟังก์ชัน: Sticky navigation (ไม่ใช้แล้ว)
 
 dropdown.blade.php
   ฟังก์ชัน: Dropdown menu component
