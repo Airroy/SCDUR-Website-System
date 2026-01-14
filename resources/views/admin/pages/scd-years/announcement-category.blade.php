@@ -1,4 +1,4 @@
-@extends('admin.layouts.admin')
+@extends('layouts.admin')
 
 @section('header')
     <div class="flex items-center space-x-4 mb-3">
