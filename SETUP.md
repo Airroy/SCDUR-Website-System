@@ -1,16 +1,40 @@
-# SCD Project - Setup Guide
+# SCD Project - คู่มือติดตั้งและใช้งาน
 
-## ข้อกำหนดระบบ (Requirements)
-- Docker Desktop
-- Git
-- ไม่ต้องติดตั้ง PHP, Composer, Node.js, MySQL (มีใน Docker แล้ว)
+> สำหรับผู้พัฒนาและผู้ดูแลระบบ
 
-## Docker Services ที่ใช้งาน
-โปรเจกต์นี้ใช้ Laravel Sail แบบเบาพร้อม services:
+---
+
+## 📋 สารบัญ
+
+1. [ข้อกำหนดระบบ](#ข้อกำหนดระบบ)
+2. [ขั้นตอนการติดตั้ง](#ขั้นตอนการติดตั้ง)
+3. [คำสั่งที่ใช้บ่อย](#คำสั่งที่ใช้บ่อย)
+4. [การสร้าง Admin User](#การสร้าง-admin-user)
+5. [การแก้ไขปัญหา](#การแก้ไขปัญหา)
+
+---
+
+## ข้อกำหนดระบบ
+
+### Software ที่ต้องมี
+- **Docker Desktop** (รุ่นล่าสุด)
+- **Git** (สำหรับ clone project)
+
+### ไม่ต้องติดตั้ง
+- ❌ PHP
+- ❌ Composer
+- ❌ Node.js / NPM
+- ❌ MySQL
+
+> ทุกอย่างรันผ่าน Docker แล้ว!
+
+### Docker Services
 - **laravel.test** - Laravel Application (Port 80, 5173)
 - **mysql** - MySQL 8.4 Database (Port 3306)
 
-## ขั้นตอนการติดตั้ง (Installation)
+---
+
+## ขั้นตอนการติดตั้ง
 
 ### 1. Clone Project
 ```bash
@@ -53,112 +77,153 @@ docker run --rm \
 ./vendor/bin/sail artisan storage:link
 ```
 
-### 7. Install NPM Dependencies และ Build Assets
+### 8. สร้าง Admin User
 ```bash
-./vendor/bin/sail npm install
-./vendor/bin/sail npm run dev
-# หรือสำหรับ production
-./vendor/bin/sail npm run build
+./vendor/bin/sail artisan make:admin
 ```
+ทำตาม prompts เพื่อสร้าง admin user สำหรับเข้าระบบ
 
-### 8. เปิดเว็บไซต์
+### 9. เปิดเว็บไซต์
 เปิดเบราว์เซอร์ที่:
-- **เว็บไซต์หลัก:** http://localhost
+- **หน้าหลัก:** http://localhost
+- **Admin Login:** http://localhost/login
 
-### 9. ตรวจสอบ Docker Containers
-```bash
-./vendor/bin/sail ps
-```
-ควรเห็น containers: laravel.test, mysql
+---
 
-## คำสั่งที่ใช้บ่อย (Common Commands)
+## คำสั่งที่ใช้บ่อย
 
-### เริ่ม/หยุด Docker
+### 🐳 Docker Management
 ```bash
 ./vendor/bin/sail up        # เริ่มและดู logs
 ./vendor/bin/sail up -d     # เริ่มแบบ background
 ./vendor/bin/sail down      # หยุด containers
 ./vendor/bin/sail restart   # รีสตาร์ท
+./vendor/bin/sail ps        # ดูสถานะ containers
 ```
 
-### Database
+### 💾 Database
 ```bash
-./vendor/bin/sail artisan migrate          # Run migrations
-./vendor/bin/sail artisan migrate:fresh    # Drop tables และ migrate ใหม่
-./vendor/bin/sail artisan db:seed          # Run seeders
-./vendor/bin/sail mysql                    # เข้า MySQL shell
+./vendor/bin/sail artisan migrate              # Run migrations
+./vendor/bin/sail artisan migrate:fresh        # Drop และ migrate ใหม่
+./vendor/bin/sail artisan migrate:fresh --seed # พร้อม seeding
+./vendor/bin/sail artisan db:seed              # Run seeders
+./vendor/bin/sail mysql                        # เข้า MySQL shell
 ```
 
-### Livewire
+### ⚡ Livewire & Development
 ```bash
-./vendor/bin/sail artisan livewire:make ComponentName        # สร้าง component
-./vendor/bin/sail artisan livewire:publish --config          # Publish config
+./vendor/bin/sail artisan livewire:make ComponentName    # สร้าง component
+./vendor/bin/sail npm run dev                            # Watch mode
+./vendor/bin/sail npm run build                          # Build production
+./vendor/bin/sail artisan optimize                       # Optimize app
+./vendor/bin/sail artisan cache:clear                    # Clear cache
 ```
 
-### Development
-```bash
-./vendor/bin/sail npm run dev      # Watch mode สำหรับพัฒนา
-./vendor/bin/sail npm run build    # Build สำหรับ production
-./vendor/bin/sail artisan optimize # Optimize application
-./vendor/bin/sail artisan cache:clear
-```
-
-### Logs
+### 📝 Logs & Debugging
 ```bash
 ./vendor/bin/sail logs         # ดู logs
-./vendor/bin/sail logs -f      # Follow logs
+./vendor/bin/sail logs -f      # Follow logs แบบ real-time
 ```
 
-## ปัญหาที่พบบ่อย (Troubleshooting)
+---
 
-### Port ชนกัน
-หาก port ถูกใช้งานอยู่ แก้ไขใน `.env`:
+## การสร้าง Admin User
+
+### วิธีที่ 1: ใช้ Command (แนะนำ)
+```bash
+./vendor/bin/sail artisan make:admin
+```
+
+### วิธีที่ 2: ใช้ Tinker
+```bash
+./vendor/bin/sail artisan tinker
+
+# จากนั้นพิมพ์
+User::create([
+    'name' => 'Admin',
+    'email' => 'admin@example.com',
+    'password' => bcrypt('password'),
+    'email_verified_at' => now(),
+]);
+```
+
+> **หมายเหตุ:** Register ปิดการใช้งาน สร้าง admin ผ่าน command เท่านั้น
+
+---
+
+## การแก้ไขปัญหา
+
+### ❌ Port ชนกัน
+แก้ไขใน `.env`:
 ```env
 APP_PORT=8000              # เปลี่ยนจาก 80
 FORWARD_DB_PORT=3307       # เปลี่ยนจาก 3306
 VITE_PORT=5174             # เปลี่ยนจาก 5173
 ```
-จากนั้น restart: `./vendor/bin/sail restart`
+จากนั้น: `./vendor/bin/sail restart`
 
-### Permission Denied
+### ❌ Permission Denied
 ```bash
 sudo chmod -R 777 storage bootstrap/cache
 ```
 
-### Composer หรือ NPM ช้า
+### ❌ Composer/NPM ช้า
 ```bash
 ./vendor/bin/sail composer install --no-scripts
 ./vendor/bin/sail npm ci
 ```
 
-## โครงสร้างโปรเจกต์
+### ❌ Migration Error
+```bash
+./vendor/bin/sail artisan migrate:fresh  # ลบและสร้างใหม่
+```
 
-- `app/` - Application logic
-  - `Livewire/` - Livewire components
-  - `Models/` - Database models
-  - `Services/` - Business logic
-- `resources/views/` - Blade templates
-  - `components/frontend/` - Frontend components
-  - `frontend/pages/` - Frontend pages
-- `routes/web.php` - Web routes
-- `database/migrations/` - Database migrations
+### ❌ รูปภาพไม่แสดง
+```bash
+./vendor/bin/sail artisan storage:link  # สร้าง symlink ใหม่
+```
 
-## ข้อมูลเพิ่มเติม
+### ❌ CSS/JS ไม่อัปเดต
+```bash
+./vendor/bin/sail npm run build  # Build ใหม่
+# หรือ
+Ctrl+C  # หยุด npm run dev
+./vendor/bin/sail npm run dev  # รันใหม่
+```
 
-- Laravel Sail: https://laravel.com/docs/12.x/sail
-- Livewire: https://livewire.laravel.com/docs/
-- Tailwind CSS: https://tailwindcss.com/docs
+---
 
-## หมายเหตุ
+## 🎯 Tips & Best Practices
 
-โปรเจกต์นี้ใช้:
-- Laravel 12.x
-- Livewire 3.x
-- Tailwind CSS
-- Alpine.js
-- Docker (Laravel Sail)
-- MySQL 8.4
-- Redis (Cache)
-- Meilisearch (Search Engine)
-- Mailpit (Email Testing)
-- Selenium (Browser Testing)
+### Alias สำหรับ Sail
+เพิ่มใน `~/.bashrc` หรือ `~/.zshrc`:
+```bash
+alias sail='./vendor/bin/sail'
+```
+จากนั้นใช้: `sail up -d` แทน `./vendor/bin/sail up -d`
+
+### ทดสอบระบบ
+```bash
+sail artisan test              # Run tests
+sail artisan test --parallel   # Run tests แบบ parallel
+```
+
+### Backup Database
+```bash
+sail mysql -e "mysqldump -u root -ppassword laravel > backup.sql"
+```
+
+### Restore Database
+```bash
+sail mysql laravel < backup.sql
+```
+
+---
+
+## 📚 เอกสารเพิ่มเติม
+
+- **[README.md](README.md)** - ภาพรวมโปรเจกต์
+- **[PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)** - โครงสร้างและฟังก์ชันแต่ละไฟล์
+- **Laravel Documentation:** https://laravel.com/docs/12.x
+- **Livewire Documentation:** https://livewire.laravel.com/docs
+- **Tailwind CSS:** https://tailwindcss.com/docs
