@@ -6,13 +6,9 @@
 - ไม่ต้องติดตั้ง PHP, Composer, Node.js, MySQL (มีใน Docker แล้ว)
 
 ## Docker Services ที่ใช้งาน
-โปรเจกต์นี้ใช้ Laravel Sail พร้อม services:
+โปรเจกต์นี้ใช้ Laravel Sail แบบเบาพร้อม services:
 - **laravel.test** - Laravel Application (Port 80, 5173)
 - **mysql** - MySQL 8.4 Database (Port 3306)
-- **redis** - Redis Cache (Port 6379)
-- **meilisearch** - Search Engine (Port 7700)
-- **mailpit** - Mail Testing Tool (Port 1025, 8025)
-- **selenium** - Browser Testing (สำหรับ automated tests)
 
 ## ขั้นตอนการติดตั้ง (Installation)
 
@@ -68,14 +64,12 @@ docker run --rm \
 ### 8. เปิดเว็บไซต์
 เปิดเบราว์เซอร์ที่:
 - **เว็บไซต์หลัก:** http://localhost
-- **Mailpit (ดู email testing):** http://localhost:8025
-- **Meilisearch (search admin):** http://localhost:7700
 
 ### 9. ตรวจสอบ Docker Containers
 ```bash
 ./vendor/bin/sail ps
 ```
-ควรเห็น containers: laravel.test, mysql, redis, meilisearch, mailpit, selenium
+ควรเห็น containers: laravel.test, mysql
 
 ## คำสั่งที่ใช้บ่อย (Common Commands)
 
@@ -93,24 +87,6 @@ docker run --rm \
 ./vendor/bin/sail artisan migrate:fresh    # Drop tables และ migrate ใหม่
 ./vendor/bin/sail artisan db:seed          # Run seeders
 ./vendor/bin/sail mysql                    # เข้า MySQL shell
-```
-
-### Redis Cache
-```bash
-./vendor/bin/sail redis                    # เข้า Redis CLI
-./vendor/bin/sail artisan cache:clear      # Clear cache
-```
-
-### Search (Meilisearch)
-```bash
-# Access: http://localhost:7700
-./vendor/bin/sail artisan scout:import     # Import data to search
-```
-
-### Email Testing (Mailpit)
-```bash
-# Access: http://localhost:8025
-# ดู emails ที่ส่งจากแอพทดสอบได้
 ```
 
 ### Livewire
@@ -140,11 +116,7 @@ docker run --rm \
 ```env
 APP_PORT=8000              # เปลี่ยนจาก 80
 FORWARD_DB_PORT=3307       # เปลี่ยนจาก 3306
-FORWARD_REDIS_PORT=6380    # เปลี่ยนจาก 6379
-FORWARD_MEILISEARCH_PORT=7701
-FORWARD_MAILPIT_PORT=1026
-FORWARD_MAILPIT_DASHBOARD_PORT=8026
-VITE_PORT=5174
+VITE_PORT=5174             # เปลี่ยนจาก 5173
 ```
 จากนั้น restart: `./vendor/bin/sail restart`
 
