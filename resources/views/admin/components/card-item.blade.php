@@ -8,9 +8,7 @@
     <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
         {{-- Icon/Image Section --}}
         @if($icon ?? false)
-            <div class="flex-shrink-0">
-                {{ $icon }}
-            </div>
+            {{ $icon }}
         @endif
 
         {{-- Content Section --}}
