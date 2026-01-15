@@ -144,7 +144,7 @@
                             @enderror
 
                             <p class="mt-1 text-xs text-gray-500">
-                                รูปภาพขนาดไม่เกิน 5 MB (จะมีฟีเจอร์ crop ในเวอร์ชันต่อไป)
+                                รูปภาพขนาดไม่เกิน 5 MB
                             </p>
 
                             <!-- Loading indicator -->
