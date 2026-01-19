@@ -25,6 +25,9 @@ return new class extends Migration
             $table->string('file_path')->nullable(); // ไฟล์ PDF (เฉพาะ type=file)
             
             $table->timestamps();
+            
+            // แต่ละปีสามารถมี sequence เดียวกันได้ แต่ต้องไม่ซ้ำในปีเดียวกัน + parent เดียวกัน + category_group เดียวกัน
+            $table->unique(['scd_year_id', 'parent_id', 'category_group', 'sequence'], 'content_nodes_unique');
         });
     }
 

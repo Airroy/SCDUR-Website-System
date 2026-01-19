@@ -14,13 +14,16 @@ return new class extends Migration
         Schema::create('banners', function (Blueprint $table) {
             $table->id();
             $table->foreignId('scd_year_id')->constrained()->cascadeOnDelete();
-            $table->integer('sequence')->unique(); // ลำดับ (ห้ามซ้ำ)
+            $table->integer('sequence'); // ลำดับ
             $table->string('image_path'); // รูปภาพ
             $table->string('link_type')->default('url'); // 'url' หรือ 'pdf'
             $table->string('link_url')->nullable(); // กรณีเป็นลิงค์
             $table->string('pdf_name')->nullable(); // ชื่อไฟล์ PDF
             $table->string('pdf_path')->nullable(); // path ไฟล์ PDF
             $table->timestamps();
+            
+            // แต่ละปีสามารถมี sequence เดียวกันได้ แต่ในปีเดียวกันห้าม sequence ซ้ำ
+            $table->unique(['scd_year_id', 'sequence']);
         });
     }
 

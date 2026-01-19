@@ -1,6 +1,8 @@
-<x-layouts.frontend>
-    <x-slot:title>ติดต่อเรา</x-slot:title>
+@extends('layouts.frontend')
 
+@section('title', 'ติดต่อเรา')
+
+@section('content')
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-bold text-gray-900 mb-6">ติดต่อเรา</h1>
@@ -51,4 +53,4 @@
             </div>
         </div>
     </div>
-</x-layouts.frontend>
+@endsection

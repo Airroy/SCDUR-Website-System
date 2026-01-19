@@ -7,10 +7,10 @@ use Livewire\Volt\Volt;
 
 Route::middleware('guest')->group(function () {
     // Register route - ปิดไว้เพื่อไม่ให้สมัครสมาชิกใหม่ได้
-    // Volt::route('register', 'pages.auth.register')
+    // Route::get('register', \App\Livewire\Auth\Register::class)
     //     ->name('register');
 
-    Volt::route('login', 'pages.auth.login')
+    Route::get('login', \App\Livewire\Auth\Login::class)
         ->name('login');
 
     Volt::route('forgot-password', 'pages.auth.forgot-password')

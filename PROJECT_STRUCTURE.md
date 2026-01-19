@@ -1,800 +1,967 @@
-# โครงสร้างโปรเจกต์และฟังก์ชันแต่ละไฟล์
+# โครงสร้างโปรเจกต์ SCD - คู่มือสำหรับนักพัฒนา
 
-> **📌 อัปเดตล่าสุด:** 14 มกราคม 2026  
-> **โครงสร้าง:** Laravel 12 Standard - แบ่งโซน Frontend/Backend ชัดเจน
+> **อัปเดตล่าสุด:** 19 มกราคม 2026  
+> **Laravel Version:** 11.x  
+> **Architecture:** MVC + Livewire Components
 
-## 📁 Root Directory Files
+---
 
-### ไฟล์ Configuration
-```
-.env                    # ตั้งค่า environment (ห้าม push)
-.env.example           # Template สำหรับเพื่อน
-.gitignore             # ไฟล์ที่ไม่ต้อง push
-.gitattributes         # Git attributes
-.editorconfig          # Editor configuration
-```
+## 📁 โครงสร้างหลัก
 
-### ไฟล์ Laravel
 ```
-artisan                # Laravel CLI command tool
-composer.json          # PHP dependencies
-composer.lock          # Lock PHP versions
-phpunit.xml            # Testing configuration
-```
-
-### ไฟล์ Frontend
-```
-package.json           # NPM dependencies
-package-lock.json      # Lock NPM versions
-vite.config.js         # Vite bundler config
-tailwind.config.js     # Tailwind CSS config
-postcss.config.js      # PostCSS config
-```
-
-### Docker
-```
-compose.yaml           # Docker Compose configuration (Sail)
-```
-
-### เอกสาร
-```
-README.md              # Project overview
-SETUP.md               # คู่มือติดตั้งสำหรับเพื่อน
-PROJECT_STRUCTURE.md   # เอกสารนี้
+scd-project/
+├── app/                    # Application Logic
+├── bootstrap/              # Framework Bootstrap
+├── config/                 # Configuration Files
+├── database/               # Migrations & Seeders
+├── public/                 # Public Assets & Entry Point
+├── resources/              # Views, CSS, JS
+├── routes/                 # Route Definitions
+├── storage/                # File Storage & Logs
+├── tests/                  # Automated Tests
+└── vendor/                 # Composer Dependencies (gitignored)
 ```
 
 ---
 
-## 📂 app/ - Application Logic (212KB)
+## 📂 App Directory (Application Logic)
 
 ### app/Console/Commands/
+**คำสั่ง Artisan ที่สร้างเอง**
+
 ```
-CreateAdminUser.php    # คำสั่งสร้าง admin user
-                       ฟังก์ชัน: php artisan admin:create
+CreateAdminUser.php
+  Command: php artisan admin:create
+  ฟังก์ชัน: สร้าง admin user ใหม่ผ่าน CLI
+  - รับ input: name, email, password
+  - Validate ข้อมูล
+  - Hash password
+  - สร้าง user พร้อม email_verified_at
 ```
+
+---
 
 ### app/Http/Controllers/
 
-#### Auth/
-```
-VerifyEmailController.php
-  ฟังก์ชัน: ยืนยัน email address ของผู้ใช้
-```
-
 #### Backend/
+**Controllers สำหรับหลังบ้าน (Admin Panel)**
+
 ```
-ScdYearController.php
-  ฟังก์ชัน: จัดการปี SCD ในหลังบ้าน
-  - index()     : แสดงรายการปีทั้งหมด
-  - create()    : แสดงฟอร์มสร้างปีใหม่
-  - store()     : บันทึกปีใหม่
-  - edit()      : แสดงฟอร์มแก้ไขปี
-  - update()    : อัพเดทข้อมูลปี
-  - destroy()   : ลบปี
+YearsController.php
+  Route: /admin/years
+  ฟังก์ชัน: จัดการหน้าแสดงรายการปี SCD
+  - index()  : แสดงรายการปี SCD ทั้งหมด
+
+ReportsController.php
+  Route: /admin/years/{year}/reports
+  ฟังก์ชัน: จัดการหน้ารายงาน SCD
+  - index() : แสดงหน้าจัดการรายงาน
+
+BannersController.php
+  Route: /admin/years/{year}/banners
+  ฟังก์ชัน: จัดการหน้า Banner Slider
+  - index() : แสดงหน้าจัดการ banner
+
+ContentsController.php
+  Route: /admin/years/{year}/contents
+  ฟังก์ชัน: จัดการหน้า Content Sections
+  - index() : แสดงหน้าจัดการ content
+
+AnnouncementsController.php
+  Route: /admin/years/{year}/announcements
+  ฟังก์ชัน: จัดการหน้าประกาศ/คำสั่ง
+  - index() : แสดงหน้าจัดการประกาศ
 ```
 
 #### Frontend/
+**Controllers สำหรับหน้าบ้าน**
+
 ```
+HomeController.php
+  Route: GET /
+  ฟังก์ชัน: หน้าแรกของเว็บไซต์
+  - index($year = null)
+    * โหลดปีล่าสุด หรือปีที่เลือก
+    * โหลด banners สำหรับ slider
+    * โหลด content sections
+    * ส่งข้อมูลไปยัง view
+
 FrontendController.php
-  ฟังก์ชัน: จัดการหน้าบ้าน
+  ฟังก์ชัน: หน้าต่างๆ ของเว็บไซต์
   - about()         : หน้าเกี่ยวกับหน่วยงาน
   - contact()       : หน้าติดต่อเรา
   - announcements() : หน้าประกาศ/คำสั่งตามปี
-
-HomeController.php
-  ฟังก์ชัน: หน้าแรกของเว็บไซต์
-  - index()  : แสดงหน้า home พร้อม banner, content sections
-               รองรับการเลือกดูข้อมูลตามปี
 ```
 
-#### Base/
+#### Auth/
+**Controllers สำหรับ Authentication**
+
 ```
-Controller.php
-  ฟังก์ชัน: Base controller สำหรับ controllers อื่นๆ
-```
-
-### app/Http/Requests/Backend/
-```
-StoreScdYearRequest.php
-  ฟังก์ชัน: Validate ข้อมูลเมื่อสร้างปี SCD ใหม่
-  - rules()    : กำหนด validation rules
-  - messages() : ข้อความ error แบบกำหนดเอง
-
-UpdateScdYearRequest.php
-  ฟังก์ชัน: Validate ข้อมูลเมื่ออัพเดทปี SCD
-  - rules()    : กำหนด validation rules
-  - messages() : ข้อความ error แบบกำหนดเอง
-```
-
-### app/Livewire/
-
-#### Backend/ (ระบบจัดการหลังบ้าน)
-```
-ScdYearManager.php
-  ฟังก์ชัน: จัดการปี SCD (CRUD)
-  - mount()         : โหลดข้อมูลเริ่มต้น
-  - create()        : เปิด modal สร้างปี
-  - store()         : บันทึกปีใหม่
-  - edit()          : เปิด modal แก้ไข
-  - update()        : อัพเดทข้อมูล
-  - delete()        : ลบปี
-  - togglePublish() : เปิด/ปิดการเผยแพร่
-
-BannerManager.php
-  ฟังก์ชัน: จัดการ Banner สไลด์
-  - mount()         : โหลด banners ตามปี
-  - store()         : เพิ่ม banner ใหม่ (พร้อมอัพโหลดรูป)
-  - update()        : แก้ไข banner
-  - delete()        : ลบ banner
-  - reorder()       : จัดลำดับการแสดง
-
-ContentSectionManager.php
-  ฟังก์ชัน: จัดการ Content Sections (boxes หน้าแรก)
-  - mount()         : โหลด sections ตามปี
-  - store()         : เพิ่ม section ใหม่
-  - update()        : แก้ไข section
-  - delete()        : ลบ section
-  - uploadImage()   : อัพโหลดรูปภาพ
-
-ScdReportManager.php
-  ฟังก์ชัน: จัดการไฟล์รายงาน SCD (PDF)
-  - mount()         : โหลดรายงานตามปี
-  - upload()        : อัพโหลดไฟล์ PDF
-  - delete()        : ลบไฟล์รายงาน
-  - download()      : ดาวน์โหลดไฟล์
-
-AnnouncementManager.php
-  ฟังก์ชัน: จัดการประกาศ/คำสั่ง
-  - mount()         : โหลดประกาศตามปี
-  - store()         : เพิ่มประกาศใหม่
-  - update()        : แก้ไขประกาศ
-  - delete()        : ลบประกาศ
-  - uploadFile()    : อัพโหลดไฟล์แนบ
-```
-
-#### Frontend/ (หน้าบ้าน)
-```
-BannerSlider.php
-  ฟังก์ชัน: แสดง Banner สไลด์หน้าแรก
-  - mount()         : โหลด banners ที่เผยแพร่
-  - render()        : แสดงผล slider
-```
-
-#### Forms/
-```
-LoginForm.php
-  ฟังก์ชัน: ฟอร์มเข้าสู่ระบบ
-  - authenticate()  : ตรวจสอบ login
-  - rules()         : validation rules
-```
-
-#### Actions/
-```
-Logout.php
-  ฟังก์ชัน: ออกจากระบบ
-  - __invoke()      : ทำการ logout
-```
-
-### app/Models/
-```
-User.php
-  ฟังก์ชัน: ข้อมูลผู้ใช้งาน (Admin)
-  - Relations: ไม่มี
-  - Attributes: name, email, password
-
-ScdYear.php
-  ฟังก์ชัน: ข้อมูลปี SCD
-  - Relations:
-    * hasMany(Banner)         : มี banners หลายอัน
-    * hasMany(ContentNode)    : มี content sections หลายอัน
-    * hasOne(ScdReport)       : มีรายงาน 1 ไฟล์
-  - Attributes: year, is_published
-  - Scopes:
-    * scopePublished()        : เอาเฉพาะที่เผยแพร่
-
-Banner.php
-  ฟังก์ชัน: Banner สไลด์
-  - Relations:
-    * belongsTo(ScdYear)      : อยู่ในปีใดปีหนึ่ง
-  - Attributes: title, image_path, link_url, order
-
-ContentNode.php
-  ฟังก์ชัน: Content Section (boxes หน้าแรก)
-  - Relations:
-    * belongsTo(ScdYear)      : อยู่ในปีใดปีหนึ่ง
-    * hasMany(self)           : มี children nodes (ถ้าเป็น tree structure)
-  - Attributes: name, image_path, content, order
-
-ScdReport.php
-  ฟังก์ชัน: รายงาน SCD (PDF)
-  - Relations:
-    * belongsTo(ScdYear)      : อยู่ในปีใดปีหนึ่ง
-  - Attributes: title, file_path, file_size
-```
-
-### app/Services/
-```
-BannerService.php
-  ฟังก์ชัน: Business logic สำหรับ Banner
-  - store()         : สร้าง banner พร้อมอัพโหลดรูป
-  - update()        : อัพเดท banner
-  - delete()        : ลบ banner (และไฟล์รูป)
-  - reorder()       : จัดลำดับ
-
-ContentNodeService.php
-  ฟังก์ชัน: Business logic สำหรับ Content Sections
-  - store()         : สร้าง content section
-  - update()        : อัพเดท section
-  - delete()        : ลบ section (และไฟล์รูป)
-
-FileUploadService.php
-  ฟังก์ชัน: จัดการการอัพโหลดไฟล์
-  - uploadImage()   : อัพโหลดรูปภาพ (resize, optimize)
-  - uploadPdf()     : อัพโหลดไฟล์ PDF
-  - deleteFile()    : ลบไฟล์
-  - getFileSize()   : คำนวณขนาดไฟล์
-```
-
-### app/Providers/
-```
-AppServiceProvider.php
-  ฟังก์ชัน: Service provider หลัก
-  - register()      : Register services
-  - boot()          : Bootstrap application
-
-VoltServiceProvider.php
-  ฟังก์ชัน: Livewire Volt provider
-  - boot()          : กำหนด Volt paths
-```
-
-### app/View/Components/
-```
-AppLayout.php
-  ฟังก์ชัน: Layout component สำหรับหน้า admin
-  - render()        : แสดง layout
-
-GuestLayout.php
-  ฟังก์ชัน: Layout component สำหรับหน้า guest (login)
-  - render()        : แสดง layout
+VerifyEmailController.php
+  ฟังก์ชัน: ยืนยันอีเมลผู้ใช้
+  - __invoke() : ตรวจสอบและยืนยันอีเมล
 ```
 
 ---
 
-## 📂 resources/ - Views & Assets (552KB)
+### app/Livewire/
 
-> **โครงสร้าง Laravel 12 Standard:**
-> - `layouts/` - Layouts หลัก (guest, app, admin) อยู่ในตำแหน่งมาตรฐาน
-> - `components/` - Blade components แยกตาม zone (frontend/backend)
-> - `admin/` - View สำหรับหลังบ้าน ใช้ @extends('layouts.admin')
-> - `frontend/` - View สำหรับหน้าบ้าน ใช้ x-layouts.frontend
-> - `auth/` - View สำหรับ authentication ใช้ layout จาก layouts/
+#### Backend/
+**Livewire Components สำหรับ Admin Panel**
 
-### resources/views/layouts/
 ```
+YearsIndex.php
+  View: livewire.backend.years-index
+  ฟังก์ชัน: จัดการปี SCD (CRUD)
+  Methods:
+    - mount()         : โหลดข้อมูลเริ่มต้น
+    - openCreateModal() : เปิด modal สร้างปีใหม่
+    - store()         : บันทึกปีใหม่
+    - openEditModal() : เปิด modal แก้ไข
+    - update()        : อัปเดตข้อมูลปี
+    - confirmDelete() : ยืนยันการลบ
+    - delete()        : ลบปี
+    - togglePublish() : เปิด/ปิดการเผยแพร่
+
+ReportsIndex.php
+  View: livewire.backend.reports-index
+  ฟังก์ชัน: จัดการรายงาน SCD (PDF)
+  Methods:
+    - mount($year)    : โหลดรายงานตามปี
+    - openCreateModal() : เปิด modal อัปโหลดรายงาน
+    - store()         : อัปโหลดไฟล์ PDF
+    - confirmDelete() : ยืนยันการลบ
+    - delete()        : ลบรายงาน
+  Validation:
+    - PDF only, max 10MB
+
+BannersIndex.php
+  View: livewire.backend.banners-index
+  ฟังก์ชัน: จัดการ Banner Slider
+  Methods:
+    - mount($year)    : โหลด banners ตามปี
+    - openCreateModal() : เปิด modal สร้าง banner
+    - store()         : บันทึก banner (อัปโหลดรูป)
+    - openEditModal() : เปิด modal แก้ไข
+    - update()        : อัปเดต banner
+    - confirmDelete() : ยืนยันการลบ
+    - delete()        : ลบ banner
+    - updateOrder()   : จัดลำดับการแสดง
+  Validation:
+    - JPG, PNG only, max 5MB
+    - Resize รูปภาพอัตโนมัติ
+
+ContentsIndex.php
+  View: livewire.backend.contents-index
+  ฟังก์ชัน: จัดการ Content Sections
+  Methods:
+    - mount($year)    : โหลด contents ตามปี
+    - openCreateModal() : เปิด modal สร้าง content
+    - store()         : บันทึก content (อัปโหลดรูป)
+    - openEditModal() : เปิด modal แก้ไข
+    - update()        : อัปเดต content
+    - confirmDelete() : ยืนยันการลบ
+    - delete()        : ลบ content
+  Features:
+    - Support หมวดหมู่ (โฟลเดอร์)
+    - Upload รูปภาพ
+
+AnnouncementsIndex.php
+  View: livewire.backend.announcements-index
+  ฟังก์ชัน: จัดการประกาศ/คำสั่ง
+  Methods:
+    - mount($year)    : โหลดประกาศตามปี
+    - openCreateModal() : เปิด modal สร้างประกาศ
+    - store()         : บันทึกประกาศ (อัปโหลดไฟล์)
+    - openEditModal() : เปิด modal แก้ไข
+    - update()        : อัปเดตประกาศ
+    - confirmDelete() : ยืนยันการลบ
+    - delete()        : ลบประกาศ
+  Features:
+    - แยกหมวด: ประกาศ, คำสั่ง
+    - อัปโหลดไฟล์แนบ (PDF)
+```
+
+#### Frontend/
+**Livewire Components สำหรับหน้าบ้าน**
+
+```
+BannerSlider.php
+  View: livewire.frontend.banner-slider
+  ฟังก์ชัน: แสดง Banner Slider หน้าแรก
+  Methods:
+    - mount($year)    : โหลด banners ที่เผยแพร่
+    - render()        : แสดงผล slider
+  Features:
+    - Auto-slide (ถ้ามี JS)
+    - Responsive images
+```
+
+#### Profile/
+**Livewire Components สำหรับจัดการโปรไฟล์**
+
+```
+UpdateProfileInformation.php
+  View: livewire.profile.update-profile-information
+  ฟังก์ชัน: แก้ไขข้อมูลส่วนตัว
+  Methods:
+    - mount()                       : โหลดข้อมูล user
+    - updateProfileInformation()    : อัปเดตชื่อและอีเมล
+    - sendVerification()            : ส่ง email verification
+  Validation:
+    - ชื่อต้องไม่ว่าง
+    - อีเมลต้อง unique
+
+UpdatePassword.php
+  View: livewire.profile.update-password
+  ฟังก์ชัน: เปลี่ยนรหัสผ่าน
+  Methods:
+    - updatePassword() : ตรวจสอบรหัสเดิมและบันทึกรหัสใหม่
+  Validation:
+    - รหัสเดิมต้องถูกต้อง
+    - รหัสใหม่ต้องยืนยันซ้ำ
+    - รหัสใหม่ขั้นต่ำ 8 ตัวอักษร
+
+DeleteUser.php
+  View: livewire.profile.delete-user
+  ฟังก์ชัน: ลบบัญชีผู้ใช้
+  Methods:
+    - confirmUserDeletion() : เปิด modal ยืนยัน
+    - deleteUser()          : ลบบัญชีพร้อม logout
+  Security:
+    - ต้องใส่รหัสผ่านยืนยัน
+    - Logout อัตโนมัติ
+```
+
+#### Auth/
+**Livewire Components สำหรับ Authentication**
+
+```
+Login.php
+  View: livewire.auth.login
+  ฟังก์ชัน: ฟอร์มเข้าสู่ระบบ
+  Methods:
+    - login() : ตรวจสอบ email + password และ login
+  Features:
+    - Remember me
+    - Throttle login attempts
+```
+
+#### Actions/
+**Livewire Actions**
+
+```
+Logout.php
+  ฟังก์ชัน: ออกจากระบบ
+  - __invoke() : Logout และ redirect ไป /
+```
+
+---
+
+### app/Models/
+
+```
+User.php
+  Table: users
+  ฟังก์ชัน: ผู้ใช้งาน (Admin)
+  Columns:
+    - id, name, email, password
+    - email_verified_at
+    - remember_token
+    - timestamps
+  Relations: ไม่มี
+  Features:
+    - Eloquent User Authentication
+    - Email verification
+
+ScdYear.php
+  Table: scd_years
+  ฟังก์ชัน: ข้อมูลปี SCD
+  Columns:
+    - id, year (unique)
+    - is_published (boolean)
+    - timestamps
+  Relations:
+    - hasMany(Banner)       : banners
+    - hasMany(ContentNode)  : content_nodes
+    - hasOne(ScdReport)     : scd_report
+    - hasMany(Announcement) : announcements
+  Scopes:
+    - scopePublished()      : เฉพาะปีที่เผยแพร่
+
+Banner.php
+  Table: banners
+  ฟังก์ชัน: Banner Slider หน้าแรก
+  Columns:
+    - id, scd_year_id
+    - title, image_path, link_url
+    - order (ลำดับการแสดง)
+    - timestamps
+  Relations:
+    - belongsTo(ScdYear)
+  Features:
+    - Sortable by order
+
+ContentNode.php
+  Table: content_nodes
+  ฟังก์ชัน: Content Sections หน้าแรก
+  Columns:
+    - id, scd_year_id, parent_id
+    - type (โฟลเดอร์/ไฟล์)
+    - name, image_path, content
+    - order
+    - timestamps
+  Relations:
+    - belongsTo(ScdYear)
+    - hasMany(self) as children : สำหรับโครงสร้าง tree
+    - belongsTo(self) as parent
+  Features:
+    - Hierarchical structure (tree)
+    - Support หมวดหมู่
+
+ScdReport.php
+  Table: scd_reports
+  ฟังก์ชัน: ไฟล์รายงาน SCD (PDF)
+  Columns:
+    - id, scd_year_id (unique)
+    - title, file_path
+    - file_size
+    - timestamps
+  Relations:
+    - belongsTo(ScdYear)
+  Features:
+    - One report per year
+
+Announcement.php
+  Table: announcements
+  ฟังก์ชัน: ประกาศและคำสั่ง
+  Columns:
+    - id, scd_year_id
+    - category (ประกาศ/คำสั่ง)
+    - title, description
+    - file_path
+    - announced_at (วันที่ประกาศ)
+    - timestamps
+  Relations:
+    - belongsTo(ScdYear)
+  Features:
+    - แยกหมวดหมู่
+    - แนบไฟล์ได้
+```
+
+---
+
+### app/Services/
+
+```
+FileUploadService.php
+  ฟังก์ชัน: จัดการการอัปโหลดไฟล์
+  Methods:
+    - uploadImage($file, $path)
+      * Validate image (jpg, png)
+      * Resize ถ้าใหญ่เกินไป
+      * บันทึกใน storage/app/public/{$path}
+      * Return file path
+    
+    - uploadPdf($file, $path)
+      * Validate PDF
+      * จำกัดขนาด
+      * บันทึกใน storage
+      * Return file path
+    
+    - deleteFile($path)
+      * ลบไฟล์จาก storage
+      * Return boolean
+    
+    - getFileSize($path)
+      * คำนวณขนาดไฟล์
+      * Return size in KB/MB
+```
+
+---
+
+### app/Providers/
+
+```
+AppServiceProvider.php
+  ฟังก์ชัน: Service Provider หลัก
+  - register() : Register services
+  - boot()     : Bootstrap services
+
+VoltServiceProvider.php
+  ฟังก์ชัน: Livewire Volt Provider
+  - boot() : Mount Volt directories
+    * resources/views/pages
+    * resources/views/livewire
+```
+
+---
+
+## 📂 Database Directory
+
+### database/migrations/
+
+```
+0001_01_01_000000_create_users_table.php
+  สร้างตาราง: users, password_reset_tokens, sessions
+
+0001_01_01_000001_create_cache_table.php
+  สร้างตาราง: cache, cache_locks
+
+0001_01_01_000002_create_jobs_table.php
+  สร้างตาราง: jobs, job_batches, failed_jobs
+
+2026_01_08_050543_create_scd_years_table.php
+  สร้างตาราง: scd_years
+  - ปี SCD พร้อมสถานะการเผยแพร่
+
+2026_01_08_050547_create_scd_reports_table.php
+  สร้างตาราง: scd_reports
+  - ไฟล์รายงาน PDF แต่ละปี
+
+2026_01_08_050551_create_banners_table.php
+  สร้างตาราง: banners
+  - Banner slider พร้อมลำดับการแสดง
+
+2026_01_08_050556_create_content_nodes_table.php
+  สร้างตาราง: content_nodes
+  - Content sections แบบ tree structure
+
+2026_01_15_create_announcements_table.php
+  สร้างตาราง: announcements
+  - ประกาศและคำสั่ง
+```
+
+### database/seeders/
+
+```
+DatabaseSeeder.php
+  ฟังก์ชัน: Main seeder
+  - run() : เรียก seeders อื่นๆ (ถ้ามี)
+```
+
+### database/factories/
+
+```
+UserFactory.php
+  ฟังก์ชัน: สร้างข้อมูล User สำหรับ testing
+  - definition() : กำหนดข้อมูล fake
+```
+
+---
+
+## 📂 Resources Directory
+
+### resources/views/
+
+#### layouts/
+**Layout Templates หลัก**
+
+```
+admin.blade.php
+  ฟังก์ชัน: Layout สำหรับหลังบ้าน (Admin)
+  ใช้โดย: @extends('layouts.admin')
+  Structure:
+    - Sidebar navigation
+    - Header with user dropdown
+    - Content area (@yield('content'))
+    - Notification system
+  Features:
+    - Responsive sidebar
+    - User profile dropdown (3 dots)
+    - Logout functionality
+
 guest.blade.php
   ฟังก์ชัน: Layout สำหรับหน้า authentication
-  - ใช้กับ Login, Register, Forgot Password
-  - Simple centered layout
-  - Breeze default design
+  ใช้กับ: Login, Register, Forgot Password
+  Structure:
+    - Centered card layout
+    - Application logo
+    - Simple design
 
-app.blade.php
-  ฟังก์ชัน: Layout สำหรับ authenticated users
-  - ใช้กับ Dashboard, Profile
-  - มี navigation bar
-  - Breeze default design
-
-admin.blade.php
-  ฟังก์ชัน: Layout หลักสำหรับหลังบ้าน (Backend)
-  - Sidebar navigation
-  - Header with user menu
-  - Content area สำหรับ admin pages
-  - ใช้โดย: @extends('layouts.admin')
+frontend.blade.php
+  ฟังก์ชัน: Layout สำหรับหน้าบ้าน
+  ใช้โดย: @extends('layouts.frontend')
+  Structure:
+    - <x-frontend.header> (banner + navigation)
+    - @yield('content')
+    - <x-frontend.footer>
+  Features:
+    - SEO-friendly structure
+    - @yield('title') for page titles
 ```
 
-### resources/views/admin/
+#### admin/pages/
+**หน้าต่างๆ ของ Admin Panel**
 
-#### pages/
 ```
 dashboard.blade.php
-  ฟังก์ชัน: หน้า Dashboard แสดงสถิติ
+  Route: /admin/dashboard
+  ฟังก์ชัน: Dashboard หน้าหลัก
+  - แสดงสถิติภาพรวม
   - @extends('layouts.admin')
 
 profile.blade.php
-  ฟังก์ชัน: หน้าจัดการโปรไฟล์ admin
-  - @extends('layouts.admin')
+  Route: /admin/profile
+  ฟังก์ชัน: หน้าจัดการโปรไฟล์
+  - @livewire('profile.update-profile-information')
+  - @livewire('profile.update-password')
+  - @livewire('profile.delete-user')
 
-scd-years/index.blade.php
-  ฟังก์ชัน: รายการปี SCD ทั้งหมด
-  - @extends('layouts.admin')
+years/
+  index.blade.php
+    Route: /admin/years
+    ฟังก์ชัน: รายการปี SCD
+    - @livewire('backend.years-index')
+  
+  reports.blade.php
+    Route: /admin/years/{year}/reports
+    ฟังก์ชัน: จัดการรายงาน
+    - @livewire('backend.reports-index')
+  
+  banners.blade.php
+    Route: /admin/years/{year}/banners
+    ฟังก์ชัน: จัดการ banner
+    - @livewire('backend.banners-index')
+  
+  contents.blade.php
+    Route: /admin/years/{year}/contents
+    ฟังก์ชัน: จัดการ content
+    - @livewire('backend.contents-index')
+  
+  announcements.blade.php
+    Route: /admin/years/{year}/announcements
+    ฟังก์ชัน: จัดการประกาศ
+    - @livewire('backend.announcements-index')
+```
 
-scd-years/manage.blade.php
-  ฟังก์ชัน: จัดการข้อมูลปี SCD
-  - @extends('layouts.admin')
+#### frontend/pages/
+**หน้าต่างๆ ของเว็บไซต์**
 
-scd-years/banners.blade.php
-  ฟังก์ชัน: จัดการ Banners ของปีนั้นๆ
-  - @extends('layouts.admin')
+```
+home.blade.php
+  Route: /
+  ฟังก์ชัน: หน้าแรก
+  - @extends('layouts.frontend')
+  - @livewire('frontend.banner-slider')
+  - แสดง content sections (grid 4 boxes)
+  - รองรับการเลือกดูตามปี
 
-scd-years/contents.blade.php
-  ฟังก์ชัน: จัดการ Content Sections
-  - @extends('layouts.admin')
+about.blade.php
+  Route: /about
+  ฟังก์ชัน: เกี่ยวกับหน่วยงาน
+  - @extends('layouts.frontend')
+  - แสดงข้อมูลหน่วยงาน (hard-coded)
 
-scd-years/reports.blade.php
-  ฟังก์ชัน: จัดการไฟล์รายงาน
-  - @extends('layouts.admin')
+contact.blade.php
+  Route: /contact
+  ฟังก์ชัน: ติดต่อเรา
+  - @extends('layouts.frontend')
+  - แสดงที่อยู่ เบอร์โทร
+  - Google Maps (ถ้ามี)
 
-scd-years/announcements.blade.php
-  ฟังก์ชัน: จัดการประกาศ/คำสั่ง
-  - @extends('layouts.admin')
-
-scd-years/announcement-category.blade.php
-  ฟังก์ชัน: จัดการหมวดหมู่ประกาศ
-  - @extends('layouts.admin')
+announcements.blade.php
+  Route: /announcements/{year}
+  ฟังก์ชัน: หน้าประกาศ/คำสั่งตามปี
+  - @extends('layouts.frontend')
+  - ตาราง 2 หมวด: ประกาศ, คำสั่ง
+  - ดาวน์โหลดไฟล์แนบ
 ```
 
 #### components/
+
+##### backend/
+**Components สำหรับ Admin**
+
 ```
-year-card.blade.php          # Card แสดงปี SCD
-year-stats.blade.php         # สถิติของปี
-feature-card.blade.php       # Card สำหรับฟีเจอร์
-card-item.blade.php          # Card item ทั่วไป
-card-add.blade.php           # Card เพิ่มรายการใหม่
-form-input.blade.php         # Input field
-form-toggle.blade.php        # Toggle switch
-modal.blade.php              # Modal dialog
-confirm-modal.blade.php      # Confirm dialog
-alert.blade.php              # Alert message
-notification.blade.php       # Notification
-```
+year-tabs.blade.php
+  ฟังก์ชัน: แถบเลือกเมนูในแต่ละปี
+  - รายงาน, Banner, ประกาศ, เนื้อหา
+  - Responsive (mobile-friendly)
+  - Active state highlighting
 
-### resources/views/frontend/
+modal.blade.php
+  ฟังก์ชัน: Modal dialog สำหรับ CRUD
+  - รับ props: id, title, maxWidth
+  - Alpine.js สำหรับ open/close
 
-#### pages/
-```
-home.blade.php
-  ฟังก์ชัน: หน้าแรกของเว็บไซต์
-  - แสดง Banner slider
-  - แสดงแถบ ARU-SCD [ปี]
-  - แสดง Content Sections (Grid 4 boxes)
-
-about.blade.php
-  ฟังก์ชัน: หน้าเกี่ยวกับหน่วยงาน
-  - แสดงข้อมูลหน่วยงาน (hard-code ในโค้ด)
-
-contact.blade.php
-  ฟังก์ชัน: หน้าติดต่อเรา
-  - แสดง Google Maps
-  - ที่อยู่ เบอร์โทร
-  - ฟอร์มติดต่อ (ถ้ามี)
-
-announcements.blade.php
-  ฟังก์ชัน: หน้าแสดงประกาศ/คำสั่งตามปี
-  - แสดงตาราง 2 หมวด: ประกาศ, คำสั่ง
-  - สามารถดาวน์โหลดไฟล์แนบได้
-
-welcome.blade.php
-  ฟังก์ชัน: หน้า welcome (Laravel default)
+modal-form.blade.php
+  ฟังก์ชัน: Modal พร้อมฟอร์ม
+  - ปุ่ม Save/Cancel
+  - Loading states
 ```
 
-### resources/views/components/
+##### frontend/
+**Components สำหรับหน้าบ้าน**
 
-> **Component Organization:**
-> - `layouts/frontend.blade.php` - Main frontend layout wrapper
-> - `frontend/` - Frontend components (navigation, header, footer)
-> - Components ใช้ผ่าน `<x-...>` syntax
-
-#### layouts/
-```
-frontend.blade.php
-  ฟังก์ชัน: Layout หลักสำหรับหน้าบ้าน
-  - โหลด assets (CSS, JS)
-  - แสดง Header
-  - แสดง Main content
-  - แสดง Footer
-  - Livewire scripts
-```
-
-#### frontend/
 ```
 header.blade.php
-  ฟังก์ชัน: Header ของเว็บไซต์ (refactored)
-  - Header banner image เดียว (single image)
+  ฟังก์ชัน: Header พร้อม banner image
+  - Banner image เดียว (single image)
   - Include navigation component
-  - ไม่มี top bar แล้ว (removed)
 
 navigation.blade.php
-  ฟังก์ชัน: Navbar สีแดงเข้ม (sticky single bar)
+  ฟังก์ชัน: Navbar หลัก (sticky)
   - หน้าหลัก
   - เกี่ยวกับหน่วยงาน
   - SCD Ranking (dropdown)
   - รายงานผล SCD (dropdown)
   - ประกาศ/คำสั่ง (dropdown)
   - ติดต่อเรา
-  - Mobile responsive
-  - Hover effects (bg-red-800)
+  Features:
+    - Sticky top
+    - Mobile hamburger menu
+    - Hover effects
 
 footer.blade.php
-  ฟังก์ชัน: Footer 2 ส่วน
-  - Footer 1: แนะนำหน่วยงาน, เอกสาร, ติดต่อเรา
+  ฟังก์ชัน: Footer 2 sections
+  - Footer 1: แนะนำหน่วยงาน, เอกสาร, ติดต่อ
   - Footer 2: Copyright
 
 dropdown.blade.php
   ฟังก์ชัน: Dropdown menu component
+  - Alpine.js based
+  - Responsive
 
-dropdown-item.blade.php
-  ฟังก์ชัน: Dropdown menu item
-
-nav-link.blade.php
-  ฟังก์ชัน: Navigation link component
-
-button.blade.php
-  ฟังก์ชัน: Button component
-
-card.blade.php
-  ฟังก์ชัน: Card component
-
-section.blade.php
-  ฟังก์ชัน: Section wrapper component
+Other components:
+  - button.blade.php       : Button styles
+  - card.blade.php         : Card wrapper
+  - section.blade.php      : Section wrapper
+  - nav-link.blade.php     : Navigation link
+  - dropdown-item.blade.php: Dropdown item
 ```
 
-#### อื่นๆ
+##### Shared Components
+**Components ที่ใช้ร่วมกัน**
+
 ```
-application-logo.blade.php   # Logo component
-modal.blade.php              # Modal component
-auth-session-status.blade.php # Auth status message
-input-error.blade.php        # Error message
-input-label.blade.php        # Input label
-text-input.blade.php         # Text input
-primary-button.blade.php     # Primary button
-secondary-button.blade.php   # Secondary button
-danger-button.blade.php      # Danger button
-dropdown.blade.php           # Dropdown (general)
-dropdown-link.blade.php      # Dropdown link
-nav-link.blade.php           # Nav link
-responsive-nav-link.blade.php # Responsive nav link
-action-message.blade.php     # Action message
+application-logo.blade.php
+  ฟังก์ชัน: Logo ของแอพพลิเคชัน
+
+auth-session-status.blade.php
+  ฟังก์ชัน: แสดงสถานะ session (success/error)
+  - ใช้ใน login, password reset
+
+input-error.blade.php
+  ฟังก์ชัน: แสดง validation error
+  - รับ $messages array
+
+input-label.blade.php
+  ฟังก์ชัน: Label สำหรับ input field
+
+text-input.blade.php
+  ฟังก์ชัน: Text input field พร้อม styling
+
+primary-button.blade.php
+  ฟังก์ชัน: ปุ่มหลัก (primary button)
+
+notification.blade.php
+  ฟังก์ชัน: แสดงการแจ้งเตือน
+  - Success/Error notifications
+  - Alpine.js auto-hide
 ```
 
-### resources/views/livewire/
+#### livewire/
+**Blade views สำหรับ Livewire Components**
 
-#### backend/
 ```
-scd-year-manager.blade.php           # UI สำหรับจัดการปี
-banner-manager.blade.php             # UI สำหรับจัดการ banner
-content-section-manager.blade.php    # UI สำหรับจัดการ content
-scd-report-manager.blade.php         # UI สำหรับจัดการรายงาน
-announcement-manager.blade.php       # UI สำหรับจัดการประกาศ
-```
+backend/
+  years-index.blade.php
+  reports-index.blade.php
+  banners-index.blade.php
+  contents-index.blade.php
+  announcements-index.blade.php
+  partials/
+    year-tabs.blade.php        # แถบเมนู
+    years-table.blade.php      # ตารางปี
+    reports-table.blade.php    # ตารางรายงาน
+    banners-table.blade.php    # ตารางแบนเนอร์
+    contents-table.blade.php   # ตารางเนื้อหา
+    announcements-table.blade.php # ตารางประกาศ
 
-#### frontend/
-```
-banner-slider.blade.php              # UI แสดง banner slider
-```
+frontend/
+  banner-slider.blade.php      # Banner slider
 
-#### pages/auth/
-```
-login.blade.php             # หน้า login
-register.blade.php          # หน้าลงทะเบียน
-forgot-password.blade.php   # หน้าลืมรหัสผ่าน
-reset-password.blade.php    # หน้ารีเซ็ตรหัสผ่าน
-verify-email.blade.php      # หน้ายืนยัน email
-confirm-password.blade.php  # หน้ายืนยันรหัสผ่าน
-```
+profile/
+  update-profile-information.blade.php
+  update-password.blade.php
+  delete-user.blade.php
 
-#### profile/
-```
-update-profile-information-form.blade.php  # ฟอร์มแก้ไขข้อมูล
-update-password-form.blade.php             # ฟอร์มเปลี่ยนรหัสผ่าน
-delete-user-form.blade.php                 # ฟอร์มลบบัญชี
+auth/
+  login.blade.php             # หน้า login (Livewire)
+
+pages/auth/ (Volt Components)
+  forgot-password.blade.php
+  reset-password.blade.php
+  verify-email.blade.php
+  confirm-password.blade.php
 ```
 
 ### resources/css/
+
 ```
 app.css
-  ฟังก์ชัน: Tailwind CSS main file
-  - Import Tailwind directives
+  ฟังก์ชัน: Main CSS file
+  - @tailwind base
+  - @tailwind components
+  - @tailwind utilities
   - Custom styles
+  - Scrollbar hiding utilities
 ```
 
 ### resources/js/
+
 ```
 app.js
-  ฟังก์ชัน: Main JavaScript file
+  ฟังก์ชัน: Main JavaScript
   - Import Alpine.js
-  - Import other modules
+  - Import Livewire scripts
 
 bootstrap.js
   ฟังก์ชัน: Bootstrap configuration
-  - Import Axios
-  - CSRF token setup
+  - Axios setup
+  - CSRF token
 ```
 
 ---
 
-## 📂 database/ - Database (140KB)
-
-### database/migrations/
-```
-0001_01_01_000000_create_users_table.php
-  ฟังก์ชัน: สร้างตาราง users
-  - id, name, email, password, timestamps
-
-0001_01_01_000001_create_cache_table.php
-  ฟังก์ชัน: สร้างตาราง cache
-
-0001_01_01_000002_create_jobs_table.php
-  ฟังก์ชัน: สร้างตาราง jobs, job_batches, failed_jobs
-
-2026_01_08_050543_create_scd_years_table.php
-  ฟังก์ชัน: สร้างตาราง scd_years
-  - id, year, is_published, timestamps
-
-2026_01_08_050547_create_scd_reports_table.php
-  ฟังก์ชัน: สร้างตาราง scd_reports
-  - id, scd_year_id, title, file_path, file_size
-
-2026_01_08_050551_create_banners_table.php
-  ฟังก์ชัน: สร้างตาราง banners
-  - id, scd_year_id, title, image_path, link_url, order
-
-2026_01_08_050556_create_content_nodes_table.php
-  ฟังก์ชัน: สร้างตาราง content_nodes
-  - id, scd_year_id, parent_id, name, image_path, content, order
-```
-
-### database/seeders/
-```
-DatabaseSeeder.php
-  ฟังก์ชัน: Seeder หลัก
-  - run()  : เรียก seeders อื่นๆ
-```
-
-### database/factories/
-```
-UserFactory.php
-  ฟังก์ชัน: Factory สำหรับสร้าง User ทดสอบ
-  - definition()  : กำหนดข้อมูล fake
-```
-
----
-
-## 📂 routes/ - Routes (16KB)
+## 📂 Routes Directory
 
 ```
 web.php
-  ฟังก์ชัน: Routes สำหรับหน้าเว็บ
-  - หน้าบ้าน (Frontend):
-    * GET  /                      -> home
-    * GET  /about                 -> about
-    * GET  /contact               -> contact
-    * GET  /announcements/{year}  -> announcements
-  
-  - หลังบ้าน (Admin):
-    * GET  /admin/dashboard       -> dashboard
-    * GET  /admin/profile         -> profile
-    * RESOURCE /admin/scd-years   -> SCD year management
+  ฟังก์ชัน: Web routes
+
+  Frontend:
+    GET  /                      -> HomeController@index
+    GET  /about                 -> FrontendController@about
+    GET  /contact               -> FrontendController@contact
+    GET  /announcements/{year}  -> FrontendController@announcements
+
+  Admin (auth middleware):
+    GET  /admin/dashboard       -> dashboard view
+    GET  /admin/profile         -> profile view
+    GET  /admin/years           -> YearsController@index
+    GET  /admin/years/{year}/reports       -> ReportsController@index
+    GET  /admin/years/{year}/banners       -> BannersController@index
+    GET  /admin/years/{year}/contents      -> ContentsController@index
+    GET  /admin/years/{year}/announcements -> AnnouncementsController@index
 
 auth.php
-  ฟังก์ชัน: Routes สำหรับ authentication
-  - Login, Register, Logout
-  - Password reset
-  - Email verification
+  ฟังก์ชัน: Authentication routes
+  - Login, Logout
+  - Password Reset
+  - Email Verification
+  - Password Confirmation
 
 console.php
-  ฟังก์ชัน: Console commands routes
-  - Artisan::command()
+  ฟังก์ชัน: Console routes (ไม่ได้ใช้)
 ```
 
 ---
 
-## 📂 public/ - Public Assets (14MB)
+## 📂 Public Directory
 
 ```
-index.php               # Entry point
-.htaccess              # Apache config
-robots.txt             # Search engine rules
+index.php               # Laravel entry point
+.htaccess               # Apache configuration
+robots.txt              # SEO robots file
 
 images/
-  header-banner.jpg    # Header banner (14MB) ⚠️ ใหญ่มาก
-  README.md            # คำอธิบาย
+  header-banner.jpg     # Header banner image
 
-build/                 # Vite compiled assets
+build/                  # Vite compiled assets
   manifest.json
   assets/
+    app-xxx.css         # Compiled CSS
+    app-xxx.js          # Compiled JS
 
-js/                    # Static JS files
-
-storage -> symlink     # Symlink ไปที่ storage/app/public
+storage/                # Symlink → ../storage/app/public
+  (ไฟล์ที่อัปโหลด)
 ```
 
 ---
 
-## 📂 config/ - Configuration (64KB)
+## 📂 Config Directory
+
+**ไฟล์ configuration สำคัญ:**
 
 ```
-app.php                # แอพพลิเคชัน config (timezone, locale, etc.)
-auth.php               # Authentication config
-cache.php              # Cache config
-database.php           # Database connections
-filesystems.php        # File storage config
-logging.php            # Logging config
-mail.php               # Mail config
-queue.php              # Queue config
-services.php           # Third-party services
-session.php            # Session config
+app.php         # Application config (name, locale, timezone)
+auth.php        # Authentication guards & providers
+database.php    # Database connections
+filesystems.php # Storage disks configuration
+session.php     # Session driver & settings
 ```
 
 ---
 
-## 📂 bootstrap/ - Bootstrap Files
+## 📂 Storage Directory
 
 ```
-app.php                # Bootstrap application
-providers.php          # Service providers list
-cache/                 # Cached config & routes
-```
+app/
+  public/                # ไฟล์ที่เข้าถึงได้จาก public/storage
+    banners/             # รูปภาพ banner
+    contents/            # รูปภาพ content
+    reports/             # ไฟล์รายงาน PDF
+    announcements/       # ไฟล์แนบประกาศ
+  
+  private/               # ไฟล์ private (ไม่สามารถเข้าถึงจาก URL)
 
----
+framework/
+  cache/                 # Framework cache
+  sessions/              # Session files
+  views/                 # Compiled Blade views
 
-## 📂 tests/ - Testing (56KB)
-
-### tests/Feature/
-```
-ExampleTest.php        # ตัวอย่างการเทส
-ProfileTest.php        # เทส profile features
-
-Auth/                  # Authentication tests
-  AuthenticationTest.php
-  PasswordResetTest.php
-  PasswordUpdateTest.php
-  PasswordConfirmationTest.php
-  RegistrationTest.php
-  EmailVerificationTest.php
-```
-
-### tests/Unit/
-```
-ExampleTest.php        # ตัวอย่าง unit test
+logs/
+  laravel.log            # Application logs
 ```
 
 ---
 
-## 🗂️ ไฟล์ที่ไม่ต้อง Push (Gitignored)
+## 🗂️ ไฟล์ที่ Gitignore (ไม่ต้อง push)
 
 ```
-/vendor/               # PHP dependencies (ติดตั้งใหม่ด้วย composer install)
-/node_modules/         # NPM dependencies (ติดตั้งใหม่ด้วย npm install)
-.env                   # Environment config (มีข้อมูลลับ)
-/storage/logs/         # Log files
-/storage/framework/    # Framework cache
-/public/build/         # Compiled assets (build ใหม่ด้วย npm run build)
-/public/hot            # Vite hot reload
-/public/storage/       # Symlink
-database.sqlite        # SQLite database
-*.log                  # Log files
-```
-
----
-
-## 📊 สถิติโครงสร้าง
-
-### ขนาดโฟลเดอร์
-- app/          : 212KB
-- database/     : 140KB
-- resources/    : 552KB
-- routes/       : 16KB
-- public/       : 14MB (เกือบทั้งหมดเป็นรูป header-banner.jpg)
-- config/       : 64KB
-- tests/        : 56KB
-
-### จำนวนไฟล์
-- PHP Files     : 27 ไฟล์
-- Blade Files   : 50+ ไฟล์
-- Models        : 5 models
-- Migrations    : 7 migrations
-- Controllers   : 5 controllers
-- Livewire      : 7 components
-- Services      : 3 services
-
----
-
-## 🔄 การทำงานของระบบ
-
-### 1. หน้าบ้าน (Frontend Flow)
-```
-User เข้า URL: http://localhost
-  ↓
-routes/web.php -> HomeController@index
-  ↓
-โหลดข้อมูล:
-  - ScdYear (ปีล่าสุดหรือปีที่เลือก)
-  - Banners (สำหรับ slider)
-  - ContentNodes (สำหรับ grid boxes)
-  ↓
-แสดงผล: resources/views/frontend/pages/home.blade.php
-  - ใช้ layout: components/layouts/frontend.blade.php
-  - แสดง: Header, Navbar, Banner Slider, Content Grid, Footer
-```
-
-### 2. หลังบ้าน (Backend Flow)
-```
-Admin เข้า: http://localhost/admin/dashboard
-  ↓
-Middleware: auth (ต้อง login)
-  ↓
-แสดง Dashboard
-  ↓
-เลือกจัดการข้อมูล:
-  - SCD Years    -> Livewire: ScdYearManager
-  - Banners      -> Livewire: BannerManager
-  - Contents     -> Livewire: ContentSectionManager
-  - Reports      -> Livewire: ScdReportManager
-  - Announcements -> Livewire: AnnouncementManager
-  ↓
-CRUD Operations:
-  - Livewire Component -> Service -> Model -> Database
-  - อัพโหลดไฟล์ -> FileUploadService -> storage/app/public/
-```
-
-### 3. Data Flow
-```
-Database (MySQL)
-  ↓
-Models (Eloquent ORM)
-  ↓
-Services (Business Logic)
-  ↓
-Controllers / Livewire Components
-  ↓
-Views (Blade Templates)
-  ↓
-Browser (HTML + Livewire JS)
+/vendor/                # Composer dependencies
+/node_modules/          # NPM dependencies
+.env                    # Environment config (มีข้อมูลลับ)
+/storage/logs/          # Log files
+/storage/framework/     # Cache & compiled files
+/public/build/          # Compiled assets
+/public/hot             # Vite HMR file
+/public/storage/        # Symlink
+database.sqlite         # SQLite database (ถ้าใช้)
+*.log                   # Log files
+.phpunit.result.cache   # PHPUnit cache
 ```
 
 ---
 
-## 🎯 ฟีเจอร์หลักที่ทำเสร็จแล้ว
+## 📊 สถิติโปรเจกต์
+
+### Models
+- 5 Models: User, ScdYear, Banner, ContentNode, ScdReport, Announcement
+
+### Controllers
+- 2 Frontend Controllers
+- 5 Backend Controllers
+- 1 Auth Controller
+
+### Livewire Components
+- 5 Backend Components (CRUD)
+- 1 Frontend Component (Slider)
+- 3 Profile Components
+- 1 Auth Component
+
+### Migrations
+- 7 Migration files
+
+### Routes
+- 10+ Frontend routes
+- 10+ Admin routes
+- Auth routes (Breeze)
+
+---
+
+## 🔄 Data Flow
+
+### 1. Frontend Request Flow
+```
+User → Route (web.php)
+     → Controller
+     → Load Models
+     → View (Blade)
+     → Livewire Component (if needed)
+     → Browser
+```
+
+### 2. Admin CRUD Flow
+```
+Admin → Route (auth middleware)
+      → Controller
+      → Livewire Component
+      → Service (FileUploadService)
+      → Model (Eloquent)
+      → Database
+      → Response (JSON/Redirect)
+      → View Update (Livewire)
+```
+
+### 3. File Upload Flow
+```
+Form → Livewire Component
+    → FileUploadService
+    → Validation
+    → Storage (storage/app/public)
+    → Save path to Database
+    → Return success
+```
+
+---
+
+## 🎯 ฟีเจอร์สำคัญที่เสร็จแล้ว
 
 ### ✅ Frontend
-- Header + Navbar (sticky, dropdown)
-- Banner Slider (Livewire)
-- Home page with Content Sections
-- About, Contact pages
-- Announcements page
-- Responsive design
+- [x] Header + Navigation (responsive)
+- [x] Banner Slider (Livewire)
+- [x] Home page with Content Sections
+- [x] About, Contact pages
+- [x] Announcements page
+- [x] Responsive design (mobile-friendly)
+- [x] SEO structure
 
 ### ✅ Backend
-- Dashboard
-- SCD Year Management (CRUD)
-- Banner Management (CRUD + image upload)
-- Content Management (CRUD + image upload)
-- Report Management (PDF upload)
-- Announcement Management (CRUD + file upload)
+- [x] Dashboard
+- [x] Years Management (CRUD)
+- [x] Reports Management (PDF upload)
+- [x] Banners Management (Image upload + ordering)
+- [x] Contents Management (Image upload + categories)
+- [x] Announcements Management (File attachments)
+- [x] Profile Management (Livewire)
+- [x] Responsive admin layout
 
-### ✅ Database
-- Users, SCD Years, Banners, Content Nodes, Reports
-- Migrations ready
+### ✅ Authentication
+- [x] Login (Livewire)
+- [x] Logout
+- [x] Email Verification
+- [x] Password Reset (Volt)
+- [x] Profile Management (Livewire)
+- [x] No Public Registration
 
 ### ✅ Infrastructure
-- Docker (Laravel Sail)
-- MySQL 8.4
-- Redis Cache
-- Meilisearch
-- Mailpit
-- Selenium
+- [x] Docker (Laravel Sail)
+- [x] MySQL 8.4
+- [x] Vite (Frontend bundler)
+- [x] Tailwind CSS
+- [x] Alpine.js
+- [x] Livewire 3.x
 
 ---
 
-## 📝 หมายเหตุสำคัญ
+## 📝 หมายเหตุสำหรับนักพัฒนา
 
-1. **ไฟล์รูปใหญ่:** `public/images/header-banner.jpg` มีขนาด 14MB ควรบีบอัดก่อน production
-2. **Database:** ใช้ MySQL ผ่าน Docker (ไม่ใช่ SQLite)
-3. **File Storage:** ไฟล์อัพโหลดเก็บใน `storage/app/public/` และ symlink ไปที่ `public/storage/`
-4. **Livewire:** ใช้ Livewire 3.x สำหรับ dynamic components
-5. **Styling:** ใช้ Tailwind CSS + Alpine.js
-6. **Testing:** มี PHPUnit setup พร้อมใช้งาน
+### Architecture Decisions
+- **Livewire > Volt:** ใช้ Livewire components สำหรับ Admin และ Profile เพื่อความสม่ำเสมอ
+- **Volt:** ใช้เฉพาะ Auth pages ที่ไม่ค่อยแก้ไข (forgot-password, reset-password, verify-email, confirm-password)
+- **@extends > Components:** Frontend layouts ใช้ `@extends('layouts.frontend')` แทน component syntax
+- **Services:** ใช้ FileUploadService แยกออกจาก Livewire components
+
+### File Storage
+- **Storage Path:** `storage/app/public/`
+- **Public URL:** ผ่าน symlink `public/storage/`
+- **Command:** `sail artisan storage:link`
+
+### Responsive Design
+- **Mobile First:** Tailwind responsive utilities
+- **Breakpoints:** sm: 640px, md: 768px, lg: 1024px, xl: 1280px
+- **Admin Tables:** ซ่อนคอลัมน์บางอันบน mobile
+- **Navigation:** Hamburger menu บน mobile
+
+### Database
+- **Soft Deletes:** ไม่ได้ใช้ (ลบแบบ hard delete)
+- **Timestamps:** ทุก model มี created_at, updated_at
+- **Foreign Keys:** Cascade on delete
 
 ---
 
-เอกสารนี้อธิบายโครงสร้างและฟังก์ชันของทุกไฟล์ในโปรเจกต์
-อัพเดทล่าสุด: 13 มกราคม 2026
+**เอกสารนี้อธิบายโครงสร้างและฟังก์ชันของทุกไฟล์ในโปรเจกต์**  
+**อัปเดตล่าสุด:** 19 มกราคม 2026

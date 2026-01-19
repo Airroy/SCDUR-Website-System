@@ -4,203 +4,274 @@ namespace App\Livewire\Backend;
 
 use App\Models\ScdYear;
 use App\Models\ContentNode;
-use App\Services\ContentNodeService;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
 
 class ContentSectionManager extends Component
 {
     use WithFileUploads;
 
-    public ScdYear $year;
-    public $nodes;
-    public $currentNode = null;
-    public $breadcrumbs = [];
+    public $year;
+    public $parentId = null;
+    public $hasFilesInParent = false;
+    public $hasFoldersInParent = false;
     
+    // Modal state
     public $showModal = false;
-    public $modalType = '';
     public $editMode = false;
+    public $contentId = null;
     
-    public $nodeId;
-    public $name = '';
-    public $sequence = '';
+    // Form fields
+    public $sequence;
+    public $name;
+    public $type = 'folder'; // default to folder
+    public $file;
+    public $existingFile;
     public $image;
-    public $existingImagePath = null;
-    public $pdf_file;
-    public $existingFilePath = null;
+    public $existingImage;
 
-    protected function rules()
-    {
-        $rules = [
-            'name' => 'required|string|max:255',
-            'sequence' => ['required', 'integer', 'min:1'],
-        ];
-
-        // Sequence uniqueness via service
-        $rules['sequence'][] = function ($attribute, $value, $fail) {
-            $service = app(ContentNodeService::class);
-            $parentId = $this->currentNode?->id;
-            $excludeId = $this->editMode ? $this->nodeId : null;
-            
-            if (!$service->isSequenceUnique($this->year, $value, $parentId, $excludeId)) {
-                $fail('ลำดับนี้มีอยู่แล้ว');
-            }
-        };
-
-        if ($this->modalType === 'folder' && !$this->currentNode) {
-            // เฉพาะหมวดหมู่ระดับรากเท่านั้นที่ต้องมีรูป
-            $rules['image'] = ($this->editMode && $this->existingImagePath) 
-                ? 'nullable|image|max:5120' 
-                : 'required|image|max:5120';
-        }
-
-        if ($this->modalType === 'file') {
-            if (!$this->editMode || $this->pdf_file) {
-                $rules['pdf_file'] = 'required|file|mimes:pdf|max:10240';
-            }
-        }
-
-        return $rules;
-    }
-
-    protected $messages = [
-        'name.required' => 'กรุณากรอกชื่อหัวข้อ',
-        'name.max' => 'ชื่อต้องไม่เกิน 255 ตัวอักษร',
-        'sequence.required' => 'กรุณากรอกลำดับ',
-        'sequence.integer' => 'ลำดับต้องเป็นตัวเลข',
-        'sequence.min' => 'ลำดับต้องมากกว่า 0',
-        'image.required' => 'กรุณาเลือกรูปภาพ',
-        'image.image' => 'ไฟล์ต้องเป็นรูปภาพ',
-        'image.max' => 'รูปภาพมีขนาดใหญ่เกิน 5MB',
-        'pdf_file.required' => 'กรุณาเลือกไฟล์ PDF',
-        'pdf_file.mimes' => 'ไฟล์ต้องเป็น PDF',
-        'pdf_file.max' => 'ไฟล์มีขนาดใหญ่เกิน 10MB',
+    protected $listeners = [
+        'openEditContentModal' => 'openEditModal',
+        'deleteContent' => 'deleteNode',
+        'refreshContentTable' => '$refresh',
     ];
 
-    public function mount(ScdYear $year)
+    public function mount($year, $parentId = null, $hasFilesInParent = false, $hasFoldersInParent = false)
     {
         $this->year = $year;
-        $this->loadNodes();
-        $this->updateBreadcrumbs();
+        $this->parentId = $parentId;
+        $this->hasFilesInParent = $hasFilesInParent;
+        $this->hasFoldersInParent = $hasFoldersInParent;
     }
 
-    public function loadNodes()
-    {
-        $service = app(ContentNodeService::class);
-        $this->nodes = $service->getNodes($this->year, $this->currentNode?->id);
-    }
-
-    public function navigateTo($nodeId)
-    {
-        $this->currentNode = $nodeId ? ContentNode::findOrFail($nodeId) : null;
-        $this->loadNodes();
-        $this->updateBreadcrumbs();
-    }
-
-    public function updateBreadcrumbs()
-    {
-        $service = app(ContentNodeService::class);
-        $this->breadcrumbs = $service->getBreadcrumbs($this->currentNode);
-    }
-
-    public function openFolderModal()
-    {
-        $this->openModal('folder');
-    }
-
-    public function openFileModal()
-    {
-        $this->openModal('file');
-    }
-
-    private function openModal(string $type)
+    public function openAddFolderModal()
     {
         $this->resetForm();
-        $this->modalType = $type;
         $this->editMode = false;
+        $this->type = 'folder';
         $this->showModal = true;
     }
 
-    public function openEditModal($nodeId)
+    public function openAddFileModal()
     {
-        $node = ContentNode::findOrFail($nodeId);
-        
-        $this->nodeId = $node->id;
-        $this->name = $node->name;
-        $this->sequence = $node->sequence;
-        $this->modalType = $node->type;
-        $this->existingImagePath = $node->image_path;
-        $this->existingFilePath = $node->file_path;
+        $this->resetForm();
+        $this->editMode = false;
+        $this->type = 'file';
+        $this->showModal = true;
+    }
+
+    public function openEditModal($contentId)
+    {
+        $this->resetForm();
+        $node = ContentNode::findOrFail($contentId);
         
         $this->editMode = true;
+        $this->contentId = $contentId;
+        $this->sequence = $node->sequence;
+        $this->name = $node->name;
+        $this->type = $node->type;
+        $this->existingFile = $node->file_path;
+        $this->existingImage = $node->image_path;
+        
         $this->showModal = true;
     }
 
-    public function closeModal()
+    public function saveNode()
     {
-        $this->showModal = false;
-        $this->resetForm();
-        $this->resetValidation();
-    }
+        $rules = [
+            'sequence' => 'required|integer|min:1',
+            'name' => 'required|string|max:255',
+        ];
 
-    public function save()
-    {
-        $this->validate();
-
-        try {
-            $service = app(ContentNodeService::class);
-            
-            $data = [
-                'scd_year_id' => $this->year->id,
-                'parent_id' => $this->currentNode?->id,
-                'category_group' => 'content_section',
-                'type' => $this->modalType,
-                'name' => $this->name,
-                'sequence' => $this->sequence,
-            ];
-
-            if ($this->editMode) {
-                $node = ContentNode::findOrFail($this->nodeId);
-                $service->update($node, $data, $this->image, $this->pdf_file);
-                $this->dispatch('notify', message: 'อัปเดตเรียบร้อยแล้ว', type: 'success');
+        if ($this->type === 'file') {
+            if (!$this->editMode) {
+                $rules['file'] = 'required|file|mimes:pdf|max:10240';
             } else {
-                $service->create($data, $this->image, $this->pdf_file);
-                $this->dispatch('notify', message: 'เพิ่มเรียบร้อยแล้ว', type: 'success');
+                $rules['file'] = 'nullable|file|mimes:pdf|max:10240';
             }
+        }
 
-            $this->closeModal();
-            $this->loadNodes();
-            
-        } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'เกิดข้อผิดพลาด: ' . $e->getMessage(), type: 'error');
+        // Image required for root level folders
+        if ($this->type === 'folder' && $this->parentId === null) {
+            if (!$this->editMode) {
+                $rules['image'] = 'required|image|max:2048';
+            } else {
+                $rules['image'] = 'nullable|image|max:2048';
+            }
+        }
+
+        $this->validate($rules);
+
+        // Check duplicate sequence
+        $existingNode = ContentNode::where('scd_year_id', $this->year->id)
+            ->where('category_group', 'content') // Use 'content' as category_group
+            ->where('parent_id', $this->parentId)
+            ->where('sequence', $this->sequence)
+            ->when($this->editMode, fn($q) => $q->where('id', '!=', $this->contentId))
+            ->first();
+
+        if ($existingNode) {
+            $this->dispatch('notify', [
+                'message' => 'ลำดับที่ ' . $this->sequence . ' มีอยู่แล้ว กรุณาเลือกลำดับอื่น',
+                'type' => 'error'
+            ]);
+            return;
+        }
+
+        if ($this->editMode) {
+            $this->updateNode();
+        } else {
+            $this->createNode();
         }
     }
 
-    public function deleteNode($nodeId)
+    private function createNode()
     {
-        try {
-            $service = app(ContentNodeService::class);
-            $node = ContentNode::findOrFail($nodeId);
-            $service->delete($node);
+        $data = [
+            'scd_year_id' => $this->year->id,
+            'parent_id' => $this->parentId,
+            'category_group' => 'content', // Use 'content' as category_group
+            'sequence' => $this->sequence,
+            'name' => $this->name,
+            'type' => $this->type,
+        ];
+
+        // Upload file
+        if ($this->type === 'file' && $this->file) {
+            $data['file_path'] = $this->file->store('contents', 'public');
+        }
+
+        // Upload image for root level folders
+        if ($this->type === 'folder' && $this->parentId === null && $this->image) {
+            $data['image_path'] = $this->image->store('content-images', 'public');
+        }
+
+        ContentNode::create($data);
+
+        $this->showModal = false;
+        $this->dispatch('notify', [
+            'message' => $this->type === 'folder' ? 'เพิ่มหมวดหมู่สำเร็จ' : 'เพิ่มไฟล์สำเร็จ',
+            'type' => 'success'
+        ]);
+        
+        // Update local state
+        if ($this->type === 'folder') {
+            $this->hasFoldersInParent = true;
+        } else {
+            $this->hasFilesInParent = true;
+        }
+        
+        $this->dispatch('refreshContentTable');
+    }
+
+    private function updateNode()
+    {
+        $node = ContentNode::findOrFail($this->contentId);
+        
+        $data = [
+            'sequence' => $this->sequence,
+            'name' => $this->name,
+        ];
+
+        // Upload new file (only for file type)
+        if ($this->type === 'file' && $this->file) {
+            // Delete old file
+            if ($node->file_path) {
+                Storage::disk('public')->delete($node->file_path);
+            }
+            $data['file_path'] = $this->file->store('contents', 'public');
+        }
+
+        // Upload new image (only for root level folders)
+        if ($this->type === 'folder' && $this->parentId === null && $this->image) {
+            // Delete old image
+            if ($node->image_path) {
+                Storage::disk('public')->delete($node->image_path);
+            }
+            $data['image_path'] = $this->image->store('content-images', 'public');
+        }
+
+        $node->update($data);
+
+        $this->showModal = false;
+        $this->dispatch('notify', [
+            'message' => 'แก้ไขรายการสำเร็จ',
+            'type' => 'success'
+        ]);
+        $this->dispatch('refreshContentTable');
+    }
+
+    public function deleteNode($contentId)
+    {
+        $node = ContentNode::findOrFail($contentId);
+        $deletedType = $node->type;
+        
+        // Delete file
+        if ($node->file_path) {
+            Storage::disk('public')->delete($node->file_path);
+        }
+        
+        // Delete image
+        if ($node->image_path) {
+            Storage::disk('public')->delete($node->image_path);
+        }
+        
+        // Delete children recursively
+        $this->deleteChildren($node->id);
+        
+        $node->delete();
+
+        // Recheck if there are still files/folders in this level
+        $remainingFiles = ContentNode::where('scd_year_id', $this->year->id)
+            ->where('category_group', 'content')
+            ->where('parent_id', $this->parentId)
+            ->where('type', 'file')
+            ->exists();
             
-            $this->dispatch('notify', message: 'ลบเรียบร้อยแล้ว', type: 'success');
-            $this->loadNodes();
+        $remainingFolders = ContentNode::where('scd_year_id', $this->year->id)
+            ->where('category_group', 'content')
+            ->where('parent_id', $this->parentId)
+            ->where('type', 'folder')
+            ->exists();
             
-        } catch (\Exception $e) {
-            $this->dispatch('notify', message: 'เกิดข้อผิดพลาด: ' . $e->getMessage(), type: 'error');
+        $this->hasFilesInParent = $remainingFiles;
+        $this->hasFoldersInParent = $remainingFolders;
+
+        $this->dispatch('notify', [
+            'message' => 'ลบรายการสำเร็จ',
+            'type' => 'success'
+        ]);
+        $this->dispatch('refreshContentTable');
+    }
+
+    private function deleteChildren($parentId)
+    {
+        $children = ContentNode::where('parent_id', $parentId)->get();
+        foreach ($children as $child) {
+            if ($child->file_path) {
+                Storage::disk('public')->delete($child->file_path);
+            }
+            if ($child->image_path) {
+                Storage::disk('public')->delete($child->image_path);
+            }
+            $this->deleteChildren($child->id);
+            $child->delete();
         }
     }
 
     private function resetForm()
     {
-        $this->nodeId = null;
-        $this->name = '';
-        $this->sequence = '';
-        $this->image = null;
-        $this->existingImagePath = null;
-        $this->pdf_file = null;
-        $this->existingFilePath = null;
-        $this->modalType = '';
+        $this->reset([
+            'contentId',
+            'sequence',
+            'name',
+            'file',
+            'existingFile',
+            'image',
+            'existingImage',
+        ]);
+        $this->type = 'folder';
     }
 
     public function render()

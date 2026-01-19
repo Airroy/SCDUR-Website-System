@@ -1,164 +1,151 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="th">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Admin System - SCD</title>
+    <title>{{ config('app.name', 'SCD System') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
     @livewireStyles
-    @stack('styles')
 </head>
-<body class="font-sans antialiased bg-gray-50" x-data="{ sidebarOpen: false, userMenuOpen: false }">
-    
-    <!-- Top Navigation Bar -->
-    <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
-        <div class="px-3 py-3 lg:px-5 lg:pl-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center justify-start">
-                    <!-- Mobile Menu Button -->
-                    <button @click="sidebarOpen = !sidebarOpen" 
-                            type="button" 
-                            class="sm:hidden inline-flex items-center p-2 text-red-600 rounded-lg hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500">
-                        <span class="sr-only">Open sidebar</span>
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-width="2" d="M5 7h14M5 12h14M5 17h10"/>
-                        </svg>
-                    </button>
-                    <!-- Logo -->
-                    <a href="{{ route('admin.dashboard') }}" class="flex ms-2 md:me-24">
-                        <span class="self-center text-xl font-bold text-red-600 whitespace-nowrap">ระบบจัดการ SCDUR</span>
-                    </a>
+<body class="font-sans antialiased bg-gray-50">
+    <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
+        <!-- Mobile Overlay -->
+        <div x-show="sidebarOpen" 
+             x-cloak
+             @click="sidebarOpen = false"
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden">
+        </div>
+
+        <!-- Sidebar -->
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+               class="fixed lg:static inset-y-0 left-0 z-50 w-64 flex-shrink-0 bg-gradient-to-b from-red-600 to-red-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0">
+            @php
+                $allYears = \App\Models\ScdYear::orderBy('year', 'desc')->get();
+                $currentYear = $allYears->where('is_published', true)->first() ?? $allYears->first();
+                $selectedYearId = request()->route('year') ?? $currentYear?->id;
+            @endphp
+
+            <div class="flex flex-col h-full">
+                <!-- Logo -->
+                <div class="px-6 py-6">
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl mb-3 shadow-xl">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h1 class="text-xl font-bold text-white mb-1">SCD System</h1>
+                        <p class="text-xs text-red-100">ระบบจัดการข้อมูล</p>
+                    </div>
                 </div>
-                
-                <!-- User Menu -->
-                <div class="flex items-center">
-                    <div class="flex items-center ms-3 relative">
-                        <button @click="userMenuOpen = !userMenuOpen" 
-                                type="button" 
-                                class="flex items-center text-sm bg-red-600 rounded-full focus:ring-4 focus:ring-red-300">
-                            <span class="sr-only">Open user menu</span>
-                            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-semibold">
-                                {{ substr(Auth::user()->name, 0, 1) }}
+
+                <!-- Menu -->
+                <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto">
+                    <a href="{{ route('admin.dashboard') }}" 
+                       class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-white text-red-600 shadow-xl' : 'text-white hover:bg-white/20' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                        <span>หน้าหลัก</span>
+                    </a>
+
+                    <a href="{{ route('admin.years.index') }}" 
+                       class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {{ request()->routeIs('admin.years.*') ? 'bg-white text-red-600 shadow-xl' : 'text-white hover:bg-white/20' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>จัดการปี SCD</span>
+                    </a>
+                </nav>
+
+                <!-- User -->
+                <div class="px-4 py-4" x-data="{ open: false }">
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                            <span class="text-red-600 font-bold text-lg">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-white truncate">{{ auth()->user()->name }}</p>
+                            <p class="text-xs text-red-100 truncate">แอดมิน</p>
+                        </div>
+                        <div class="relative">
+                            <button @click="open = !open" class="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                                </svg>
+                            </button>
+                            
+                            <!-- Dropdown Menu -->
+                            <div x-show="open" 
+                                 @click.away="open = false"
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute right-0 bottom-full mb-2 w-48 bg-white rounded-lg shadow-xl overflow-hidden z-50"
+                                 style="display: none;">
+                                <a href="{{ route('admin.profile') }}" 
+                                   class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span>จัดการโปรไฟล์</span>
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" 
+                                            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                        </svg>
+                                        <span>ออกจากระบบ</span>
+                                    </button>
+                                </form>
                             </div>
-                        </button>
-                        
-                        <!-- Dropdown Menu -->
-                        <div x-show="userMenuOpen" 
-                             @click.outside="userMenuOpen = false"
-                             x-transition:enter="transition ease-out duration-100"
-                             x-transition:enter-start="transform opacity-0 scale-95"
-                             x-transition:enter-end="transform opacity-100 scale-100"
-                             x-transition:leave="transition ease-in duration-75"
-                             x-transition:leave-start="transform opacity-100 scale-100"
-                             x-transition:leave-end="transform opacity-0 scale-95"
-                             class="absolute right-0 top-full mt-2 z-50 w-48 bg-white border border-gray-200 rounded-lg shadow-lg"
-                             style="display: none;">
-                            <div class="px-4 py-3 border-b border-gray-200">
-                                <p class="text-sm font-semibold text-gray-800">{{ Auth::user()->name }}</p>
-                                <p class="text-sm text-gray-500 truncate">{{ Auth::user()->email }}</p>
-                            </div>
-                            <ul class="py-2 text-sm text-gray-700">
-                                <li>
-                                    <a href="{{ route('admin.dashboard') }}" 
-                                       class="block px-4 py-2 hover:bg-red-50 hover:text-red-600">
-                                        Dashboard
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('admin.profile') }}" 
-                                       class="block px-4 py-2 hover:bg-red-50 hover:text-red-600">
-                                        โปรไฟล์
-                                    </a>
-                                </li>
-                                <li>
-                                    <form method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <button type="submit" 
-                                                class="w-full text-left px-4 py-2 hover:bg-red-50 hover:text-red-600">
-                                            ออกจากระบบ
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </aside>
 
-    <!-- Sidebar -->
-    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
-           class="fixed top-0 left-0 z-40 w-64 h-screen pt-16 transition-transform sm:translate-x-0 bg-white border-r border-gray-200"
-           aria-label="Sidebar">
-        <div class="h-full px-3 pb-4 overflow-y-auto bg-white">
-            <!-- Navigation Menu -->
-            <ul class="space-y-2 font-medium mt-4">
-                <li>
-                    <a href="{{ route('admin.dashboard') }}" 
-                       class="flex items-center px-2 py-3 rounded-lg transition-colors text-lg {{ request()->routeIs('admin.dashboard') ? 'bg-red-600 text-white' : 'text-gray-600 hover:bg-red-50 hover:text-red-600' }} group">
-                        <svg class="w-6 h-6 transition duration-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                        </svg>
-                        <span class="ms-3">Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.scd-years.index') }}" 
-                       class="flex items-center px-2 py-3 rounded-lg transition-colors text-lg {{ request()->routeIs('admin.scd-years.*') || request()->routeIs('admin.years.*') ? 'bg-red-600 text-white' : 'text-gray-600 hover:bg-red-50 hover:text-red-600' }} group">
-                        <svg class="w-6 h-6 transition duration-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        <span class="flex-1 ms-3 whitespace-nowrap">จัดการปี SCD</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </aside>
+        <!-- Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Mobile Header with Hamburger -->
+            <div class="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
+                <button @click="sidebarOpen = !sidebarOpen" 
+                        class="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <h1 class="text-lg font-bold text-gray-900">SCD System</h1>
+            </div>
 
-    <!-- Main Content -->
-    <div class="p-4 sm:ml-64 mt-14">
-        <!-- Page Header -->
-        @hasSection('header')
-            <header class="mb-6 pt-6 px-4 sm:px-6 lg:px-8">
-                <!-- Back Button & Title -->
-                <div class="flex items-center gap-4">
-                    @hasSection('back-url')
-                        <a href="@yield('back-url')" class="text-gray-600 hover:text-gray-800 transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                            </svg>
-                        </a>
-                    @endif
-                    <div class="flex-1">
-                        @yield('header')
-                        
-                        <!-- Breadcrumbs inline under title -->
-                        @hasSection('breadcrumbs')
-                            <nav class="flex items-center gap-2 text-sm sm:text-base mt-1">
-                                @yield('breadcrumbs')
-                            </nav>
-                        @endif
-                    </div>
-                </div>
+            @if(isset($header))
+            <header class="hidden lg:block bg-white border-b border-gray-200 px-6 py-4">
+                {{ $header }}
             </header>
-        @endif
+            @endif
 
-        <!-- Main Content Area -->
-        <main>
-            @yield('content')
-        </main>
+            <main class="flex-1 overflow-y-auto">
+                @yield('content')
+                {{ $slot ?? '' }}
+            </main>
+        </div>
     </div>
 
-    <!-- Notification Popup -->
-    <x-admin::notification />
-    
-    <!-- Confirmation Modal -->
-    <x-admin::confirm-modal />
+    <!-- Notification Component -->
+    <x-notification />
 
     @livewireScripts
-    @stack('scripts')
 </body>
 </html>

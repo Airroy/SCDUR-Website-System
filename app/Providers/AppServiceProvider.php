@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Register anonymous component namespaces for admin-specific components
-        Blade::anonymousComponentPath(resource_path('views/admin/components'), 'admin');
+        // Components อยู่ใน resources/views/components/ 
+        // ใช้ชื่อ file ตรงกับ component name แล้ว ไม่ต้อง register aliases
     }
 }

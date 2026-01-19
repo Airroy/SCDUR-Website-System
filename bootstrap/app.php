@@ -11,7 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
-            // กำหนดว่าถ้า login แล้วให้ redirect ไป admin dashboard
+            // กำหนดว่าถ้า login แล้วให้ redirect ไปหน้า Dashboard ใหม่
             RedirectIfAuthenticated::redirectUsing(fn () => route('admin.dashboard'));
         },
     )

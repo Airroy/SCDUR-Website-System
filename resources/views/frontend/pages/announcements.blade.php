@@ -1,6 +1,8 @@
-<x-layouts.frontend>
-    <x-slot:title>ประกาศ/คำสั่ง - SCD {{ $year->year }}</x-slot:title>
+@extends('layouts.frontend')
 
+@section('title', 'ประกาศ/คำสั่ง - SCD ' . $year->year)
+
+@section('content')
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Breadcrumb -->
@@ -87,4 +89,4 @@
             </div>
         </div>
     </div>
-</x-layouts.frontend>
+@endsection
