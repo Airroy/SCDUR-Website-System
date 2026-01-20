@@ -43,8 +43,10 @@
   - Port 5173 → Vite dev server
 - **mysql** - MySQL 8.4 Database
   - Port 3306 (internal)
-- **Redis** - Cache และ Queue (ถ้าใช้)
-- **Mailpit** - Email testing (ถ้าใช้)
+- **redis** - Redis Cache
+  - Port 6379 (internal)
+- **phpmyadmin** - Database Management UI
+  - Port 8080 → http://localhost:8080
 
 ---
 
@@ -78,9 +80,12 @@ DB_PORT=3306
 DB_DATABASE=scd_project
 DB_USERNAME=sail
 DB_PASSWORD=password
+
+CACHE_STORE=redis
+REDIS_HOST=redis
 ```
 
-> ⚠️ **สำคัญ:** `DB_HOST=mysql` ต้องเป็นชื่อ service ใน Docker Compose ไม่ใช่ `localhost`
+> ⚠️ **สำคัญ:** `DB_HOST=mysql` และ `REDIS_HOST=redis` ต้องเป็นชื่อ service ใน Docker Compose ไม่ใช่ `localhost`
 
 ---
 

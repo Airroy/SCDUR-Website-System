@@ -35,6 +35,7 @@
 - **Authentication:** Laravel Breeze (Livewire)
 - **Real-time UI:** Livewire 3.x
 - **Database:** MySQL 8.4
+- **Cache:** Redis
 
 ### Frontend
 - **CSS Framework:** Tailwind CSS 3.x
@@ -129,6 +130,7 @@ cp .env.example .env
 - **หน้าเว็บหลัก:** http://localhost
 - **หน้า Admin Login:** http://localhost/login
 - **หน้า Admin Dashboard:** http://localhost/admin/dashboard (ต้อง login ก่อน)
+- **phpMyAdmin:** http://localhost:8080 (จัดการฐานข้อมูล)
 
 ---
 
@@ -201,6 +203,8 @@ cp .env.example .env
 APP_PORT=8000
 FORWARD_DB_PORT=3307
 VITE_PORT=5174
+FORWARD_REDIS_PORT=6380
+FORWARD_PHPMYADMIN_PORT=8081
 ```
 
 ### Permission ไม่ถูกต้อง
