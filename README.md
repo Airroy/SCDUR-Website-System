@@ -31,7 +31,7 @@
 ## 🛠️ เทคโนโลยีที่ใช้
 
 ### Backend
-- **Framework:** Laravel 11.x
+- **Framework:** Laravel 12.x
 - **Authentication:** Laravel Breeze (Livewire)
 - **Real-time UI:** Livewire 3.x
 - **Database:** MySQL 8.4
@@ -119,7 +119,7 @@ cp .env.example .env
 
 #### 10. สร้าง Admin User
 ```bash
-./vendor/bin/sail artisan admin:create
+./vendor/bin/sail artisan admin:create --email=admin@aru.ac.th --name=Admin --password=1234
 ```
 ระบุข้อมูล: ชื่อ, อีเมล, รหัสผ่าน ตาม prompt
 

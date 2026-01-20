@@ -1,7 +1,7 @@
 # โครงสร้างโปรเจกต์ SCD - คู่มือสำหรับนักพัฒนา
 
 > **อัปเดตล่าสุด:** 20 มกราคม 2026  
-> **Laravel Version:** 11.x  
+> **Laravel Version:** 12.x  
 > **Architecture:** MVC + Livewire Components  
 > **Cache:** Redis
 

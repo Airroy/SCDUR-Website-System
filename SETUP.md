@@ -655,8 +655,8 @@ sail artisan queue:restart
 
 ## 📚 เอกสารอ้างอิง
 
-- **Laravel Documentation:** https://laravel.com/docs/11.x
-- **Laravel Sail:** https://laravel.com/docs/11.x/sail
+- **Laravel Documentation:** https://laravel.com/docs/12.x
+- **Laravel Sail:** https://laravel.com/docs/12.x/sail
 - **Livewire Documentation:** https://livewire.laravel.com/docs
 - **Tailwind CSS:** https://tailwindcss.com/docs
 - **Docker Documentation:** https://docs.docker.com
