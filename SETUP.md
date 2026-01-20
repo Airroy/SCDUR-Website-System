@@ -133,9 +133,11 @@ docker run --rm `
 
 คุณควรเห็น containers running:
 ```
-NAME                IMAGE               STATUS
-scd-project-laravel.test-1   sail-8.3/app    Up
-scd-project-mysql-1          mysql:8.4       Up
+NAME                             IMAGE               STATUS
+scd-project-laravel.test-1       sail-8.3/app        Up
+scd-project-mysql-1              mysql:8.4           Up
+scd-project-redis-1              redis:alpine        Up
+scd-project-phpmyadmin-1         phpmyadmin:latest   Up
 ```
 
 ---
@@ -641,6 +643,7 @@ sail artisan queue:restart
 
 - [ ] `sail up -d` รันสำเร็จ
 - [ ] เข้า http://localhost เห็นหน้าเว็บ
+- [ ] เข้า http://localhost:8080 เห็น phpMyAdmin
 - [ ] `sail artisan migrate` สำเร็จ
 - [ ] `sail artisan storage:link` สำเร็จ
 - [ ] สร้าง admin user ได้แล้ว
@@ -669,4 +672,4 @@ sail artisan queue:restart
 
 ---
 
-**อัปเดตล่าสุด:** 19 มกราคม 2026
+**อัปเดตล่าสุด:** 20 มกราคม 2026

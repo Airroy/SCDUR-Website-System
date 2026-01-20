@@ -1,8 +1,9 @@
 # โครงสร้างโปรเจกต์ SCD - คู่มือสำหรับนักพัฒนา
 
-> **อัปเดตล่าสุด:** 19 มกราคม 2026  
+> **อัปเดตล่าสุด:** 20 มกราคม 2026  
 > **Laravel Version:** 11.x  
-> **Architecture:** MVC + Livewire Components
+> **Architecture:** MVC + Livewire Components  
+> **Cache:** Redis
 
 ---
 
@@ -930,6 +931,8 @@ Form → Livewire Component
 ### ✅ Infrastructure
 - [x] Docker (Laravel Sail)
 - [x] MySQL 8.4
+- [x] Redis (Cache)
+- [x] phpMyAdmin (Database Management)
 - [x] Vite (Frontend bundler)
 - [x] Tailwind CSS
 - [x] Alpine.js
@@ -964,4 +967,4 @@ Form → Livewire Component
 ---
 
 **เอกสารนี้อธิบายโครงสร้างและฟังก์ชันของทุกไฟล์ในโปรเจกต์**  
-**อัปเดตล่าสุด:** 19 มกราคม 2026
+**อัปเดตล่าสุด:** 20 มกราคม 2026
