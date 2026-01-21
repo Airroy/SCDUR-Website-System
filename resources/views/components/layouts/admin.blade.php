@@ -137,8 +137,7 @@
             @endif
 
             <main class="flex-1 overflow-y-auto">
-                @yield('content')
-                {{ $slot ?? '' }}
+                {{ $slot }}
             </main>
         </div>
     </div>

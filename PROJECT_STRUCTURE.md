@@ -18,9 +18,11 @@ scd-project/
 ├── config/                 # Configuration Files
 ├── database/               # Migrations & Seeders
 ├── docker/                 # Docker Configuration (Published)
+│   ├── 8.2/                # PHP 8.2 Dockerfile
+│   ├── 8.3/                # PHP 8.3 Dockerfile
+│   ├── 8.4/                # PHP 8.4 Dockerfile
 │   ├── 8.5/                # PHP 8.5 Dockerfile (ใช้งานหลัก)
-│   ├── mysql/              # MySQL init scripts
-│   └── ...                 # Other PHP versions
+│   └── mysql/              # MySQL init scripts
 ├── public/                 # Public Assets & Entry Point
 ├── resources/              # Views, CSS, JS
 ├── routes/                 # Route Definitions
@@ -560,41 +562,46 @@ UserFactory.php
 
 ### resources/views/
 
-#### layouts/
-**Layout Templates หลัก**
+#### layouts/ (ย้ายไป components/layouts/)
+**Layout Templates หลัก - ใช้เป็น Blade Component**
+
+> **หมายเหตุ:** Layout ถูกย้ายไป `components/layouts/` เพื่อใช้กับ `<x-layouts.xxx>` syntax
 
 ```
-admin.blade.php
+components/layouts/admin.blade.php
   ฟังก์ชัน: Layout สำหรับหลังบ้าน (Admin)
-  ใช้โดย: @extends('layouts.admin')
+  ใช้โดย: <x-layouts.admin>
   Structure:
     - Sidebar navigation
     - Header with user dropdown
-    - Content area (@yield('content'))
+    - Content area ({{ $slot }})
     - Notification system
   Features:
     - Responsive sidebar
     - User profile dropdown (3 dots)
     - Logout functionality
 
-guest.blade.php
+components/layouts/guest.blade.php
   ฟังก์ชัน: Layout สำหรับหน้า authentication
   ใช้กับ: Login, Register, Forgot Password
+  ใช้โดย: <x-layouts.guest>
   Structure:
     - Centered card layout
     - Application logo
     - Simple design
 
-frontend.blade.php
+components/layouts/frontend.blade.php
   ฟังก์ชัน: Layout สำหรับหน้าบ้าน
-  ใช้โดย: @extends('layouts.frontend')
+  ใช้โดย: <x-layouts.frontend title="..."> หรือ <x-layouts.frontend :title="$var">
+  Props:
+    - title: ชื่อหน้า (สำหรับ <title> tag)
   Structure:
     - <x-frontend.header> (banner + navigation)
-    - @yield('content')
+    - {{ $slot }}
     - <x-frontend.footer>
   Features:
     - SEO-friendly structure
-    - @yield('title') for page titles
+    - Livewire scripts รวมอยู่แล้ว
 ```
 
 #### admin/pages/
@@ -610,6 +617,7 @@ dashboard.blade.php
 profile.blade.php
   Route: /admin/profile
   ฟังก์ชัน: หน้าจัดการโปรไฟล์
+  - <x-layouts.admin>
   - @livewire('profile.update-profile-information')
   - @livewire('profile.update-password')
   - @livewire('profile.delete-user')
@@ -648,28 +656,28 @@ years/
 home.blade.php
   Route: /
   ฟังก์ชัน: หน้าแรก
-  - @extends('layouts.frontend')
-  - @livewire('frontend.banner-slider')
+  - <x-layouts.frontend title="...">
+  - <livewire:frontend.banner-slider />
   - แสดง content sections (grid 4 boxes)
   - รองรับการเลือกดูตามปี
 
 about.blade.php
   Route: /about
   ฟังก์ชัน: เกี่ยวกับหน่วยงาน
-  - @extends('layouts.frontend')
+  - <x-layouts.frontend title="เกี่ยวกับหน่วยงาน">
   - แสดงข้อมูลหน่วยงาน (hard-coded)
 
 contact.blade.php
   Route: /contact
   ฟังก์ชัน: ติดต่อเรา
-  - @extends('layouts.frontend')
+  - <x-layouts.frontend title="ติดต่อเรา">
   - แสดงที่อยู่ เบอร์โทร
   - Google Maps (ถ้ามี)
 
 announcements.blade.php
   Route: /announcements/{year}
   ฟังก์ชัน: หน้าประกาศ/คำสั่งตามปี
-  - @extends('layouts.frontend')
+  - <x-layouts.frontend :title="'ประกาศ/คำสั่ง - SCD ' . $year->year">
   - ตาราง 2 หมวด: ประกาศ, คำสั่ง
   - ดาวน์โหลดไฟล์แนบ
 ```
@@ -1050,7 +1058,7 @@ Form → Livewire Component
 ### Architecture Decisions
 - **Livewire > Volt:** ใช้ Livewire components สำหรับ Admin และ Profile เพื่อความสม่ำเสมอ
 - **Volt:** ใช้เฉพาะ Auth pages ที่ไม่ค่อยแก้ไข (forgot-password, reset-password, verify-email, confirm-password)
-- **@extends > Components:** Frontend layouts ใช้ `@extends('layouts.frontend')` แทน component syntax
+- **<x-layouts.xxx>:** ใช้ Blade Component syntax สำหรับ layouts ทั้งหมด (ไม่ใช้ @extends แล้ว)
 - **Services:** ใช้ FileUploadService แยกออกจาก Livewire components
 
 ### File Storage

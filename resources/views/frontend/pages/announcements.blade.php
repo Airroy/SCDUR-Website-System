@@ -1,8 +1,4 @@
-@extends('layouts.frontend')
-
-@section('title', 'ประกาศ/คำสั่ง - SCD ' . $year->year)
-
-@section('content')
+<x-layouts.frontend :title="'ประกาศ/คำสั่ง - SCD ' . $year->year">
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Breadcrumb -->
@@ -89,4 +85,4 @@
             </div>
         </div>
     </div>
-@endsection
+</x-layouts.frontend>

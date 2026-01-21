@@ -1,8 +1,4 @@
-@extends('layouts.frontend')
-
-@section('title', 'เกี่ยวกับหน่วยงาน')
-
-@section('content')
+<x-layouts.frontend title="เกี่ยวกับหน่วยงาน">
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-bold text-gray-900 mb-6">เกี่ยวกับหน่วยงาน</h1>
@@ -14,4 +10,4 @@
             </div>
         </div>
     </div>
-@endsection
+</x-layouts.frontend>

@@ -17,10 +17,10 @@ resources/
 └── views/                      # Blade Templates
     ├── admin/pages/            # หน้า Admin แบบ static
     ├── components/             # Components ที่ใช้ซ้ำได้
+    │   ├── layouts/            # Layout Components (โครงร่างหน้า)
     │   ├── backend/            # Components สำหรับ Admin
     │   └── frontend/           # Components สำหรับหน้าบ้าน
     ├── frontend/pages/         # หน้าเว็บสำหรับผู้เยี่ยมชม
-    ├── layouts/                # Layout หลัก (โครงร่างหน้า)
     ├── livewire/               # Livewire Components (interactive)
     │   ├── auth/               # Authentication
     │   ├── backend/            # Admin Components
@@ -85,9 +85,10 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 # 📁 LAYOUTS - โครงร่างหน้า
 
-> **Layout** คือ "กรอบ" ของหน้าเว็บ มี header, footer, sidebar ที่ใช้ร่วมกัน
+> **Layout** คือ "กรอบ" ของหน้าเว็บ มี header, footer, sidebar ที่ใช้ร่วมกัน  
+> **ตำแหน่ง:** `components/layouts/` (ใช้เป็น Blade Component)
 
-## `layouts/admin.blade.php`
+## `components/layouts/admin.blade.php`
 
 **หน้าที่:** Layout สำหรับหลังบ้าน (Admin Panel)
 
@@ -114,15 +115,14 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 **วิธีใช้:**
 ```blade
-@extends('layouts.admin')
-@section('content')
+<x-layouts.admin>
     <h1>เนื้อหา</h1>
-@endsection
+</x-layouts.admin>
 ```
 
 ---
 
-## `layouts/frontend.blade.php`
+## `components/layouts/frontend.blade.php`
 
 **หน้าที่:** Layout สำหรับหน้าบ้าน (Public)
 
@@ -134,23 +134,25 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 │      <x-frontend.navigation />      │ ← เมนู Navbar (sticky)
 ├─────────────────────────────────────┤
 │                                     │
-│         @yield('content')           │ ← เนื้อหาแต่ละหน้า
+│            {{ $slot }}              │ ← เนื้อหาแต่ละหน้า
 │                                     │
 ├─────────────────────────────────────┤
 │      <x-frontend.footer />          │ ← Footer
 └─────────────────────────────────────┘
 ```
 
+**Props:**
+- `title` - ชื่อหน้า (สำหรับ <title> tag)
+
 **ฟีเจอร์:**
 - รับ `$publishedYears` สำหรับ dropdown เมนู
-- `@yield('title')` สำหรับ page title
 - Livewire scripts รวมอยู่แล้ว
 
 **ใช้โดย:** หน้าแรก, เกี่ยวกับ, ติดต่อ, ประกาศ
 
 ---
 
-## `layouts/guest.blade.php`
+## `components/layouts/guest.blade.php`
 
 **หน้าที่:** Layout สำหรับหน้า Authentication (ไม่ต้อง login)
 
@@ -533,6 +535,13 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 **หน้าที่:** หน้าแรกของเว็บไซต์
 
+**วิธีใช้ Layout:**
+```blade
+<x-layouts.frontend title="หน้าหลัก">
+    <!-- เนื้อหา -->
+</x-layouts.frontend>
+```
+
 **เนื้อหา:**
 1. Banner Slider (`<livewire:frontend.banner-slider />`)
 2. ARU-SCD [ปี] Banner (แถบสีแดง)
@@ -902,11 +911,13 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 | ใน Blade เห็น... | ไปที่ไฟล์... |
 |-----------------|-------------|
+| `<x-layouts.frontend>` | `components/layouts/frontend.blade.php` |
+| `<x-layouts.admin>` | `components/layouts/admin.blade.php` |
+| `<x-layouts.guest>` | `components/layouts/guest.blade.php` |
 | `<x-frontend.header />` | `components/frontend/header.blade.php` |
 | `<x-backend.modal />` | `components/backend/modal.blade.php` |
 | `@livewire('backend.years-index')` | `livewire/backend/years-index.blade.php` |
 | `<livewire:frontend.banner-slider />` | `livewire/frontend/banner-slider.blade.php` |
-| `@extends('layouts.admin')` | `layouts/admin.blade.php` |
 
 ---
 
@@ -915,8 +926,8 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 ## ต้องการแก้ไข... → ไปที่ไฟล์...
 
 | สิ่งที่ต้องการแก้ | ไฟล์ที่ต้องไป |
-|-----------------|--------------|
-| สี Sidebar Admin | `layouts/admin.blade.php` |
+|-----------------|------------------|
+| สี Sidebar Admin | `components/layouts/admin.blade.php` |
 | เมนู Navbar หน้าบ้าน | `components/frontend/navigation.blade.php` |
 | Footer | `components/frontend/footer.blade.php` |
 | Banner Slider | `livewire/frontend/banner-slider.blade.php` |

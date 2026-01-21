@@ -1,8 +1,4 @@
-@extends('layouts.frontend')
-
-@section('title', 'หน้าหลัก - มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน')
-
-@section('content')
+<x-layouts.frontend title="หน้าหลัก - มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน">
     <!-- Banner Slider Section -->
     <section class="pt-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -60,5 +56,4 @@
             @endif
         </div>
     </section>
-
-@endsection
+</x-layouts.frontend>
