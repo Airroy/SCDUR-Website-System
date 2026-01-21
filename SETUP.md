@@ -1,6 +1,8 @@
 # คู่มือติดตั้งและใช้งาน SCD Project
 
-> **คู่มือฉบับสมบูรณ์** สำหรับผู้ติดตั้งใหม่และผู้ดูแลระบบ
+> **คู่มือฉบับสมบูรณ์** สำหรับผู้ติดตั้งใหม่และผู้ดูแลระบบ  
+> **อัปเดตล่าสุด:** 21 มกราคม 2026  
+> **PHP Version:** 8.5 | **Laravel:** 12.x
 
 ---
 
@@ -38,15 +40,33 @@
 
 ### 🐳 Docker Services ที่จะถูกสร้าง
 เมื่อรัน `sail up` จะมี containers ดังนี้:
-- **laravel.test** - Laravel Application (PHP 8.3)
+- **laravel.test** - Laravel Application (PHP 8.5)
   - Port 80 → http://localhost
   - Port 5173 → Vite dev server
+  - Dockerfile: `docker/8.5/Dockerfile`
 - **mysql** - MySQL 8.4 Database
   - Port 3306 (internal)
 - **redis** - Redis Cache
   - Port 6379 (internal)
 - **phpmyadmin** - Database Management UI
   - Port 8080 → http://localhost:8080
+
+### 📁 Docker Files Structure
+โปรเจกต์นี้ใช้ **Published Docker Files** (ไม่พึ่ง vendor/) เพื่อให้ deploy ได้ง่าย:
+
+```
+docker/
+├── 8.5/                    # ← ใช้งานหลัก
+│   ├── Dockerfile          # PHP 8.5 + extensions
+│   ├── php.ini             # PHP configuration
+│   ├── start-container     # Startup script
+│   └── supervisord.conf    # Process manager
+├── mysql/
+│   └── create-testing-database.sh
+└── (8.0, 8.1, 8.2, 8.3, 8.4 - สำหรับเปลี่ยน version)
+```
+
+> 💡 **เปลี่ยน PHP version:** แก้ไข `context: './docker/8.5'` ใน `compose.yaml`
 
 ---
 
@@ -98,7 +118,7 @@ docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
-    laravelsail/php83-composer:latest \
+    laravelsail/php85-composer:latest \
     composer install --ignore-platform-reqs
 ```
 
@@ -107,7 +127,7 @@ docker run --rm \
 docker run --rm `
     -v "${PWD}:/var/www/html" `
     -w /var/www/html `
-    laravelsail/php83-composer:latest `
+    laravelsail/php85-composer:latest `
     composer install --ignore-platform-reqs
 ```
 
@@ -580,6 +600,133 @@ sail artisan view:clear
 sail artisan optimize:clear
 
 # ตรวจสอบว่า @livewireScripts อยู่ใน layout
+```
+
+---
+
+## 🚀 Production Deployment (DigitalOcean / VPS)
+
+### ข้อกำหนด Server
+- **OS:** Ubuntu 22.04 LTS หรือใหม่กว่า
+- **RAM:** อย่างน้อย 2GB
+- **Storage:** อย่างน้อย 20GB
+- **Docker & Docker Compose:** ติดตั้งบน server
+
+### ติดตั้ง Docker บน Server
+```bash
+# Ubuntu
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+newgrp docker
+
+# ตรวจสอบ
+docker --version
+docker compose version
+```
+
+### ขั้นตอน Deploy
+
+#### 1. Clone Repository
+```bash
+git clone https://github.com/panchaphon-oil/scd-project.git
+cd scd-project
+git checkout backend
+```
+
+#### 2. Setup Environment
+```bash
+cp .env.example .env
+nano .env
+```
+
+**แก้ไขค่าสำคัญ:**
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-domain.com
+
+DB_DATABASE=scd_project
+DB_USERNAME=sail
+DB_PASSWORD=your-strong-password  # เปลี่ยนเป็นรหัสที่แข็งแรง
+```
+
+#### 3. Build และ Start Containers
+```bash
+docker compose up --build -d
+```
+
+> ⚠️ **ครั้งแรกจะใช้เวลานาน** (10-15 นาที) เพราะต้อง build image
+
+#### 4. ติดตั้ง Dependencies
+```bash
+# รัน composer install ใน container
+docker compose exec laravel.test composer install --optimize-autoloader --no-dev
+
+# Generate app key
+docker compose exec laravel.test php artisan key:generate
+
+# Run migrations
+docker compose exec laravel.test php artisan migrate --force
+
+# Create storage link
+docker compose exec laravel.test php artisan storage:link
+```
+
+#### 5. Build Frontend Assets
+```bash
+docker compose exec laravel.test npm install
+docker compose exec laravel.test npm run build
+```
+
+#### 6. Optimize Laravel
+```bash
+docker compose exec laravel.test php artisan optimize
+docker compose exec laravel.test php artisan view:cache
+docker compose exec laravel.test php artisan route:cache
+```
+
+#### 7. สร้าง Admin User
+```bash
+docker compose exec laravel.test php artisan admin:create
+```
+
+### ตรวจสอบสถานะ
+```bash
+# ดู containers ที่รันอยู่
+docker compose ps
+
+# ดู logs
+docker compose logs -f
+
+# ดู logs เฉพาะ laravel
+docker compose logs -f laravel.test
+```
+
+### คำสั่งที่ใช้บ่อยบน Production
+```bash
+# รีสตาร์ท containers
+docker compose restart
+
+# อัปเดตโค้ด (หลัง git pull)
+git pull origin backend
+docker compose exec laravel.test composer install --optimize-autoloader --no-dev
+docker compose exec laravel.test php artisan migrate --force
+docker compose exec laravel.test npm run build
+docker compose exec laravel.test php artisan optimize
+
+# Rebuild container (หลังแก้ไข Dockerfile)
+docker compose up --build -d
+
+# ดู disk usage
+docker system df
+```
+
+### SSL/HTTPS (แนะนำ)
+ใช้ Nginx Proxy หรือ Cloudflare สำหรับ HTTPS:
+```bash
+# หรือใช้ Traefik / Caddy เป็น reverse proxy
+# ดูเอกสาร Laravel Sail สำหรับรายละเอียด
 ```
 
 ---

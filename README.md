@@ -1,7 +1,8 @@
 # SCD Project - ระบบจัดอันดับมหาวิทยาลัยด้านการพัฒนาชุมชนอย่างยั่งยืน
 
 > **Sustainable Community Development University Ranking System**  
-> ระบบจัดการและแสดงผลข้อมูล ARU-SCD สำหรับมหาวิทยาลัยราชภัฏพระนครศรีอยุธยา
+> ระบบจัดการและแสดงผลข้อมูล ARU-SCD สำหรับมหาวิทยาลัยราชภัฏพระนครศรีอยุธยา  
+> **อัปเดตล่าสุด:** 21 มกราคม 2026
 
 ---
 
@@ -45,8 +46,14 @@
 
 ### Development
 - **Environment:** Docker (Laravel Sail)
+- **PHP Version:** 8.5
 - **Package Manager:** Composer, NPM
 - **Testing:** PHPUnit
+
+### Infrastructure (Docker)
+- **Dockerfile:** อยู่ใน `docker/8.5/` (published สำหรับ production)
+- **compose.yaml:** Docker Compose configuration
+- **Services:** laravel.test, mysql, redis, phpmyadmin
 
 ---
 
@@ -74,7 +81,7 @@ docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
-    laravelsail/php83-composer:latest \
+    laravelsail/php85-composer:latest \
     composer install --ignore-platform-reqs
 ```
 
@@ -261,7 +268,53 @@ scd-project/
 
 ---
 
-## 👥 ทีมพัฒนา
+## � Production Deployment
+
+### DigitalOcean / VPS
+
+```bash
+# 1. Clone repository
+git clone https://github.com/panchaphon-oil/scd-project.git
+cd scd-project
+git checkout backend
+
+# 2. Copy environment file
+cp .env.example .env
+# แก้ไขค่าใน .env ตามเครื่อง server
+
+# 3. Build และ start containers
+docker compose up --build -d
+
+# 4. Install dependencies และ setup
+docker compose exec laravel.test composer install
+docker compose exec laravel.test php artisan key:generate
+docker compose exec laravel.test php artisan migrate
+docker compose exec laravel.test php artisan storage:link
+docker compose exec laravel.test npm install
+docker compose exec laravel.test npm run build
+
+# 5. สร้าง admin user
+docker compose exec laravel.test php artisan admin:create
+```
+
+> ✅ **ไม่ต้องติดตั้ง PHP/Composer/Node บนเครื่อง server** - ใช้ Docker เท่านั้น
+
+### Docker Structure
+```
+docker/
+├── 8.5/                    # PHP 8.5 (ใช้งานหลัก)
+│   ├── Dockerfile          # Docker image configuration
+│   ├── php.ini             # PHP settings
+│   ├── start-container     # Container startup script
+│   └── supervisord.conf    # Process manager config
+├── mysql/
+│   └── create-testing-database.sh
+└── ... (other PHP versions)
+```
+
+---
+
+## �👥 ทีมพัฒนา
 
 **มหาวิทยาลัยราชภัฏพระนครศรีอยุธยา**  
 สำนักงานพัฒนาชุมชนอย่างยั่งยืน

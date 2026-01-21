@@ -1,9 +1,11 @@
 # โครงสร้างโปรเจกต์ SCD - คู่มือสำหรับนักพัฒนา
 
-> **อัปเดตล่าสุด:** 20 มกราคม 2026  
+> **อัปเดตล่าสุด:** 21 มกราคม 2026  
 > **Laravel Version:** 12.x  
+> **PHP Version:** 8.5  
 > **Architecture:** MVC + Livewire Components  
-> **Cache:** Redis
+> **Cache:** Redis  
+> **Containerization:** Docker (Laravel Sail)
 
 ---
 
@@ -15,6 +17,10 @@ scd-project/
 ├── bootstrap/              # Framework Bootstrap
 ├── config/                 # Configuration Files
 ├── database/               # Migrations & Seeders
+├── docker/                 # Docker Configuration (Published)
+│   ├── 8.5/                # PHP 8.5 Dockerfile (ใช้งานหลัก)
+│   ├── mysql/              # MySQL init scripts
+│   └── ...                 # Other PHP versions
 ├── public/                 # Public Assets & Entry Point
 ├── resources/              # Views, CSS, JS
 ├── routes/                 # Route Definitions
@@ -25,7 +31,106 @@ scd-project/
 
 ---
 
-## 📂 App Directory (Application Logic)
+## � Docker Directory (Infrastructure)
+
+### docker/8.5/ (PHP 8.5 - ใช้งานหลัก)
+**Docker configuration สำหรับ Laravel Application**
+
+```
+Dockerfile
+  หน้าที่: สร้าง Docker image สำหรับ Laravel
+  เนื้อหา:
+    - Base image: Ubuntu 24.04
+    - PHP 8.5 + Extensions ที่ Laravel ต้องการ
+    - Composer, Node.js, NPM
+    - Nginx / PHP-FPM
+    - Supervisor สำหรับจัดการ processes
+
+php.ini
+  หน้าที่: PHP Configuration
+  การตั้งค่าสำคัญ:
+    - memory_limit = 512M
+    - upload_max_filesize = 100M
+    - post_max_size = 100M
+    - max_execution_time = 60
+
+start-container
+  หน้าที่: Startup script เมื่อ container เริ่มทำงาน
+  การทำงาน:
+    - ตั้งค่า permissions
+    - รัน supervisord
+    - เริ่ม PHP-FPM
+
+supervisord.conf
+  หน้าที่: Process manager configuration
+  Processes ที่จัดการ:
+    - php-fpm (PHP processor)
+    - nginx (Web server) - บาง version
+```
+
+### docker/mysql/
+**MySQL initialization scripts**
+
+```
+create-testing-database.sh
+  หน้าที่: สร้าง testing database อัตโนมัติ
+  การทำงาน:
+    - รันเมื่อ MySQL container เริ่มครั้งแรก
+    - สร้าง database: testing
+    - ใช้สำหรับ phpunit tests
+```
+
+### compose.yaml (Root)
+**Docker Compose configuration**
+
+```yaml
+Services:
+  laravel.test:
+    - Image: sail-8.5/app (build จาก docker/8.5/)
+    - Ports: 80 (web), 5173 (vite)
+    - Volumes: mount โปรเจกต์เข้า container
+    - Depends on: mysql
+
+  mysql:
+    - Image: mysql:8.4
+    - Port: 3306
+    - Volume: sail-mysql (persistent data)
+    - Environment: credentials จาก .env
+
+  redis:
+    - Image: redis:alpine
+    - Port: 6379
+    - Volume: sail-redis (persistent data)
+
+  phpmyadmin:
+    - Image: phpmyadmin:latest
+    - Port: 8080
+    - Environment: auto-login ด้วย .env credentials
+```
+
+### วิธีเปลี่ยน PHP Version
+```yaml
+# ใน compose.yaml แก้ไข:
+services:
+    laravel.test:
+        build:
+            context: './docker/8.4'    # เปลี่ยนจาก 8.5 → 8.4
+        image: 'sail-8.4/app'          # เปลี่ยนชื่อ image
+```
+
+### วิธีปรับแต่ง PHP Configuration
+```bash
+# แก้ไขไฟล์:
+docker/8.5/php.ini
+
+# แล้ว rebuild container:
+./vendor/bin/sail build --no-cache
+./vendor/bin/sail up -d
+```
+
+---
+
+## �📂 App Directory (Application Logic)
 
 ### app/Console/Commands/
 **คำสั่ง Artisan ที่สร้างเอง**
