@@ -7,7 +7,7 @@ use App\Models\ContentNode;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.admin')]
+#[Layout('components.layouts.admin')]
 class AnnouncementsIndex extends Component
 {
     public $selectedYear;

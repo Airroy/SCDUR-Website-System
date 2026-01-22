@@ -9,7 +9,7 @@ use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 
-#[Layout('layouts.admin')]
+#[Layout('components.layouts.admin')]
 class BannersIndex extends Component
 {
     use WithFileUploads;

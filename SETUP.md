@@ -1,7 +1,7 @@
 # 🚀 คู่มือติดตั้ง SCD Project
 
-> **อัปเดตล่าสุด:** 21 มกราคม 2026  
-> **PHP:** 8.5 | **Laravel:** 12.x | **Database:** MySQL 8.4 | **Cache:** Redis
+> **อัปเดตล่าสุด:** 22 มกราคม 2026  
+> **PHP:** 8.4 | **Laravel:** 12.x | **Database:** MySQL 8.4 | **Cache:** Redis
 
 ---
 
@@ -31,81 +31,82 @@
 
 ---
 
-## 🛠️ ขั้นตอนติดตั้ง (10 ขั้นตอน)
+## 🛠️ ขั้นตอนติดตั้ง
 
-### 1. Clone โปรเจกต์
+### ขั้นตอนที่ 1: Clone และเตรียมโปรเจกต์
+
 ```bash
 git clone https://github.com/panchaphon-oil/scd-project.git
 cd scd-project
 git checkout backend
-```
-
-### 2. สร้างไฟล์ Environment
-```bash
 cp .env.example .env
 ```
 
-### 3. ติดตั้ง PHP Dependencies
+---
 
-**Linux / macOS:**
+### ขั้นตอนที่ 2: ติดตั้ง PHP Dependencies
+
+**🐧 Linux / 🍎 macOS:**
 ```bash
-docker run --rm \
+rm -rf vendor 2>/dev/null; docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
-    laravelsail/php85-composer:latest \
+    laravelsail/php84-composer:latest \
     composer install --ignore-platform-reqs
 ```
 
-**Windows (PowerShell):**
+**🪟 Windows (PowerShell):**
 ```powershell
-docker run --rm `
+Remove-Item -Recurse -Force vendor -ErrorAction SilentlyContinue; docker run --rm `
     -v "${PWD}:/var/www/html" `
     -w /var/www/html `
-    laravelsail/php85-composer:latest `
+    laravelsail/php84-composer:latest `
     composer install --ignore-platform-reqs
 ```
 
-### 4. เริ่ม Docker
+> ⏳ รอสักครู่... จะเห็น `Generating optimized autoload files` เมื่อสำเร็จ
+
+---
+
+### ขั้นตอนที่ 3: เริ่ม Docker และ Setup
+
 ```bash
 ./vendor/bin/sail up -d
 ```
 
-> ⏳ ครั้งแรกจะใช้เวลา 5-10 นาที (ดาวน์โหลด images)
+> ⏳ **ครั้งแรก** จะใช้เวลา 5-10 นาที (build Docker image)
 
-### 5. Generate App Key
+**รอจนเห็น containers ทำงาน แล้วรันคำสั่งต่อไปนี้ทีละบรรทัด:**
+
 ```bash
 ./vendor/bin/sail artisan key:generate
-```
-
-### 6. สร้างตาราง Database
-```bash
 ./vendor/bin/sail artisan migrate
-```
-
-### 7. สร้าง Storage Link
-```bash
 ./vendor/bin/sail artisan storage:link
-```
-
-### 8. ติดตั้ง Frontend Dependencies
-```bash
 ./vendor/bin/sail npm install
 ```
 
-### 9. รัน Frontend Dev Server
+---
+
+### ขั้นตอนที่ 4: รัน Development Server
+
 ```bash
 ./vendor/bin/sail npm run dev
 ```
 
-> 💡 **เปิด terminal ไว้** - ต้องรันตลอดเวลาที่พัฒนา
+> 💡 **เปิด terminal นี้ไว้** ตลอดเวลาที่พัฒนา
 
-### 10. สร้าง Admin User
+---
+
+### ขั้นตอนที่ 5: สร้าง Admin User
+
+เปิด **terminal ใหม่** แล้วรัน:
 ```bash
+cd scd-project
 ./vendor/bin/sail artisan admin:create
 ```
 
-กรอกข้อมูล: ชื่อ, อีเมล, รหัสผ่าน
+กรอก: ชื่อ, อีเมล, รหัสผ่าน
 
 ---
 
@@ -121,14 +122,14 @@ docker run --rm `
 
 ## 💻 การใช้งานประจำวัน
 
-### เปิดทำงาน (ทุกครั้งที่เริ่มทำงาน)
+### 🟢 เปิดทำงาน (ทุกครั้งที่เริ่มทำงาน)
 ```bash
 cd scd-project
 ./vendor/bin/sail up -d
 ./vendor/bin/sail npm run dev
 ```
 
-### ปิดเมื่อเลิกทำงาน
+### 🔴 ปิดเมื่อเลิกทำงาน
 ```bash
 ./vendor/bin/sail down
 ```
@@ -168,7 +169,7 @@ scd-project/
 │   ├── livewire/           #    Views ของ Livewire
 │   └── components/         #    Components ย่อย
 ├── routes/web.php          # ← Routes ทั้งหมด
-├── docker/8.5/             # ← Docker configuration
+├── docker/8.4/             # ← Docker configuration
 └── compose.yaml            # ← Docker Compose
 ```
 
@@ -335,25 +336,21 @@ docker compose restart
 
 # การแก้ไขปัญหา
 
-## ❌ Port ชนกัน
+## ❌ Port ชนกัน (port 80 ถูกใช้งานอยู่)
 
-**แก้ไขใน `.env`:**
-```env
-APP_PORT=8000
-FORWARD_DB_PORT=3307
-VITE_PORT=5174
-```
-
-จากนั้น:
+แก้ไขใน `.env` แล้ว restart:
 ```bash
-sail down && sail up -d
-```
+# เพิ่มใน .env
+APP_PORT=8000
 
+# restart
+./vendor/bin/sail down && ./vendor/bin/sail up -d
+```
 เข้าที่: http://localhost:8000
 
 ---
 
-## ❌ Permission Denied
+## ❌ Permission Denied (storage หรือ bootstrap/cache)
 
 ```bash
 sudo chmod -R 775 storage bootstrap/cache

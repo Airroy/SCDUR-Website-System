@@ -6,7 +6,7 @@ use App\Models\ScdYear;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.admin')]
+#[Layout('components.layouts.admin')]
 class AdminDashboard extends Component
 {
     public function render()
