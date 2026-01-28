@@ -1,36 +1,34 @@
-@props(['title' => null])
-
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>{{ $title ?? config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    @livewireStyles
-</head>
-<body class="font-sans antialiased bg-white">
+    <title>{{ $title ?? 'มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน' }}</title>
     
-    <!-- Header -->
-    <x-frontend.header :publishedYears="$publishedYears ?? []" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    @livewireStyles
+    @stack('styles')
+</head>
+<body class="font-sans antialiased bg-gray-100 text-gray-900"> <!--  bg-gray-100 text-gray-900 พื้นหลังและสีข้อความสีเทา แต่ Dev Backend อยากได้สีขาว ปรับไว้ก่อน เพราะเอาไว้ดู Box -->
+    
+    @php
+        $publishedYears = \App\Models\ScdYear::where('is_published', true)->orderBy('year', 'desc')->get();
+    @endphp
+
+    <!-- Header Component -->
+    <x-frontend.header :publishedYears="$publishedYears" />
 
     <!-- Main Content -->
     <main>
         {{ $slot }}
     </main>
 
-    <!-- Footer -->
+    <!-- Footer Component -->
     <x-frontend.footer />
 
     @livewireScripts
+    @stack('scripts')
 </body>
 </html>

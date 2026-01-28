@@ -8,13 +8,24 @@ use Livewire\Component;
 
 class BannerSlider extends Component
 {
+    public $yearId; // รับค่าจาก home.blade.php
+
+    public function mount($yearId = null)
+    {
+        // ถ้าไม่ได้ส่ง yearId มา ให้ใช้ปีล่าสุด
+        if (!$yearId) {
+            $activeYear = ScdYear::where('is_published', true)
+                                ->latest('year')
+                                ->first();
+            $this->yearId = $activeYear?->id;
+        }
+    }
+
     public function render()
     {
-        // ดึง Banner จากปีที่ publish แล้วเท่านั้น
-        $activeYear = ScdYear::where('is_published', true)->latest('year')->first();
-        
-        $banners = $activeYear 
-            ? Banner::where('scd_year_id', $activeYear->id)
+        // ดึง Banner ตามปีที่ได้รับ
+        $banners = $this->yearId 
+            ? Banner::where('scd_year_id', $this->yearId)
                     ->orderBy('sequence')
                     ->get()
             : collect([]);

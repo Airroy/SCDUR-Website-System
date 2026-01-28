@@ -6,7 +6,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'SCD System') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    
     @livewireStyles
+    @stack('styles')
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
@@ -146,5 +151,10 @@
     <x-notification />
 
     @livewireScripts
+    
+    <!-- Cropper.js Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    
+    @stack('scripts')
 </body>
 </html>

@@ -24,7 +24,8 @@ class BannersIndex extends Component
     
     // Form fields
     public $sequence;
-    public $image;
+    public $banner_image; // รับ base64 จาก image-cropper
+    public $image; // รับไฟล์ upload ปกติ
     public $existingImage;
     public $link_type = 'none';
     public $link_url;
@@ -64,14 +65,23 @@ class BannersIndex extends Component
     public function saveBanner()
     {
         // Validate
-        $this->validate([
+        $rules = [
             'sequence' => 'required|integer|min:1',
-            'image' => $this->editMode ? 'nullable|image|max:2048' : 'required|image|max:2048',
+            'banner_image' => 'nullable|string', // base64
+            'image' => $this->editMode ? 'nullable|image|max:2048' : 'nullable|image|max:2048',
             'link_type' => 'required|in:none,url,pdf',
             'link_url' => $this->link_type === 'url' ? 'required|url' : 'nullable',
             'pdf_file' => $this->link_type === 'pdf' && !$this->editMode ? 'required|mimes:pdf|max:10240' : 'nullable|mimes:pdf|max:10240',
             'pdf_name' => $this->link_type === 'pdf' ? 'required|string|max:255' : 'nullable',
-        ]);
+        ];
+
+        // ตรวจสอบว่าต้องมีรูปภาพ (ถ้าไม่ใช่โหมดแก้ไข)
+        if (!$this->editMode && !$this->banner_image && !$this->image) {
+            $this->addError('image', 'กรุณาเลือกรูปภาพ');
+            return;
+        }
+
+        $this->validate($rules);
 
         // Check duplicate sequence
         $existingBanner = Banner::where('scd_year_id', $this->selectedYear->id)
@@ -104,8 +114,10 @@ class BannersIndex extends Component
             'pdf_name' => $this->link_type === 'pdf' ? $this->pdf_name : null,
         ];
 
-        // Upload image
-        if ($this->image) {
+        // Upload image (รองรับทั้ง base64 และ file upload)
+        if ($this->banner_image) {
+            $data['image_path'] = $this->saveBase64Image($this->banner_image, 'banners');
+        } elseif ($this->image) {
             $data['image_path'] = $this->image->store('banners', 'public');
         }
 
@@ -134,8 +146,14 @@ class BannersIndex extends Component
             'pdf_name' => $this->link_type === 'pdf' ? $this->pdf_name : null,
         ];
 
-        // Upload new image
-        if ($this->image) {
+        // Upload new image (รองรับทั้ง base64 และ file upload)
+        if ($this->banner_image) {
+            // Delete old image
+            if ($banner->image_path) {
+                Storage::disk('public')->delete($banner->image_path);
+            }
+            $data['image_path'] = $this->saveBase64Image($this->banner_image, 'banners');
+        } elseif ($this->image) {
             // Delete old image
             if ($banner->image_path) {
                 Storage::disk('public')->delete($banner->image_path);
@@ -186,11 +204,35 @@ class BannersIndex extends Component
         ]);
     }
 
+    /**
+     * แปลง base64 เป็นไฟล์และบันทึก
+     */
+    private function saveBase64Image($base64String, $folder)
+    {
+        if (empty($base64String)) {
+            return null;
+        }
+
+        // แยก header ออก (data:image/jpeg;base64,)
+        $image = preg_replace('/^data:image\/\w+;base64,/', '', $base64String);
+        $image = str_replace(' ', '+', $image);
+
+        // สร้างชื่อไฟล์
+        $imageName = uniqid() . '_' . time() . '.jpg';
+        $path = $folder . '/' . $imageName;
+
+        // บันทึกลง storage/app/public
+        Storage::disk('public')->put($path, base64_decode($image));
+
+        return $path;
+    }
+
     private function resetForm()
     {
         $this->reset([
             'bannerId',
             'sequence',
+            'banner_image',
             'image',
             'existingImage',
             'link_type',

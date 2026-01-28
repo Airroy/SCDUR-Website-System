@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ScdYear;
 use App\Models\ContentNode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class FrontendController extends Controller
 {
@@ -35,6 +36,64 @@ class FrontendController extends Controller
             ->orderBy('sequence')
             ->get();
 
-        return view('frontend.pages.announcements', compact('year', 'announcements', 'orders'));
+        return view('frontend.pages.announcements', compact(
+            'year',
+            'announcements',
+            'orders'
+        ));
+    }
+
+    public function contentSection($yearId, $sectionId)
+    {
+        // ปีการศึกษา
+        $year = ScdYear::findOrFail($yearId);
+
+        // หมวด (Section)
+        $section = ContentNode::where('id', $sectionId)
+            ->where('scd_year_id', $yearId)
+            ->firstOrFail();
+
+        // รายการย่อยในหมวด
+        $items = ContentNode::where('parent_id', $section->id)
+            ->orderBy('sequence')
+            ->get();
+
+        return view('frontend.pages.content-section', compact(
+            'year',
+            'section',
+            'items'
+        ));
+    }
+
+    public function viewFile($id)
+    {
+        $item = ContentNode::findOrFail($id);
+        
+        // ตรวจสอบว่าไฟล์มีอยู่จริงหรือไม่
+        if (!Storage::disk('public')->exists($item->file_path)) {
+            return back()->with('error', 'ไม่พบไฟล์ที่ต้องการดู');
+        }
+        
+        // นับจำนวนการดู
+        $item->increment('view_count');
+        
+        // Redirect ไปยังไฟล์
+        return redirect(Storage::disk('public')->url($item->file_path));
+    }
+
+    public function downloadFile($id)
+    {
+        $item = ContentNode::findOrFail($id);
+        
+        // ตรวจสอบว่าไฟล์มีอยู่จริงหรือไม่
+        if (!Storage::disk('public')->exists($item->file_path)) {
+            return back()->with('error', 'ไม่พบไฟล์ที่ต้องการดาวน์โหลด');
+        }
+        
+        // นับจำนวนดาวน์โหลด
+        $item->increment('download_count');
+        
+        // ดาวน์โหลดไฟล์
+        return Storage::disk('public')->download($item->file_path, $item->name . '.pdf');
     }
 }

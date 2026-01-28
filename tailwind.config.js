@@ -14,6 +14,16 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                brand: {
+                    yellow: '#FFD87F',
+                    blue: '#1e3c72',
+                    pink: '#ff9f8e',
+                    red: '#af1a00',
+                    orange: '#ff6d54',
+                    gold: '#cba351',
+                },
+            },
         },
     },
 

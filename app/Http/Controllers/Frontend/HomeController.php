@@ -11,18 +11,27 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
+        // ===============================
         // ดึงปีที่ publish แล้ว
+        // ===============================
         $publishedYears = ScdYear::where('is_published', true)
             ->orderBy('year', 'desc')
             ->get();
 
-        // ใช้ปีที่เลือกหรือปีล่าสุด
+
+        // ===============================
+        // เลือกปีที่ใช้งาน
+        // ===============================
         $selectedYearId = $request->query('year');
-        $activeYear = $selectedYearId 
+
+        $activeYear = $selectedYearId
             ? ScdYear::find($selectedYearId)
             : $publishedYears->first();
 
-        // ดึงประกาศ (announcements)
+
+        // ===============================
+        // ดึงประกาศ
+        // ===============================
         $announcements = $activeYear
             ? ContentNode::where('scd_year_id', $activeYear->id)
                 ->where('category_group', 'announcement')
@@ -32,20 +41,28 @@ class HomeController extends Controller
                 ->get()
             : collect([]);
 
-        // ดึงหมวดหมู่เนื้อหา (content sections) - เฉพาะ root level
+
+        // ===============================
+        // ดึงหมวดเนื้อหา (content)
+        // *** แก้ตรงนี้ ***
+        // ===============================
         $contentSections = $activeYear
             ? ContentNode::where('scd_year_id', $activeYear->id)
-                ->where('category_group', 'content_section')
+                ->where('category_group', 'content') // แก้จาก content_section เป็น content
                 ->whereNull('parent_id')
                 ->orderBy('sequence')
                 ->get()
             : collect([]);
 
+
+        // ===============================
+        // ส่งไปหน้า View
+        // ===============================
         return view('frontend.pages.home', [
-            'activeYear' => $activeYear,
-            'publishedYears' => $publishedYears,
-            'announcements' => $announcements,
-            'contentSections' => $contentSections,
+            'activeYear'       => $activeYear,
+            'publishedYears'   => $publishedYears,
+            'announcements'    => $announcements,
+            'contentSections'  => $contentSections,
         ]);
     }
 }

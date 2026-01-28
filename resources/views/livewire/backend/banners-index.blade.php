@@ -43,26 +43,36 @@
                     @error('sequence') <span class="text-sm text-red-600 mt-1">{{ $message }}</span> @enderror
                 </div>
 
-                <!-- Image Upload -->
+                <!-- Title (Optional) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        ชื่อแบนเนอร์ (ไม่บังคับ)
+                    </label>
+                    <input type="text" wire:model="title" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                           placeholder="ชื่อเพื่ออ้างอิง">
+                    @error('title') <span class="text-sm text-red-600 mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <!-- Image Upload - Image Cropper -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         รูปภาพ Banner <span class="text-red-600">*</span>
                     </label>
-                    <input type="file" wire:model="image" accept="image/*"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                    @error('image') <span class="text-sm text-red-600 mt-1">{{ $message }}</span> @enderror
                     
-                    <!-- Preview -->
-                    @if ($image)
-                        <div class="mt-2">
-                            <img src="{{ $image->temporaryUrl() }}" class="h-32 rounded-lg border" alt="Preview">
-                        </div>
-                    @elseif ($existingImage)
-                        <div class="mt-2">
-                            <p class="text-sm text-gray-500 mb-1">รูปภาพปัจจุบัน:</p>
-                            <img src="{{ Storage::url($existingImage) }}" class="h-32 rounded-lg border" alt="Current">
-                        </div>
-                    @endif
+                    {{-- ใช้ Image Cropper Component --}}
+                    <x-image-cropper-simple
+                        name="banner_image"
+                        :required="!$editMode"
+                        :existingImage="$existingImage ? Storage::url($existingImage) : null"
+                        aspectRatio="1920/720"
+                        :outputWidth="1920"
+                        :outputHeight="720"
+                        helpText="รองรับ JPG, PNG ขนาดแนะนำ 1920x720 px"
+                    />
+                    
+                    @error('banner_image') <span class="text-sm text-red-600 mt-1">{{ $message }}</span> @enderror
+                    @error('image') <span class="text-sm text-red-600 mt-1">{{ $message }}</span> @enderror
                 </div>
 
                 <!-- Link Type -->

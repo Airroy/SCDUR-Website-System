@@ -1,22 +1,15 @@
 @props(['publishedYears' => []])
 
-<nav class="bg-[#af1a00] shadow-[0_2px_10px_rgba(0,0,0,0.2)] sticky top-0 z-50" x-data="{ mobileMenuOpen: false }">
+<!-- Desktop Navigation -->
+<nav class="hidden lg:block bg-[#af1a00] shadow-[0_2px_10px_rgba(0,0,0,0.2)] sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-5">
         <div class="flex items-center justify-between">
-            
-            <!-- Mobile Menu Toggle -->
-            <button @click="mobileMenuOpen = !mobileMenuOpen" 
-                    class="lg:hidden text-white text-2xl p-2.5">
-                ☰
-            </button>
-
-            <!-- Desktop Menu -->
-            <ul class="hidden lg:flex list-none m-0 p-0">
+            <ul class="flex list-none m-0 p-0">
                 
                 <!-- หน้าหลัก -->
                 <li class="relative">
                     <a href="{{ route('home') }}" 
-                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-300 hover:bg-[#ff9f8e] hover:text-black whitespace-nowrap">
+                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-200 hover:bg-[#8a1500] whitespace-nowrap">
                         หน้าหลัก
                     </a>
                 </li>
@@ -24,7 +17,7 @@
                 <!-- เกี่ยวกับหน่วยงาน -->
                 <li class="relative">
                     <a href="{{ route('about') }}" 
-                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-300 hover:bg-[#ff9f8e] hover:text-black whitespace-nowrap">
+                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-200 hover:bg-[#8a1500] whitespace-nowrap">
                         เกี่ยวกับหน่วยงาน
                     </a>
                 </li>
@@ -32,21 +25,21 @@
                 <!-- SCD Rankings Dropdown -->
                 <li class="relative group">
                     <a href="#" 
-                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-300 hover:bg-[#ff9f8e] hover:text-black whitespace-nowrap">
-                        SCD Rankings <span class="text-xs">▾</span>
+                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-200 hover:bg-[#8a1500] whitespace-nowrap">
+                        SCD Rankings <span class="text-xs ml-1">▾</span>
                     </a>
                     <!-- Dropdown -->
-                    <ul class="absolute top-full left-0 bg-white min-w-[250px] list-none p-0 m-0 shadow-[0_4px_15px_rgba(0,0,0,0.2)] opacity-0 invisible translate-y-[-10px] group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 rounded-b-lg">
+                    <ul class="absolute top-full left-0 bg-[#a82200] min-w-[250px] list-none p-0 m-0 shadow-[0_4px_15px_rgba(0,0,0,0.3)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
                         @forelse($publishedYears as $year)
-                        <li class="border-b border-gray-200 last:border-0">
+                        <li class="border-b border-white/5 last:border-0">
                             <a href="{{ route('home', ['year' => $year->id]) }}" 
-                               class="block py-3 px-5 text-gray-600 no-underline text-sm transition-all duration-300 hover:bg-gray-100 hover:text-black hover:pl-[25px]">
+                               class="block py-3 px-5 text-white no-underline text-sm transition-all duration-200 hover:bg-[#8a1500]">
                                 SCD {{ $year->year }}
                             </a>
                         </li>
                         @empty
-                        <li class="border-b border-gray-200 last:border-0">
-                            <span class="block py-3 px-5 text-gray-400 text-sm">ไม่มีข้อมูล</span>
+                        <li class="border-b border-white/5 last:border-0">
+                            <span class="block py-3 px-5 text-white/60 text-sm">ไม่มีข้อมูล</span>
                         </li>
                         @endforelse
                     </ul>
@@ -55,24 +48,24 @@
                 <!-- รายงานผล SCD Dropdown -->
                 <li class="relative group">
                     <a href="#" 
-                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-300 hover:bg-[#ff9f8e] hover:text-black whitespace-nowrap">
-                        รายงานผล SCD <span class="text-xs">▾</span>
+                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-200 hover:bg-[#8a1500] whitespace-nowrap">
+                        รายงานผล SCD <span class="text-xs ml-1">▾</span>
                     </a>
                     <!-- Dropdown -->
-                    <ul class="absolute top-full left-0 bg-white min-w-[250px] list-none p-0 m-0 shadow-[0_4px_15px_rgba(0,0,0,0.2)] opacity-0 invisible translate-y-[-10px] group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 rounded-b-lg">
+                    <ul class="absolute top-full left-0 bg-[#a82200] min-w-[250px] list-none p-0 m-0 shadow-[0_4px_15px_rgba(0,0,0,0.3)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
                         @forelse($publishedYears as $year)
                             @if($year->report && $year->report->file_path)
-                            <li class="border-b border-gray-200 last:border-0">
+                            <li class="border-b border-white/5 last:border-0">
                                 <a href="{{ Storage::url($year->report->file_path) }}" 
                                    target="_blank"
-                                   class="block py-3 px-5 text-gray-600 no-underline text-sm transition-all duration-300 hover:bg-gray-100 hover:text-black hover:pl-[25px]">
+                                   class="block py-3 px-5 text-white no-underline text-sm transition-all duration-200 hover:bg-[#8a1500]">
                                     รายงาน SCD {{ $year->year }}
                                 </a>
                             </li>
                             @endif
                         @empty
-                        <li class="border-b border-gray-200 last:border-0">
-                            <span class="block py-3 px-5 text-gray-400 text-sm">ไม่มีข้อมูล</span>
+                        <li class="border-b border-white/5 last:border-0">
+                            <span class="block py-3 px-5 text-white/60 text-sm">ไม่มีข้อมูล</span>
                         </li>
                         @endforelse
                     </ul>
@@ -81,21 +74,21 @@
                 <!-- ประกาศ/คำสั่ง Dropdown -->
                 <li class="relative group">
                     <a href="#" 
-                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-300 hover:bg-[#ff9f8e] hover:text-black whitespace-nowrap">
-                        ประกาศ/คำสั่ง <span class="text-xs">▾</span>
+                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-200 hover:bg-[#8a1500] whitespace-nowrap">
+                        ประกาศ/คำสั่ง <span class="text-xs ml-1">▾</span>
                     </a>
                     <!-- Dropdown -->
-                    <ul class="absolute top-full left-0 bg-white min-w-[250px] list-none p-0 m-0 shadow-[0_4px_15px_rgba(0,0,0,0.2)] opacity-0 invisible translate-y-[-10px] group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 rounded-b-lg">
+                    <ul class="absolute top-full left-0 bg-[#a82200] min-w-[250px] list-none p-0 m-0 shadow-[0_4px_15px_rgba(0,0,0,0.3)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
                         @forelse($publishedYears as $year)
-                        <li class="border-b border-gray-200 last:border-0">
+                        <li class="border-b border-white/5 last:border-0">
                             <a href="{{ route('announcements', $year->id) }}" 
-                               class="block py-3 px-5 text-gray-600 no-underline text-sm transition-all duration-300 hover:bg-gray-100 hover:text-black hover:pl-[25px]">
+                               class="block py-3 px-5 text-white no-underline text-sm transition-all duration-200 hover:bg-[#8a1500]">
                                 ประกาศ/คำสั่ง {{ $year->year }}
                             </a>
                         </li>
                         @empty
-                        <li class="border-b border-gray-200 last:border-0">
-                            <span class="block py-3 px-5 text-gray-400 text-sm">ไม่มีข้อมูล</span>
+                        <li class="border-b border-white/5 last:border-0">
+                            <span class="block py-3 px-5 text-white/60 text-sm">ไม่มีข้อมูล</span>
                         </li>
                         @endforelse
                     </ul>
@@ -104,113 +97,163 @@
                 <!-- ติดต่อเรา -->
                 <li class="relative">
                     <a href="{{ route('contact') }}" 
-                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-300 hover:bg-[#ff9f8e] hover:text-black whitespace-nowrap">
+                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-200 hover:bg-[#8a1500] whitespace-nowrap">
                         ติดต่อเรา
                     </a>
                 </li>
             </ul>
         </div>
     </div>
+</nav>
 
-    <!-- Mobile Menu -->
-    <div x-show="mobileMenuOpen" 
-         x-transition
+<!-- Mobile Navigation -->
+<header class="lg:hidden sticky w-full z-40 top-0" x-data="{ mobileMenuOpen: false, activeDropdown: null }">
+    <!-- Top Bar -->
+    <nav class="bg-[#af1a00] shadow-lg">
+        <div class="flex flex-wrap justify-between items-center mx-auto px-4 py-2.5">
+            <a href="{{ route('home') }}" class="flex items-center">
+                <span class="text-base text-white font-semibold">ARU-SCD</span>
+            </a>
+            <button @click="mobileMenuOpen = !mobileMenuOpen" 
+                    class="text-white text-xl p-1.5 hover:bg-[#8a1500] rounded-lg transition-all duration-200">
+                <span x-show="!mobileMenuOpen">☰</span>
+                <span x-show="mobileMenuOpen">☰</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Slide Down Menu -->
+    <nav x-show="mobileMenuOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform -translate-y-4"
+         x-transition:enter-end="opacity-100 transform translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform translate-y-0"
+         x-transition:leave-end="opacity-0 transform -translate-y-4"
          @click.away="mobileMenuOpen = false"
-         class="lg:hidden fixed left-0 top-0 w-4/5 max-w-[300px] h-screen bg-[#af1a00] pt-[60px] pb-5 overflow-y-auto z-50">
-        
-        <ul class="list-none m-0 p-0">
-            <!-- หน้าหลัก -->
-            <li class="w-full">
-                <a href="{{ route('home') }}" 
-                   class="block py-[15px] px-5 text-white no-underline border-b border-white/10">
-                    หน้าหลัก
-                </a>
-            </li>
+         class="bg-[#a82200] shadow-xl max-h-[calc(100vh-52px)] overflow-y-auto">
+        <div class="px-3 py-3">
+            <ul class="space-y-1">
+                <!-- หน้าหลัก -->
+                <li>
+                    <a href="{{ route('home') }}" 
+                       class="block py-2.5 px-4 text-white text-sm font-medium transition-all duration-200 hover:bg-[#8a1500] rounded-lg">
+                        หน้าหลัก
+                    </a>
+                </li>
 
-            <!-- เกี่ยวกับหน่วยงาน -->
-            <li class="w-full">
-                <a href="{{ route('about') }}" 
-                   class="block py-[15px] px-5 text-white no-underline border-b border-white/10">
-                    เกี่ยวกับหน่วยงาน
-                </a>
-            </li>
+                <!-- เกี่ยวกับหน่วยงาน -->
+                <li>
+                    <a href="{{ route('about') }}" 
+                       class="block py-2.5 px-4 text-white text-sm font-medium transition-all duration-200 hover:bg-[#8a1500] rounded-lg">
+                        เกี่ยวกับหน่วยงาน
+                    </a>
+                </li>
 
-            <!-- SCD Rankings -->
-            <li class="w-full" x-data="{ dropdown1: false }">
-                <button @click="dropdown1 = !dropdown1"
-                        class="w-full text-left py-[15px] px-5 text-white border-b border-white/10">
-                    SCD Rankings <span class="text-xs">▾</span>
-                </button>
-                <ul x-show="dropdown1" class="bg-black/20">
-                    @forelse($publishedYears as $year)
-                    <li>
-                        <a href="{{ route('home', ['year' => $year->id]) }}" 
-                           class="block py-3 pl-10 pr-5 text-white hover:bg-white/10 text-sm">
-                            SCD {{ $year->year }}
-                        </a>
-                    </li>
-                    @empty
-                    <li>
-                        <span class="block py-3 pl-10 pr-5 text-white/60 text-sm">ไม่มีข้อมูล</span>
-                    </li>
-                    @endforelse
-                </ul>
-            </li>
-
-            <!-- รายงานผล SCD -->
-            <li class="w-full" x-data="{ dropdown2: false }">
-                <button @click="dropdown2 = !dropdown2"
-                        class="w-full text-left py-[15px] px-5 text-white border-b border-white/10">
-                    รายงานผล SCD <span class="text-xs">▾</span>
-                </button>
-                <ul x-show="dropdown2" class="bg-black/20">
-                    @forelse($publishedYears as $year)
-                        @if($year->report && $year->report->file_path)
+                <!-- SCD Rankings -->
+                <li>
+                    <button @click="activeDropdown = activeDropdown === 'rankings' ? null : 'rankings'" 
+                            type="button"
+                            class="w-full flex justify-between items-center py-2.5 px-4 text-white text-sm font-medium text-left transition-all duration-200 hover:bg-[#8a1500] rounded-lg">
+                        <span>SCD Rankings</span>
+                        <span class="text-xs transition-transform duration-200" :class="{ 'rotate-180': activeDropdown === 'rankings' }">▾</span>
+                    </button>
+                    <ul x-show="activeDropdown === 'rankings'" 
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 max-h-0"
+                        x-transition:enter-end="opacity-100 max-h-96"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 max-h-96"
+                        x-transition:leave-end="opacity-0 max-h-0"
+                        class="bg-[#8a1500] rounded-lg mt-1 ml-3 overflow-hidden">
+                        @forelse($publishedYears as $year)
                         <li>
-                            <a href="{{ Storage::url($year->report->file_path) }}" 
-                               target="_blank"
-                               class="block py-3 pl-10 pr-5 text-white hover:bg-white/10 text-sm">
-                                รายงาน SCD {{ $year->year }}
+                            <a href="{{ route('home', ['year' => $year->id]) }}" 
+                               class="block py-2 px-4 text-white text-sm transition-all duration-200 hover:bg-[#6b1000]">
+                                SCD {{ $year->year }}
                             </a>
                         </li>
-                        @endif
-                    @empty
-                    <li>
-                        <span class="block py-3 pl-10 pr-5 text-white/60 text-sm">ไม่มีข้อมูล</span>
-                    </li>
-                    @endforelse
-                </ul>
-            </li>
+                        @empty
+                        <li>
+                            <span class="block py-2 px-4 text-white/60 text-sm">ไม่มีข้อมูล</span>
+                        </li>
+                        @endforelse
+                    </ul>
+                </li>
 
-            <!-- ประกาศ/คำสั่ง -->
-            <li class="w-full" x-data="{ dropdown3: false }">
-                <button @click="dropdown3 = !dropdown3"
-                        class="w-full text-left py-[15px] px-5 text-white border-b border-white/10">
-                    ประกาศ/คำสั่ง <span class="text-xs">▾</span>
-                </button>
-                <ul x-show="dropdown3" class="bg-black/20">
-                    @forelse($publishedYears as $year)
-                    <li>
-                        <a href="{{ route('announcements', $year->id) }}" 
-                           class="block py-3 pl-10 pr-5 text-white hover:bg-white/10 text-sm">
-                            ประกาศ/คำสั่ง {{ $year->year }}
-                        </a>
-                    </li>
-                    @empty
-                    <li>
-                        <span class="block py-3 pl-10 pr-5 text-white/60 text-sm">ไม่มีข้อมูล</span>
-                    </li>
-                    @endforelse
-                </ul>
-            </li>
+                <!-- รายงานผล SCD -->
+                <li>
+                    <button @click="activeDropdown = activeDropdown === 'reports' ? null : 'reports'" 
+                            type="button"
+                            class="w-full flex justify-between items-center py-2.5 px-4 text-white text-sm font-medium text-left transition-all duration-200 hover:bg-[#8a1500] rounded-lg">
+                        <span>รายงานผล SCD</span>
+                        <span class="text-xs transition-transform duration-200" :class="{ 'rotate-180': activeDropdown === 'reports' }">▾</span>
+                    </button>
+                    <ul x-show="activeDropdown === 'reports'" 
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 max-h-0"
+                        x-transition:enter-end="opacity-100 max-h-96"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 max-h-96"
+                        x-transition:leave-end="opacity-0 max-h-0"
+                        class="bg-[#8a1500] rounded-lg mt-1 ml-3 overflow-hidden">
+                        @forelse($publishedYears as $year)
+                            @if($year->report && $year->report->file_path)
+                            <li>
+                                <a href="{{ Storage::url($year->report->file_path) }}" 
+                                   target="_blank"
+                                   class="block py-2 px-4 text-white text-sm transition-all duration-200 hover:bg-[#6b1000]">
+                                    รายงาน SCD {{ $year->year }}
+                                </a>
+                            </li>
+                            @endif
+                        @empty
+                        <li>
+                            <span class="block py-2 px-4 text-white/60 text-sm">ไม่มีข้อมูล</span>
+                        </li>
+                        @endforelse
+                    </ul>
+                </li>
 
-            <!-- ติดต่อเรา -->
-            <li class="w-full">
-                <a href="{{ route('contact') }}" 
-                   class="block py-[15px] px-5 text-white no-underline border-b border-white/10">
-                    ติดต่อเรา
-                </a>
-            </li>
-        </ul>
-    </div>
-</nav>
+                <!-- ประกาศ/คำสั่ง -->
+                <li>
+                    <button @click="activeDropdown = activeDropdown === 'announcements' ? null : 'announcements'" 
+                            type="button"
+                            class="w-full flex justify-between items-center py-2.5 px-4 text-white text-sm font-medium text-left transition-all duration-200 hover:bg-[#8a1500] rounded-lg">
+                        <span>ประกาศ/คำสั่ง</span>
+                        <span class="text-xs transition-transform duration-200" :class="{ 'rotate-180': activeDropdown === 'announcements' }">▾</span>
+                    </button>
+                    <ul x-show="activeDropdown === 'announcements'" 
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 max-h-0"
+                        x-transition:enter-end="opacity-100 max-h-96"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 max-h-96"
+                        x-transition:leave-end="opacity-0 max-h-0"
+                        class="bg-[#8a1500] rounded-lg mt-1 ml-3 overflow-hidden">
+                        @forelse($publishedYears as $year)
+                        <li>
+                            <a href="{{ route('announcements', $year->id) }}" 
+                               class="block py-2 px-4 text-white text-sm transition-all duration-200 hover:bg-[#6b1000]">
+                                ประกาศ/คำสั่ง {{ $year->year }}
+                            </a>
+                        </li>
+                        @empty
+                        <li>
+                            <span class="block py-2 px-4 text-white/60 text-sm">ไม่มีข้อมูล</span>
+                        </li>
+                        @endforelse
+                    </ul>
+                </li>
+
+                <!-- ติดต่อเรา -->
+                <li>
+                    <a href="{{ route('contact') }}" 
+                       class="block py-2.5 px-4 text-white text-sm font-medium transition-all duration-200 hover:bg-[#8a1500] rounded-lg">
+                        ติดต่อเรา
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>

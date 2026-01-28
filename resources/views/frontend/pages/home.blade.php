@@ -1,59 +1,83 @@
-<x-layouts.frontend title="หน้าหลัก - มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน">
+<x-layouts.frontend>
+    <x-slot:title>หน้าหลัก - มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน</x-slot:title>
+
     <!-- Banner Slider Section -->
-    <section class="pt-6">
+    <section class="pt-6 pb-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <livewire:frontend.banner-slider />
+            <livewire:frontend.banner-slider :yearId="$activeYear?->id" />
         </div>
     </section>
 
-    <!-- ARU-SCD [ปี] Banner -->
-    @if($activeYear)
-    <section class="py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-gradient-to-r from-red-600 to-red-700 rounded-lg shadow-lg px-8 py-6 text-center">
-                <h2 class="text-3xl md:text-4xl font-bold text-white">
-                    ARU-SCD {{ $activeYear->year }}
-                </h2>
-            </div>
-        </div>
-    </section>
-    @endif
+    <!-- ARU-SCD [ปี] Section -->
+    @if ($activeYear && $contentSections->isNotEmpty())
+        <section class="py-12 bg-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- White Box ครอบทั้งหมด -->
+                <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+                    <!-- Title with bottom border -->
+                    <div class="mb-10">
+                        <h1 class="text-4xl md:text-5xl font-bold text-[#af1a00]">
+                            ARU-SCD{{ $activeYear->year }}
+                        </h1>
+                        <div class="mt-3 h-1 bg-[#af1a00] w-full"></div>
+                    </div>
 
-    <!-- Content Sections Grid -->
-    <section class="py-12 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            @if($contentSections->isNotEmpty())
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @foreach($contentSections as $section)
-                        <a href="#" class="group">
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                @if($section->image_path)
-                                    <div class="aspect-video w-full overflow-hidden bg-gray-200">
-                                        <img src="{{ Storage::url($section->image_path) }}" 
-                                             alt="{{ $section->name }}" 
-                                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                    <!-- Content Grid -->
+                    @php
+                        $chunks = $contentSections->chunk(4);
+                    @endphp
+
+                    @foreach ($chunks as $chunkIndex => $chunk)
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 @if($chunkIndex > 0) mt-8 @endif">
+                            @foreach ($chunk as $section)
+                                <a href="{{ route('content-section', [$activeYear->id, $section->id]) }}" 
+                                   class="group block text-center">
+                                    <div class="transition-transform duration-300 hover:-translate-y-2">
+                                        <!-- รูปภาพ -->
+                                        <div class="relative aspect-video bg-gray-200 overflow-hidden rounded-xl shadow-md group-hover:shadow-xl transition-shadow duration-300">
+                                            @if($section->image_path)
+                                                <img src="{{ Storage::url($section->image_path) }}" 
+                                                     alt="{{ $section->name }}" 
+                                                     class="w-full h-full object-cover">
+                                            @else
+                                                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-100 to-red-200">
+                                                    <svg class="w-16 h-16 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
+                                                    </svg>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <!-- ชื่อด้านล่าง -->
+                                        <h3 class="mt-4 text-lg font-semibold text-gray-800 group-hover:text-red-600 transition-colors duration-200">
+                                            {{ $section->name }}
+                                        </h3>
                                     </div>
-                                @else
-                                    <div class="aspect-video w-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                                        <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                @endif
-                                <div class="p-4">
-                                    <h3 class="text-lg font-semibold text-gray-900 group-hover:text-red-600 transition-colors line-clamp-2">
-                                        {{ $section->name }}
-                                    </h3>
-                                </div>
-                            </div>
-                        </a>
+                                </a>
+                            @endforeach
+                        </div>
                     @endforeach
                 </div>
-            @else
-                <div class="text-center py-12">
-                    <p class="text-gray-500">ไม่มีข้อมูลในขณะนี้</p>
+            </div>
+        </section>
+    @elseif ($activeYear)
+        <section class="py-12 bg-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+                    <div class="mb-10">
+                        <h1 class="text-4xl md:text-5xl font-bold text-[#af1a00]">
+                            ARU-SCD{{ $activeYear->year }}
+                        </h1>
+                        <div class="mt-3 h-1 bg-[#af1a00] w-full"></div>
+                    </div>
+                    <div class="text-center py-16">
+                        <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="mt-4 text-xl text-gray-500">ไม่มีข้อมูลในขณะนี้</p>
+                    </div>
                 </div>
-            @endif
-        </div>
-    </section>
+            </div>
+        </section>
+    @endif
+
 </x-layouts.frontend>
