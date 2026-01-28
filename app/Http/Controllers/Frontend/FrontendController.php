@@ -93,7 +93,10 @@ class FrontendController extends Controller
         // นับจำนวนดาวน์โหลด
         $item->increment('download_count');
         
-        // ดาวน์โหลดไฟล์
-        return Storage::disk('public')->download($item->file_path, $item->name . '.pdf');
+        // ทำความสะอาดชื่อไฟล์ - ลบ / และ \ ออก
+        $cleanName = str_replace(['/', '\\'], '-', $item->name);
+        
+        // ดาวน์โหลดไฟล์ (บังคับเป็น .pdf)
+        return Storage::disk('public')->download($item->file_path, $cleanName . '.pdf');
     }
 }

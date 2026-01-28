@@ -79,29 +79,42 @@ class ContentSectionManager extends Component
 
     public function saveNode()
     {
+        // ดึงค่า max file size จาก config
+        $maxCoverSize = config('upload.max_file_sizes.cover', 3072); // 3MB default
+        $maxPdfSize = config('upload.max_file_sizes.pdf', 10240); // 10MB default
+
         $rules = [
             'sequence' => 'required|integer|min:1',
             'name' => 'required|string|max:255',
         ];
 
+        // Custom messages
+        $messages = [
+            'image.max' => config('upload.messages.cover', 'รูปปกต้องมีขนาดไม่เกิน ' . ($maxCoverSize / 1024) . ' MB'),
+            'file.max' => config('upload.messages.pdf', 'ไฟล์ PDF ต้องมีขนาดไม่เกิน ' . ($maxPdfSize / 1024) . ' MB'),
+            'file.required' => 'กรุณาเลือกไฟล์ PDF',
+            'file.mimes' => 'ไฟล์ต้องเป็น PDF เท่านั้น',
+            'image.required' => 'กรุณาเลือกรูปปก',
+        ];
+
         if ($this->type === 'file') {
             if (!$this->editMode) {
-                $rules['file'] = 'required|file|mimes:pdf|max:10240';
+                $rules['file'] = "required|file|mimes:pdf|max:{$maxPdfSize}";
             } else {
-                $rules['file'] = 'nullable|file|mimes:pdf|max:10240';
+                $rules['file'] = "nullable|file|mimes:pdf|max:{$maxPdfSize}";
             }
         }
 
         // Image required for root level folders
         if ($this->type === 'folder' && $this->parentId === null) {
             if (!$this->editMode) {
-                $rules['image'] = 'required|image|max:2048';
+                $rules['image'] = "required|image|max:{$maxCoverSize}";
             } else {
-                $rules['image'] = 'nullable|image|max:2048';
+                $rules['image'] = "nullable|image|max:{$maxCoverSize}";
             }
         }
 
-        $this->validate($rules);
+        $this->validate($rules, $messages);
 
         // Check duplicate sequence
         $existingNode = ContentNode::where('scd_year_id', $this->year->id)

@@ -64,24 +64,40 @@ class BannersIndex extends Component
 
     public function saveBanner()
     {
+        // ดึงค่า max file size จาก config
+        $maxBannerSize = config('upload.max_file_sizes.banner', 5120); // 5MB default
+        $maxPdfSize = config('upload.max_file_sizes.pdf', 10240); // 10MB default
+
         // Validate
         $rules = [
             'sequence' => 'required|integer|min:1',
             'banner_image' => 'nullable|string', // base64
-            'image' => $this->editMode ? 'nullable|image|max:2048' : 'nullable|image|max:2048',
+            'image' => $this->editMode 
+                ? "nullable|image|max:{$maxBannerSize}" 
+                : "nullable|image|max:{$maxBannerSize}",
             'link_type' => 'required|in:none,url,pdf',
             'link_url' => $this->link_type === 'url' ? 'required|url' : 'nullable',
-            'pdf_file' => $this->link_type === 'pdf' && !$this->editMode ? 'required|mimes:pdf|max:10240' : 'nullable|mimes:pdf|max:10240',
+            'pdf_file' => $this->link_type === 'pdf' && !$this->editMode 
+                ? "required|mimes:pdf|max:{$maxPdfSize}" 
+                : "nullable|mimes:pdf|max:{$maxPdfSize}",
             'pdf_name' => $this->link_type === 'pdf' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        // Custom error messages
+        $messages = [
+            'image.max' => config('upload.messages.banner', 'รูป Banner ต้องมีขนาดไม่เกิน ' . ($maxBannerSize / 1024) . ' MB'),
+            'pdf_file.max' => config('upload.messages.pdf', 'ไฟล์ PDF ต้องมีขนาดไม่เกิน ' . ($maxPdfSize / 1024) . ' MB'),
+            'pdf_file.required' => 'กรุณาเลือกไฟล์ PDF',
+            'pdf_file.mimes' => 'ไฟล์ต้องเป็น PDF เท่านั้น',
         ];
 
         // ตรวจสอบว่าต้องมีรูปภาพ (ถ้าไม่ใช่โหมดแก้ไข)
         if (!$this->editMode && !$this->banner_image && !$this->image) {
-            $this->addError('image', 'กรุณาเลือกรูปภาพ');
+            $this->addError('image', config('upload.messages.image_required', 'กรุณาเลือกรูปภาพ'));
             return;
         }
 
-        $this->validate($rules);
+        $this->validate($rules, $messages);
 
         // Check duplicate sequence
         $existingBanner = Banner::where('scd_year_id', $this->selectedYear->id)

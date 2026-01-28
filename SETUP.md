@@ -1,6 +1,6 @@
 # 🚀 คู่มือติดตั้ง SCD Project
 
-> **อัปเดตล่าสุด:** 22 มกราคม 2026  
+> **อัปเดตล่าสุด:** 28 มกราคม 2026  
 > **PHP:** 8.4 | **Laravel:** 12.x | **Database:** MySQL 8.4 | **Cache:** Redis
 
 ---
@@ -9,6 +9,7 @@
 
 - [Part A: สำหรับนักพัฒนา (Development)](#part-a-สำหรับนักพัฒนา-development)
 - [Part B: สำหรับ Production (DigitalOcean / VPS)](#part-b-สำหรับ-production-digitalocean--vps)
+- [การอัปโหลดไฟล์](#-การอัปโหลดไฟล์)
 - [คำสั่งที่ใช้บ่อย](#คำสั่งที่ใช้บ่อย)
 - [การแก้ไขปัญหา](#การแก้ไขปัญหา)
 
@@ -155,6 +156,64 @@ sail npm run dev     # แทน ./vendor/bin/sail npm run dev
 
 ---
 
+## 📤 การอัปโหลดไฟล์
+
+โปรเจกต์นี้รองรับการอัปโหลดไฟล์ขนาดใหญ่แล้ว:
+
+### ขนาดไฟล์สูงสุด
+
+| ประเภทไฟล์ | ขนาดสูงสุด | ใช้สำหรับ |
+|-----------|-----------|-----------|
+| **Banner/Slider** | 10 MB | รูป Banner หน้าแรก |
+| **รูปปก Content** | 5 MB | รูปปกหมวดหมู่ |
+| **ไฟล์ PDF** | 20 MB | เอกสาร/ประกาศ/คำสั่ง |
+| **รูปโปรไฟล์** | 2 MB | รูปโปรไฟล์ผู้ใช้ |
+
+### การตั้งค่า
+
+การตั้งค่าอัปโหลดไฟล์อยู่ที่:
+- **Config:** `config/upload.php`
+- **PHP Settings:** `docker/8.4/php.ini` (ตั้งไว้ 100MB)
+- **Validation:** Livewire Components (`app/Livewire/Backend/`)
+
+> ✅ **ไม่ต้องตั้งค่าอะไรเพิ่ม!** Pull code มาแล้วใช้งานได้เลย
+
+### สำหรับผู้ที่ Clone โปรเจกต์ใหม่
+
+หลังจาก `sail up -d` ครั้งแรก การอัปโหลดไฟล์จะทำงานอัตโนมัติ
+
+**ตรวจสอบว่าทำงานถูกต้อง:**
+```bash
+./vendor/bin/sail shell
+php -i | grep upload_max_filesize
+php -i | grep post_max_size
+exit
+```
+
+ควรเห็น:
+```
+upload_max_filesize => 100M => 100M
+post_max_size => 100M => 100M
+```
+
+### หากต้องการเปลี่ยนขนาดไฟล์
+
+แก้ไขที่ `config/upload.php`:
+```php
+'max_file_sizes' => [
+    'banner' => 10240,  // 10 MB
+    'cover' => 5120,    // 5 MB
+    'pdf' => 20480,     // 20 MB
+],
+```
+
+แล้ว clear cache:
+```bash
+sail artisan config:clear
+```
+
+---
+
 ## 📁 โครงสร้างโปรเจกต์ที่ควรรู้
 
 ```
@@ -164,12 +223,15 @@ scd-project/
 │   │   ├── Backend/        #    Admin Panel
 │   │   └── Frontend/       #    หน้าบ้าน
 │   └── Models/             # ← Database Models
+├── config/
+│   └── upload.php          # ← การตั้งค่าอัปโหลดไฟล์
 ├── resources/views/        # ← Blade Templates (แก้ไขบ่อย)
 │   ├── layouts/            #    โครงร่างหน้า
 │   ├── livewire/           #    Views ของ Livewire
 │   └── components/         #    Components ย่อย
 ├── routes/web.php          # ← Routes ทั้งหมด
 ├── docker/8.4/             # ← Docker configuration
+│   └── php.ini             #    PHP settings (upload limits)
 └── compose.yaml            # ← Docker Compose
 ```
 
@@ -320,6 +382,7 @@ docker compose restart
 | `sail artisan migrate:fresh` | ลบตารางทั้งหมดและสร้างใหม่ |
 | `sail artisan migrate:fresh --seed` | Migrate + Seed data |
 | `sail artisan cache:clear` | Clear cache |
+| `sail artisan config:clear` | Clear config cache |
 | `sail artisan optimize:clear` | Clear ทุก cache |
 | `sail artisan storage:link` | สร้าง storage symlink |
 | `sail artisan admin:create` | สร้าง admin user |
@@ -403,6 +466,36 @@ sail artisan optimize:clear
 
 ---
 
+## ❌ อัปโหลดไฟล์ไม่ได้ / File too large
+
+**ตรวจสอบ PHP settings:**
+```bash
+./vendor/bin/sail shell
+php -i | grep upload_max_filesize
+php -i | grep post_max_size
+exit
+```
+
+**ถ้าค่าไม่ใช่ 100M ให้ rebuild Docker:**
+```bash
+sail down
+sail build --no-cache
+sail up -d
+```
+
+**แล้ว clear cache:**
+```bash
+sail artisan config:clear
+sail artisan cache:clear
+```
+
+**ตรวจสอบว่าไฟล์ไม่เกินขนาดที่กำหนด:**
+- Banner: ≤ 10 MB
+- Cover: ≤ 5 MB
+- PDF: ≤ 20 MB
+
+---
+
 # 🎯 Checklist
 
 ## สำหรับ Development
@@ -411,12 +504,16 @@ sail artisan optimize:clear
 - [ ] เข้า http://localhost ได้
 - [ ] `sail npm run dev` รันอยู่
 - [ ] Login เข้า Admin ได้
+- [ ] อัปโหลดรูป Banner (8-9 MB) ได้
+- [ ] อัปโหลดรูปปก (4 MB) ได้
+- [ ] อัปโหลด PDF (15-18 MB) ได้
 
 ## สำหรับ Production
 - [ ] `docker compose ps` เห็น 4 containers running
 - [ ] เข้า http://your-domain ได้
 - [ ] Login เข้า Admin ได้
 - [ ] อัปโหลดรูปภาพได้
+- [ ] อัปโหลดไฟล์ PDF ขนาดใหญ่ได้ (ทดสอบ 15-20 MB)
 - [ ] ตั้งค่า SSL/HTTPS
 
 ---
