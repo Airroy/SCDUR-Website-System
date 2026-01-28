@@ -55,24 +55,37 @@
                 </div>
 
                 <!-- Image Upload - Image Cropper -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        รูปภาพ Banner <span class="text-red-600">*</span>
-                    </label>
-                    
-                    {{-- ใช้ Image Cropper Component --}}
-                    <x-image-cropper-simple
-                        name="banner_image"
-                        :required="!$editMode"
-                        :existingImage="$existingImage ? Storage::url($existingImage) : null"
-                        aspectRatio="1920/720"
-                        :outputWidth="1920"
-                        :outputHeight="720"
-                        helpText="รองรับ JPG, PNG ขนาดแนะนำ 1920x720 px"
-                    />
-                    
-                    @error('banner_image') <span class="text-sm text-red-600 mt-1">{{ $message }}</span> @enderror
-                    @error('image') <span class="text-sm text-red-600 mt-1">{{ $message }}</span> @enderror
+                <div class="space-y-3">
+                    {{-- แสดงรูปภาพปัจจุบันก่อน (เฉพาะโหมดแก้ไข) --}}
+                    @if ($existingImage && $editMode)
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-2">รูปภาพปัจจุบัน</p>
+                            <img src="{{ Storage::url($existingImage) }}" alt="Current banner"
+                                class="w-full h-48 object-cover rounded-lg border-2 border-gray-300 shadow-sm">
+                        </div>
+                    @endif
+
+                    {{-- Label สำหรับอัปโหลดรูปใหม่ --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            รูปภาพ Banner <span class="text-red-600">*</span>
+                        </label>
+                        
+                        {{-- ใช้ Image Cropper Component (ไม่แสดง label และ existingImage ซ้ำ) --}}
+                        <x-image-cropper-simple
+                            name="banner_image"
+                            label=""
+                            :required="!$editMode"
+                            :existingImage="null"
+                            aspectRatio="1920/720"
+                            :outputWidth="1920"
+                            :outputHeight="720"
+                            helpText="รองรับ JPG, PNG ขนาดแนะนำ 1920x720 px (สูงสุด 10MB)"
+                        />
+                        
+                        @error('banner_image') <span class="text-sm text-red-600 mt-1">{{ $message }}</span> @enderror
+                        @error('image') <span class="text-sm text-red-600 mt-1">{{ $message }}</span> @enderror
+                    </div>
                 </div>
 
                 <!-- Link Type -->

@@ -147,15 +147,6 @@
     }
 }" class="space-y-3">
 
-    <label class="block text-sm font-medium text-gray-700">
-        {{ $label }}
-        @if ($required)
-            <span class="text-red-500">*</span>
-        @else
-            <span class="text-gray-400 text-xs">(ไม่บังคับ)</span>
-        @endif
-    </label>
-
     {{-- รูปภาพปัจจุบัน (Edit Mode) --}}
     @if ($existingImage)
         <div x-show="!imagePreview && !croppedPreview" class="mb-3">
@@ -171,11 +162,7 @@
             <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-medium text-gray-700">รูปภาพที่เลือก</span>
                 <button type="button" @click="clearImage()"
-                    class="text-red-500 hover:text-red-700 text-sm flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
-                    </svg>
+                    class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500">
                     ลบรูป
                 </button>
             </div>
@@ -183,7 +170,7 @@
 
             <div class="mt-3 flex items-center justify-between">
                 <p class="text-xs text-gray-500">
-                    แนะนำให้ครอปรูปเป็นขนาด {{ $aspectRatioLabel }} px
+                    แนะนำให้ครอปรูปเป็นขนาด {{ $aspectRatioLabel }} px (สูงสุด 10MB)
                 </p>
                 <button type="button" @click="openCropper()"
                     class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition flex items-center gap-2">
@@ -211,11 +198,7 @@
                     <span class="font-semibold">ครอปรูปภาพเรียบร้อยแล้ว ({{ $aspectRatioLabel }} px)</span>
                 </div>
                 <button type="button" @click="clearImage()"
-                    class="text-red-500 hover:text-red-700 text-sm flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
-                    </svg>
+                    class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500">
                     ลบรูป
                 </button>
             </div>
@@ -245,7 +228,7 @@
             <p class="text-xs text-gray-500">{{ $helpText }}</p>
         @else
             <p class="text-xs text-gray-500">
-                รองรับไฟล์ JPG, PNG ขนาดไม่เกิน 10 MB (แนะนำขนาด {{ $aspectRatioLabel }} px)
+                รองรับไฟล์ JPG, PNG ขนาดไม่เกิน 10 MB (แนะนำขนาด {{ $aspectRatioLabel }} px สูงสุด 10MB)
             </p>
         @endif
     </div>

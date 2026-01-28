@@ -159,7 +159,7 @@
                                 <p class="mb-2 text-sm text-gray-500">
                                     <span class="font-semibold">คลิกเพื่อเลือกไฟล์</span> หรือลากไฟล์มาวาง
                                 </p>
-                                <p class="text-xs text-gray-500">PDF (สูงสุด 10MB)</p>
+                                <p class="text-xs text-gray-500">PDF (สูงสุด 20MB)</p>
                             </div>
                             <input type="file" wire:model="file" accept=".pdf" class="hidden">
                         </label>
