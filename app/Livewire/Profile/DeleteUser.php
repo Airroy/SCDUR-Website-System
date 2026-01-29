@@ -13,6 +13,9 @@ class DeleteUser extends Component
 
     public function deleteUser(): void
     {
+        // เพิ่ม log เพื่อ debug
+        \Log::info('deleteUser method called', ['password' => $this->password]);
+        
         $this->validate([
             'password' => ['required', 'string', 'current_password'],
         ]);

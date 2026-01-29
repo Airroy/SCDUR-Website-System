@@ -146,7 +146,7 @@ class BannersIndex extends Component
 
         $this->showModal = false;
         $this->dispatch('notify', [
-            'message' => 'เพิ่ม Banner สำเร็จ',
+            'message' => 'เพิ่มรูปภาพสไลด์สำเร็จ',
             'type' => 'success'
         ]);
     }
@@ -195,7 +195,7 @@ class BannersIndex extends Component
 
         $this->showModal = false;
         $this->dispatch('notify', [
-            'message' => 'แก้ไข Banner สำเร็จ',
+            'message' => 'แก้ไขรูปภาพสไลด์สำเร็จ',
             'type' => 'success'
         ]);
     }
@@ -215,7 +215,7 @@ class BannersIndex extends Component
         $banner->delete();
 
         $this->dispatch('notify', [
-            'message' => 'ลบ Banner สำเร็จ',
+            'message' => 'ลบรูปภาพสไลด์สำเร็จ',
             'type' => 'success'
         ]);
     }

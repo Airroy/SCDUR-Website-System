@@ -27,7 +27,7 @@
         <form wire:submit.prevent="saveBanner">
             <div class="px-6 py-4 bg-white border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">
-                    {{ $editMode ? 'แก้ไข Banner' : 'เพิ่ม Banner' }}
+                    {{ $editMode ? 'แก้ไขรูปภาพสไลด์' : 'เพิ่มรูปภาพสไลด์' }}
                 </h3>
             </div>
 
@@ -46,11 +46,11 @@
                 <!-- Title (Optional) -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                        ชื่อแบนเนอร์ (ไม่บังคับ)
+                        ชื่อรูปภาพสไลด์ (ไม่บังคับ)
                     </label>
                     <input type="text" wire:model="title" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                           placeholder="ชื่อเพื่ออ้างอิง">
+                           placeholder="ชื่อเพื่อ้างอิง">
                     @error('title') <span class="text-sm text-red-600 mt-1">{{ $message }}</span> @enderror
                 </div>
 
@@ -68,7 +68,7 @@
                     {{-- Label สำหรับอัปโหลดรูปใหม่ --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            รูปภาพ Banner <span class="text-red-600">*</span>
+                            รูปภาพสไลด์ <span class="text-red-600">*</span>
                         </label>
                         
                         {{-- ใช้ Image Cropper Component (ไม่แสดง label และ existingImage ซ้ำ) --}}
@@ -160,7 +160,7 @@
                 </button>
                 <button type="submit" 
                         class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                    {{ $editMode ? 'บันทึกการแก้ไข' : 'เพิ่ม Banner' }}
+                    {{ $editMode ? 'บันทึกการแก้ไข' : 'เพิ่มรูปภาพสไลด์' }}
                 </button>
             </div>
         </form>

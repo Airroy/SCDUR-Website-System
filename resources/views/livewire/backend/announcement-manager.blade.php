@@ -29,7 +29,10 @@
     <x-backend.modal :show="$showModal">
         <x-backend.modal-form 
             wire:submit="saveNode" 
-            :title="($editMode ? 'แก้ไข' : 'เพิ่ม') . ($type === 'folder' ? 'หมวดหมู่' : 'ไฟล์') . ($editMode ? '' : 'ใหม่')"
+            :title="($editMode ? 'แก้ไข' : 'เพิ่ม') . 
+                    ($type === 'folder' ? 'หมวดหมู่' : 'ไฟล์') . 
+                    ($categoryGroup === 'announcement' ? 'ประกาศ' : 'คำสั่ง') . 
+                    ($editMode ? '' : 'ใหม่')"
             :submitLabel="$editMode ? 'บันทึก' : 'เพิ่ม'"
         >
             <!-- Sequence -->
