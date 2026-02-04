@@ -2,14 +2,25 @@
     <div class="py-6 sm:py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            <!-- Breadcrumb -->
-            <nav class="text-sm text-gray-600 mb-4 sm:mb-6">
-                <a href="{{ route('home') }}" class="hover:text-[#af1a00] transition-colors">หน้าหลัก</a>
-                <span class="mx-2 text-gray-400">›</span>
-                <span class="text-gray-900 font-medium">ประกาศ/คำสั่ง SCD {{ $year->year }}</span>
-            </nav>
+            <!-- Box สำหรับ Breadcrumb และ Title -->
+            <div class="bg-white relative w-full overflow-hidden rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-6 sm:mb-8">
+                <!-- Breadcrumb -->
+                <nav class="text-sm text-gray-600 mb-2">
+                    <a href="{{ route('home') }}" class="hover:text-[#af1a00] transition-colors">หน้าหลัก</a>
+                    <span class="mx-2 text-gray-400">›</span>
+                    <span class="text-[#af1a00] font-semibold">ประกาศ/คำสั่ง SCD {{ $year->year }}</span>
+                </nav>
 
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">ประกาศ/คำสั่ง SCD {{ $year->year }}</h1>
+                <!-- เส้นสีแดงสวยๆ -->
+                <div class="mb-6">
+                    <div class="h-1 bg-[#af1a00] rounded-full shadow-sm"></div>
+                </div>
+
+                <!-- Title -->
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">
+                    ประกาศ/คำสั่ง SCD {{ $year->year }}
+                </h1>
+            </div>
             
             <!-- ประกาศ -->
             <div class="mb-8 sm:mb-12">

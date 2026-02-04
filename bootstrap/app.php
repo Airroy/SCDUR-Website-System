@@ -4,20 +4,33 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
+use Illuminate\Http\Request;
+use App\Http\Middleware\AccessLog; // ✅ เพิ่มบรรทัดนี้
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        commands: __DIR__.'/../routes/console.php',
+        web: __DIR__ . '/../routes/web.php',
+        commands: __DIR__ . '/../routes/console.php',
         health: '/up',
         then: function () {
-            // กำหนดว่าถ้า login แล้วให้ redirect ไปหน้า Dashboard ใหม่
-            RedirectIfAuthenticated::redirectUsing(fn () => route('admin.dashboard'));
+            RedirectIfAuthenticated::redirectUsing(fn() => route('admin.dashboard'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+
+        // ✅ Trust Cloudflare Proxy
+        $middleware->trustProxies(
+            at: '*',
+            headers: Request::HEADER_X_FORWARDED_FOR |
+                Request::HEADER_X_FORWARDED_HOST |
+                Request::HEADER_X_FORWARDED_PORT |
+                Request::HEADER_X_FORWARDED_PROTO
+        );
+
+        // ✅ เปิดใช้ AccessLog ทุก Request
+        $middleware->append(AccessLog::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->create();

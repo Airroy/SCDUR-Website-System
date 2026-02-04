@@ -1,5 +1,15 @@
 @props(['publishedYears' => []])
 
+<style>
+/* Custom CSS for dropdown arrow rotation */
+.dropdown-toggle i {
+    transition: transform 0.2s ease;
+}
+.dropdown-toggle:hover i {
+    transform: rotate(180deg);
+}
+</style>
+
 <!-- Desktop Navigation -->
 <nav class="hidden lg:block bg-[#af1a00] shadow-[0_2px_10px_rgba(0,0,0,0.2)] sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-5">
@@ -25,8 +35,8 @@
                 <!-- SCD Rankings Dropdown -->
                 <li class="relative group">
                     <a href="#" 
-                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-200 hover:bg-[#8a1500] whitespace-nowrap">
-                        SCD Rankings <span class="text-xs ml-1">▾</span>
+                       class="dropdown-toggle block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-200 hover:bg-[#8a1500] whitespace-nowrap">
+                        SCD Rankings <i class="fa fa-chevron-down ml-1 text-[10px]"></i>
                     </a>
                     <!-- Dropdown -->
                     <ul class="absolute top-full left-0 bg-[#a82200] min-w-[250px] list-none p-0 m-0 shadow-[0_4px_15px_rgba(0,0,0,0.3)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
@@ -48,8 +58,8 @@
                 <!-- รายงานผล SCD Dropdown -->
                 <li class="relative group">
                     <a href="#" 
-                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-200 hover:bg-[#8a1500] whitespace-nowrap">
-                        รายงานผล SCD <span class="text-xs ml-1">▾</span>
+                       class="dropdown-toggle block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-200 hover:bg-[#8a1500] whitespace-nowrap">
+                        รายงานผล SCD <i class="fa fa-chevron-down ml-1 text-[10px]"></i>
                     </a>
                     <!-- Dropdown -->
                     <ul class="absolute top-full left-0 bg-[#a82200] min-w-[250px] list-none p-0 m-0 shadow-[0_4px_15px_rgba(0,0,0,0.3)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
@@ -59,7 +69,7 @@
                                 <a href="{{ Storage::url($year->report->file_path) }}" 
                                    target="_blank"
                                    class="block py-3 px-5 text-white no-underline text-sm transition-all duration-200 hover:bg-[#8a1500]">
-                                    รายงาน SCD {{ $year->year }}
+                                    รายงานผล SCD {{ $year->year }}
                                 </a>
                             </li>
                             @endif
@@ -74,8 +84,8 @@
                 <!-- ประกาศ/คำสั่ง Dropdown -->
                 <li class="relative group">
                     <a href="#" 
-                       class="block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-200 hover:bg-[#8a1500] whitespace-nowrap">
-                        ประกาศ/คำสั่ง <span class="text-xs ml-1">▾</span>
+                       class="dropdown-toggle block py-[18px] px-5 text-white no-underline text-[15px] font-normal transition-all duration-200 hover:bg-[#8a1500] whitespace-nowrap">
+                        ประกาศ/คำสั่ง <i class="fa fa-chevron-down ml-1 text-[10px]"></i>
                     </a>
                     <!-- Dropdown -->
                     <ul class="absolute top-full left-0 bg-[#a82200] min-w-[250px] list-none p-0 m-0 shadow-[0_4px_15px_rgba(0,0,0,0.3)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
@@ -156,7 +166,7 @@
                             type="button"
                             class="w-full flex justify-between items-center py-2.5 px-4 text-white text-sm font-medium text-left transition-all duration-200 hover:bg-[#8a1500] rounded-lg">
                         <span>SCD Rankings</span>
-                        <span class="text-xs transition-transform duration-200" :class="{ 'rotate-180': activeDropdown === 'rankings' }">▾</span>
+                        <i class="fa fa-chevron-down text-[10px] transition-transform duration-200" :class="{ 'rotate-180': activeDropdown === 'rankings' }"></i>
                     </button>
                     <ul x-show="activeDropdown === 'rankings'" 
                         x-transition:enter="transition ease-out duration-200"
@@ -187,7 +197,7 @@
                             type="button"
                             class="w-full flex justify-between items-center py-2.5 px-4 text-white text-sm font-medium text-left transition-all duration-200 hover:bg-[#8a1500] rounded-lg">
                         <span>รายงานผล SCD</span>
-                        <span class="text-xs transition-transform duration-200" :class="{ 'rotate-180': activeDropdown === 'reports' }">▾</span>
+                        <i class="fa fa-chevron-down text-[10px] transition-transform duration-200" :class="{ 'rotate-180': activeDropdown === 'reports' }"></i>
                     </button>
                     <ul x-show="activeDropdown === 'reports'" 
                         x-transition:enter="transition ease-out duration-200"
@@ -221,7 +231,7 @@
                             type="button"
                             class="w-full flex justify-between items-center py-2.5 px-4 text-white text-sm font-medium text-left transition-all duration-200 hover:bg-[#8a1500] rounded-lg">
                         <span>ประกาศ/คำสั่ง</span>
-                        <span class="text-xs transition-transform duration-200" :class="{ 'rotate-180': activeDropdown === 'announcements' }">▾</span>
+                        <i class="fa fa-chevron-down text-[10px] transition-transform duration-200" :class="{ 'rotate-180': activeDropdown === 'announcements' }"></i>
                     </button>
                     <ul x-show="activeDropdown === 'announcements'" 
                         x-transition:enter="transition ease-out duration-200"

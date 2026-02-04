@@ -40,7 +40,25 @@
                                 </button>
                             </td>
                             <td class="px-3 sm:px-6 py-4 text-left whitespace-nowrap">
-                                <div class="flex flex-wrap items-center gap-1 sm:gap-2">
+                                <!-- สำหรับมือถือเท่านั้น: แสดงปุ่มแนวตั้งขนาดเท่ากัน -->
+                                <div class="flex flex-col gap-2 sm:hidden">
+                                    <a href="{{ route('admin.reports.index', ['year' => $year->year]) }}" 
+                                       class="w-full px-3 py-2 text-xs text-center border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-colors duration-200">
+                                        จัดการข้อมูล
+                                    </a>
+                                    <button wire:click="editYear({{ $year->id }})"
+                                            class="w-full px-3 py-2 text-xs border border-yellow-600 text-yellow-600 rounded hover:bg-yellow-600 hover:text-white transition-colors duration-200">
+                                        แก้ไข
+                                    </button>
+                                    <button wire:click="deleteYear({{ $year->id }})" 
+                                            wire:confirm="ต้องการลบปี {{ $year->year }} ใช่หรือไม่?"
+                                            class="w-full px-3 py-2 text-xs border border-red-600 text-red-600 rounded hover:bg-red-600 hover:text-white transition-colors duration-200">
+                                        ลบ
+                                    </button>
+                                </div>
+                                
+                                <!-- สำหรับคอมเท่านั้น: โค้ดเดิมไม่แก้ -->
+                                <div class="hidden sm:flex flex-wrap items-center gap-1 sm:gap-2">
                                     <a href="{{ route('admin.reports.index', ['year' => $year->year]) }}" 
                                        class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-colors duration-200">
                                         จัดการข้อมูล

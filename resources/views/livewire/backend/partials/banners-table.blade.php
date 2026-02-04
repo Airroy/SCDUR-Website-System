@@ -34,8 +34,12 @@
                             </span>
                         </div>
                         
-                        <!-- Image -->
-                        <div class="flex-shrink-0">
+                        <!-- Title and Image -->
+                        <div class="flex-1 min-w-0">
+                            @if($banner->title)
+                                <p class="text-sm font-medium text-gray-900 mb-2">{{ $banner->title }}</p>
+                            @endif
+                            
                             @if($banner->image_path && Storage::disk('public')->exists($banner->image_path))
                                 <img src="{{ Storage::url($banner->image_path) }}" alt="รูปภาพสไลด์" class="h-16 w-24 object-cover rounded shadow">
                             @else
@@ -46,33 +50,33 @@
                                 </div>
                             @endif
                         </div>
-                        
-                        <!-- Type Badge -->
-                        <div class="flex-1 min-w-0">
-                            @if($banner->link_type === 'none')
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    ไม่มีลิงค์
-                                </span>
-                            @elseif($banner->link_type === 'url')
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-1">
-                                    URL
-                                </span>
-                                @if($banner->link_url)
-                                    <a href="{{ $banner->link_url }}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 block truncate">
-                                        {{ Str::limit($banner->link_url, 30) }}
-                                    </a>
-                                @endif
-                            @else
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 mb-1">
-                                    PDF
-                                </span>
-                                @if($banner->pdf_path)
-                                    <a href="{{ Storage::url($banner->pdf_path) }}" target="_blank" class="text-xs text-orange-600 hover:text-orange-800 block truncate">
-                                        {{ $banner->pdf_name ?? 'ดูไฟล์ PDF' }}
-                                    </a>
-                                @endif
+                    </div>
+                    
+                    <!-- Type and Link -->
+                    <div class="mb-3">
+                        @if($banner->link_type === 'none')
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                ไม่มีลิงค์
+                            </span>
+                        @elseif($banner->link_type === 'url')
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-1">
+                                URL
+                            </span>
+                            @if($banner->link_url)
+                                <a href="{{ $banner->link_url }}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 block truncate">
+                                    {{ Str::limit($banner->link_url, 30) }}
+                                </a>
                             @endif
-                        </div>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 mb-1">
+                                PDF
+                            </span>
+                            @if($banner->pdf_path)
+                                <a href="{{ Storage::url($banner->pdf_path) }}" target="_blank" class="text-xs text-orange-600 hover:text-orange-800 block truncate">
+                                    {{ $banner->pdf_name ?? 'ดูไฟล์ PDF' }}
+                                </a>
+                            @endif
+                        @endif
                     </div>
                     
                     <!-- Action Buttons -->
@@ -100,18 +104,24 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col" class="w-20 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
+                        <th scope="col" class="w-20 px-4 lg:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
+                        <th scope="col" class="w-48 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ</th>
                         <th scope="col" class="w-32 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รูปภาพ</th>
                         <th scope="col" class="w-28 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
-                        <th scope="col" class="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลิงค์/ไฟล์</th>
-                        <th scope="col" class="w-48 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
+                        <th scope="col" class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลิงค์/ไฟล์</th>
+                        <th scope="col" class="w-48 px-4 lg:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($banners as $banner)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
                                 {{ $banner->sequence }}
+                            </td>
+                            <td class="px-4 lg:px-6 py-4 text-sm text-gray-900">
+                                <div class="break-words">
+                                    {{ $banner->title ?? '-' }}
+                                </div>
                             </td>
                             <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
                                 @if($banner->image_path && Storage::disk('public')->exists($banner->image_path))
@@ -139,21 +149,21 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="hidden lg:table-cell px-6 py-4 text-sm text-gray-500">
+                            <td class="px-4 lg:px-6 py-4 text-sm text-gray-500">
                                 @if($banner->link_type === 'url' && $banner->link_url)
-                                    <a href="{{ $banner->link_url }}" target="_blank" class="text-blue-600 hover:text-blue-800 truncate block max-w-sm" title="{{ $banner->link_url }}">
+                                    <a href="{{ $banner->link_url }}" target="_blank" class="text-blue-600 hover:text-blue-800 break-all" title="{{ $banner->link_url }}">
                                         {{ Str::limit($banner->link_url, 50) }}
                                     </a>
                                 @elseif($banner->link_type === 'pdf' && $banner->pdf_path)
-                                    <a href="{{ Storage::url($banner->pdf_path) }}" target="_blank" class="text-orange-600 hover:text-orange-800 truncate block max-w-sm" title="{{ $banner->pdf_name ?? 'ดูไฟล์ PDF' }}">
+                                    <a href="{{ Storage::url($banner->pdf_path) }}" target="_blank" class="text-orange-600 hover:text-orange-800 break-words" title="{{ $banner->pdf_name ?? 'ดูไฟล์ PDF' }}">
                                         {{ $banner->pdf_name ?? 'ดูไฟล์ PDF' }}
                                     </a>
                                 @else
                                     <span class="text-gray-400">-</span>
                                 @endif
                             </td>
-                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                                <div class="flex items-center gap-2">
+                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                <div class="flex items-center justify-center gap-2">
                                     <button 
                                         wire:click="openEditModal({{ $banner->id }})"
                                         class="px-3 py-1.5 text-sm border border-yellow-600 text-yellow-600 rounded hover:bg-yellow-600 hover:text-white transition-colors duration-200"

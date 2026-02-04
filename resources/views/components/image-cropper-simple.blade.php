@@ -20,6 +20,7 @@
     imagePreview: null,
     croppedPreview: null,
     originalFile: null,
+    isAutoCropped: false,
 
     init() {
         console.log('Image cropper initialized');
@@ -42,12 +43,74 @@
         }
 
         this.originalFile = file;
+        this.isAutoCropped = false;
         const reader = new FileReader();
         reader.onload = (e) => {
             this.imagePreview = e.target.result;
             this.croppedPreview = null;
+            // ครอปอัตโนมัติหลังจากโหลดรูปเสร็จ
+            this.$nextTick(() => {
+                this.autoCrop();
+            });
         };
         reader.readAsDataURL(file);
+    },
+
+    autoCrop() {
+        if (!this.imagePreview) return;
+
+        const img = new Image();
+        img.onload = () => {
+            // คำนวณขนาดและตำแหน่งครอปอัตโนมัติ (center crop)
+            const targetRatio = {{ $outputWidth }} / {{ $outputHeight }};
+            const imgRatio = img.width / img.height;
+
+            let cropWidth, cropHeight, cropX, cropY;
+
+            if (imgRatio > targetRatio) {
+                // รูปกว้างกว่า target ratio -> ครอปซ้ายขวา
+                cropHeight = img.height;
+                cropWidth = img.height * targetRatio;
+                cropX = (img.width - cropWidth) / 2;
+                cropY = 0;
+            } else {
+                // รูปสูงกว่า target ratio -> ครอปบนล่าง
+                cropWidth = img.width;
+                cropHeight = img.width / targetRatio;
+                cropX = 0;
+                cropY = (img.height - cropHeight) / 2;
+            }
+
+            // สร้าง canvas สำหรับครอป
+            const canvas = document.createElement('canvas');
+            canvas.width = {{ $outputWidth }};
+            canvas.height = {{ $outputHeight }};
+            const ctx = canvas.getContext('2d');
+
+            // เติมพื้นหลังขาว
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // วาดรูปที่ครอปแล้ว
+            ctx.drawImage(
+                img,
+                cropX, cropY, cropWidth, cropHeight,
+                0, 0, {{ $outputWidth }}, {{ $outputHeight }}
+            );
+
+            // บันทึกผลลัพธ์
+            const croppedImageData = canvas.toDataURL('image/png');
+            this.croppedPreview = croppedImageData;
+            this.isAutoCropped = true;
+
+            // ส่งข้อมูลไปยัง Livewire
+            const hiddenInput = document.getElementById('{{ $name }}_hidden');
+            if (hiddenInput) {
+                hiddenInput.value = croppedImageData;
+                hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        };
+        img.src = this.imagePreview;
     },
 
     openCropper() {
@@ -94,6 +157,8 @@
             return;
         }
 
+        // บังคับ output เป็นขนาดที่กำหนดเสมอ (1920x720)
+        // จะ upscale ให้อัตโนมัติถ้ารูปเล็กกว่า
         const canvas = this.cropper.getCroppedCanvas({
             width: {{ $outputWidth }},
             height: {{ $outputHeight }},
@@ -107,11 +172,16 @@
             return;
         }
 
-        const croppedImageData = canvas.toDataURL('image/jpeg', 0.9);
+        // ใช้ PNG เพื่อรักษาคุณภาพสูงสุด (lossless)
+        const croppedImageData = canvas.toDataURL('image/png');
         this.croppedPreview = croppedImageData;
 
-        // ส่งข้อมูลไปยัง Livewire
-        this.$wire.set('{{ $name }}', croppedImageData);
+        // ส่งข้อมูลไปยัง Livewire ผ่าน hidden input
+        const hiddenInput = document.getElementById('{{ $name }}_hidden');
+        if (hiddenInput) {
+            hiddenInput.value = croppedImageData;
+            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
 
         this.closeCropper();
     },
@@ -128,6 +198,7 @@
         this.imagePreview = null;
         this.croppedPreview = null;
         this.originalFile = null;
+        this.isAutoCropped = false;
         if (this.$refs.fileInput) {
             this.$refs.fileInput.value = '';
         }
@@ -156,46 +227,18 @@
         </div>
     @endif
 
-    {{-- Preview รูปที่เลือก (ก่อนครอป) --}}
-    <div x-show="imagePreview && !croppedPreview" x-cloak class="relative">
-        <div class="bg-gray-50 border-2 border-gray-300 rounded-lg p-4">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-700">รูปภาพที่เลือก</span>
-                <button type="button" @click="clearImage()"
-                    class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                    ลบรูป
-                </button>
-            </div>
-            <img :src="imagePreview" alt="Preview" class="w-full h-48 object-contain rounded-lg bg-white">
-
-            <div class="mt-3 flex items-center justify-between">
-                <p class="text-xs text-gray-500">
-                    แนะนำให้ครอปรูปเป็นขนาด {{ $aspectRatioLabel }} px (สูงสุด 10MB)
-                </p>
-                <button type="button" @click="openCropper()"
-                    class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z">
-                        </path>
-                    </svg>
-                    ครอปรูป
-                </button>
-            </div>
-        </div>
-    </div>
-
-    {{-- Preview รูปที่ครอปแล้ว --}}
+    {{-- Preview รูปที่ครอปอัตโนมัติแล้ว --}}
     <div x-show="croppedPreview" x-cloak>
-        <div class="bg-red-50 border-2 border-red-500 rounded-lg p-4">
+        <div class="bg-green-50 border-2 border-green-500 rounded-lg p-4">
             <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2 text-red-700">
+                <div class="flex items-center gap-2 text-green-700">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                             clip-rule="evenodd"></path>
                     </svg>
-                    <span class="font-semibold">ครอปรูปภาพเรียบร้อยแล้ว ({{ $aspectRatioLabel }} px)</span>
+                    <span class="font-semibold"
+                        x-text="isAutoCropped ? 'ครอปอัตโนมัติเรียบร้อย ({{ $aspectRatioLabel }} px)' : 'ครอปรูปภาพเรียบร้อยแล้ว ({{ $aspectRatioLabel }} px)'"></span>
                 </div>
                 <button type="button" @click="clearImage()"
                     class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500">
@@ -209,10 +252,10 @@
                     class="px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 transition flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                            d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z">
                         </path>
                     </svg>
-                    ครอปใหม่
+                    ปรับครอปเอง
                 </button>
             </div>
         </div>
@@ -222,6 +265,9 @@
     <input type="file" x-ref="fileInput" @change="loadImage($event)" accept="image/*"
         x-show="!imagePreview && !croppedPreview"
         class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
+
+    {{-- Hidden input สำหรับ sync ข้อมูล base64 กับ Livewire --}}
+    <input type="hidden" id="{{ $name }}_hidden" wire:model="{{ $name }}">
 
     <div x-show="!imagePreview && !croppedPreview" class="mt-2">
         @if ($helpText)

@@ -2,7 +2,7 @@
     <x-slot:title>หน้าหลัก - มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน</x-slot:title>
 
     <!-- Banner Slider Section -->
-    <section class="pt-6 pb-8">
+    <section class="py-6 sm:py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <livewire:frontend.banner-slider :yearId="$activeYear?->id" />
         </div>
@@ -10,13 +10,13 @@
 
     <!-- ARU-SCD [ปี] Section -->
     @if ($activeYear && $contentSections->isNotEmpty())
-        <section class="py-12 bg-gray-100">
+        <section class="py-10 bg-gray-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- White Box ครอบทั้งหมด -->
-                <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+                <div class="bg-white relative w-full overflow-hidden rounded-xl shadow-lg p-8 md:p-12">
                     <!-- Title with bottom border -->
                     <div class="mb-10">
-                        <h1 class="text-4xl md:text-5xl font-bold text-[#af1a00]">
+                        <h1 class="text-4xl md:text-3xl font-normal text-[#af1a00]">
                             ARU-SCD{{ $activeYear->year }}
                         </h1>
                         <div class="mt-3 h-1 bg-[#af1a00] w-full"></div>
@@ -48,7 +48,7 @@
                                             @endif
                                         </div>
                                         <!-- ชื่อด้านล่าง -->
-                                        <h3 class="mt-4 text-lg font-semibold text-gray-800 group-hover:text-red-600 transition-colors duration-200">
+                                        <h3 class="mt-4 text-base font-normal text-gray-800 group-hover:text-red-600 transition-colors duration-200">
                                             {{ $section->name }}
                                         </h3>
                                     </div>

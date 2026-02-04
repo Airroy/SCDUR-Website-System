@@ -1,27 +1,39 @@
 <x-layouts.frontend>
-
     <x-slot:title>
         {{ $section->name }} - ARU-SCD {{ $section->scdYear->year }}
     </x-slot:title>
-
     <div class="py-6 sm:py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Box สำหรับ Breadcrumb และ Title -->
+            <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6 sm:p-8 mb-6 sm:mb-8">
+                <!-- Breadcrumb -->
+                <nav class="text-sm text-gray-600 mb-2">
+                    <a href="{{ route('home', ['year' => $section->scd_year_id]) }}" 
+                       class="hover:text-[#af1a00] transition-colors">
+                        หน้าหลัก
+                    </a>
+                    <span class="mx-2 text-gray-400">›</span>
+                    <span class="text-[#af1a00] font-semibold">{{ $section->name }}</span>
+                </nav>
 
-            <!-- Breadcrumb -->
-            <nav class="text-sm text-gray-600 mb-4 sm:mb-6">
-                <a href="{{ route('home', ['year' => $section->scd_year_id]) }}" class="hover:text-[#af1a00] transition-colors">หน้าหลัก</a>
-                <span class="mx-2 text-gray-400">›</span>
-                <span class="text-gray-900 font-medium">{{ $section->name }}</span>
-            </nav>
+                <!-- เส้นสีแดงสวยๆ -->
+                <div class="mb-6">
+                    <div class="h-1 bg-[#af1a00] rounded-full shadow-sm"></div>
+                </div>
 
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">{{ $section->name }}</h1>
+                <!-- Title -->
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">
+                    {{ $section->name }}
+                </h1>
+            </div>
 
             <!-- Items Section -->
             <div>
-                <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-                    <div class="bg-[#af1a00] px-4 sm:px-6 py-3 sm:py-4">
+                <div class="bg-white relative w-full overflow-hidden rounded-xl shadow-lg">
+                    <div class="bg-[#af1a00] px-4 sm:px-6 py-3 sm:py-4 flex justify-center">
                         <h2 class="text-lg sm:text-xl font-semibold text-white">
-                            รายการทั้งหมด
+                            Indicators
                         </h2>
                     </div>
 
@@ -39,8 +51,6 @@
                     @endif
                 </div>
             </div>
-
         </div>
     </div>
-
 </x-layouts.frontend>

@@ -16,12 +16,12 @@ class BannersIndex extends Component
 
     public $currentPage = 'banners';
     public $selectedYear;
-    
+
     // Modal state
     public $showModal = false;
     public $editMode = false;
     public $bannerId = null;
-    
+
     // Form fields
     public $sequence;
     public $banner_image; // รับ base64 จาก image-cropper
@@ -33,9 +33,22 @@ class BannersIndex extends Component
     public $pdf_name;
     public $existingPdf;
 
+    public $title;
+
     public function mount($year = null)
     {
         $this->selectedYear = $year ? ScdYear::where('year', $year)->first() : null;
+    }
+
+    /**
+     * รับค่า cropped image จาก Alpine.js event
+     */
+    #[\Livewire\Attributes\On('cropped-image')]
+    public function handleCroppedImage($name, $data)
+    {
+        if ($name === 'banner_image') {
+            $this->banner_image = $data;
+        }
     }
 
     public function openAddModal()
@@ -49,16 +62,17 @@ class BannersIndex extends Component
     {
         $this->resetForm();
         $banner = Banner::findOrFail($bannerId);
-        
+
         $this->editMode = true;
         $this->bannerId = $bannerId;
         $this->sequence = $banner->sequence;
+        $this->title = $banner->title;
         $this->existingImage = $banner->image_path;
         $this->link_type = $banner->link_type;
         $this->link_url = $banner->link_url;
         $this->pdf_name = $banner->pdf_name;
         $this->existingPdf = $banner->pdf_path;
-        
+
         $this->showModal = true;
     }
 
@@ -72,13 +86,13 @@ class BannersIndex extends Component
         $rules = [
             'sequence' => 'required|integer|min:1',
             'banner_image' => 'nullable|string', // base64
-            'image' => $this->editMode 
-                ? "nullable|image|max:{$maxBannerSize}" 
+            'image' => $this->editMode
+                ? "nullable|image|max:{$maxBannerSize}"
                 : "nullable|image|max:{$maxBannerSize}",
             'link_type' => 'required|in:none,url,pdf',
             'link_url' => $this->link_type === 'url' ? 'required|url' : 'nullable',
-            'pdf_file' => $this->link_type === 'pdf' && !$this->editMode 
-                ? "required|mimes:pdf|max:{$maxPdfSize}" 
+            'pdf_file' => $this->link_type === 'pdf' && !$this->editMode
+                ? "required|mimes:pdf|max:{$maxPdfSize}"
                 : "nullable|mimes:pdf|max:{$maxPdfSize}",
             'pdf_name' => $this->link_type === 'pdf' ? 'required|string|max:255' : 'nullable',
         ];
@@ -125,6 +139,7 @@ class BannersIndex extends Component
         $data = [
             'scd_year_id' => $this->selectedYear->id,
             'sequence' => $this->sequence,
+            'title' => $this->title,
             'link_type' => $this->link_type,
             'link_url' => $this->link_type === 'url' ? $this->link_url : null,
             'pdf_name' => $this->link_type === 'pdf' ? $this->pdf_name : null,
@@ -154,9 +169,10 @@ class BannersIndex extends Component
     private function updateBanner()
     {
         $banner = Banner::findOrFail($this->bannerId);
-        
+
         $data = [
             'sequence' => $this->sequence,
+            'title' => $this->title,
             'link_type' => $this->link_type,
             'link_url' => $this->link_type === 'url' ? $this->link_url : null,
             'pdf_name' => $this->link_type === 'pdf' ? $this->pdf_name : null,
@@ -203,7 +219,7 @@ class BannersIndex extends Component
     public function deleteBanner($bannerId)
     {
         $banner = Banner::findOrFail($bannerId);
-        
+
         // Delete files
         if ($banner->image_path) {
             Storage::disk('public')->delete($banner->image_path);
@@ -211,7 +227,7 @@ class BannersIndex extends Component
         if ($banner->pdf_path) {
             Storage::disk('public')->delete($banner->pdf_path);
         }
-        
+
         $banner->delete();
 
         $this->dispatch('notify', [
@@ -229,12 +245,20 @@ class BannersIndex extends Component
             return null;
         }
 
-        // แยก header ออก (data:image/jpeg;base64,)
+        // ตรวจสอบประเภทไฟล์จาก base64 header
+        $extension = 'png'; // default เป็น PNG
+        if (strpos($base64String, 'data:image/jpeg') === 0) {
+            $extension = 'jpg';
+        } elseif (strpos($base64String, 'data:image/png') === 0) {
+            $extension = 'png';
+        }
+
+        // แยก header ออก
         $image = preg_replace('/^data:image\/\w+;base64,/', '', $base64String);
         $image = str_replace(' ', '+', $image);
 
         // สร้างชื่อไฟล์
-        $imageName = uniqid() . '_' . time() . '.jpg';
+        $imageName = uniqid() . '_' . time() . '.' . $extension;
         $path = $folder . '/' . $imageName;
 
         // บันทึกลง storage/app/public
@@ -262,10 +286,10 @@ class BannersIndex extends Component
 
     public function render()
     {
-        $banners = $this->selectedYear 
+        $banners = $this->selectedYear
             ? Banner::where('scd_year_id', $this->selectedYear->id)
-                ->orderBy('sequence')
-                ->get()
+            ->orderBy('sequence')
+            ->get()
             : collect([]);
 
         return view('livewire.backend.banners-index', [

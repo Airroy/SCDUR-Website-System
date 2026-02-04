@@ -23,13 +23,13 @@ class FrontendController extends Controller
     public function announcements($yearId)
     {
         $year = ScdYear::findOrFail($yearId);
-        
+
         $announcements = ContentNode::where('scd_year_id', $year->id)
             ->where('category_group', 'announcement')
             ->whereNull('parent_id')
             ->orderBy('sequence')
             ->get();
-            
+
         $orders = ContentNode::where('scd_year_id', $year->id)
             ->where('category_group', 'order')
             ->whereNull('parent_id')
@@ -65,38 +65,52 @@ class FrontendController extends Controller
         ));
     }
 
-    public function viewFile($id)
+    public function viewFile($id, $filename = null)
     {
         $item = ContentNode::findOrFail($id);
-        
+
         // ตรวจสอบว่าไฟล์มีอยู่จริงหรือไม่
         if (!Storage::disk('public')->exists($item->file_path)) {
             return back()->with('error', 'ไม่พบไฟล์ที่ต้องการดู');
         }
-        
+
         // นับจำนวนการดู
         $item->increment('view_count');
-        
-        // Redirect ไปยังไฟล์
-        return redirect(Storage::disk('public')->url($item->file_path));
+
+        // ✅ เปิดดูไฟล์ในเบราว์เซอร์
+        $filePath = storage_path('app/public/' . $item->file_path);
+
+        return response()->make(file_get_contents($filePath), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Length' => filesize($filePath),
+        ]);
     }
 
     public function downloadFile($id)
     {
         $item = ContentNode::findOrFail($id);
-        
+
         // ตรวจสอบว่าไฟล์มีอยู่จริงหรือไม่
         if (!Storage::disk('public')->exists($item->file_path)) {
             return back()->with('error', 'ไม่พบไฟล์ที่ต้องการดาวน์โหลด');
         }
-        
+
         // นับจำนวนดาวน์โหลด
         $item->increment('download_count');
-        
-        // ทำความสะอาดชื่อไฟล์ - ลบ / และ \ ออก
-        $cleanName = str_replace(['/', '\\'], '-', $item->name);
-        
-        // ดาวน์โหลดไฟล์ (บังคับเป็น .pdf)
-        return Storage::disk('public')->download($item->file_path, $cleanName . '.pdf');
+
+        // ✅ บังคับดาวน์โหลด (ไม่เปิดดู)
+        $filePath = storage_path('app/public/' . $item->file_path);
+        $cleanName = preg_replace('/[^\p{L}\p{N}\s\-_.]/u', '', $item->name);
+        $cleanName = trim($cleanName) ?: 'document';
+        $encodedName = rawurlencode($cleanName . '.pdf');
+
+        return response()->make(file_get_contents($filePath), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => "attachment; filename*=UTF-8''{$encodedName}",
+            'Content-Length' => filesize($filePath),
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
     }
 }

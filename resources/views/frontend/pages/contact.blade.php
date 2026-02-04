@@ -3,11 +3,16 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-6">ติดต่อเรา</h1>
-            
+            <div class="bg-white relative w-full overflow-hidden rounded-xl shadow-lg border border-gray-200 p-6 sm:p- mb-6 sm:mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-6">ติดต่อเรา</h1>
+                    <!-- เส้นสีแดงสวยๆ -->
+                    <div class="mb-6">
+                        <div class="h-1 bg-[#af1a00] rounded-full shadow-sm"></div>
+                    </div>
+            </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- ข้อมูลติดต่อ -->
-                <div class="bg-white rounded-lg shadow p-8">
+                <div class="bg-white relative w-full overflow-hidden rounded-xl shadow-lg p-8">
                     <h2 class="text-xl font-semibold text-gray-900 mb-4">ข้อมูลติดต่อ</h2>
                     
                     <div class="space-y-4">

@@ -1,5 +1,5 @@
 @props([
-    'title' => 'รายการทั้งหมด',
+    'title' => 'Indicators',
     'items',
     'emptyTitle' => 'ยังไม่มีรายการในหมวดหมู่นี้',
     'emptyMessage' => 'กรุณาตรวจสอบใหม่ภายหลัง',
@@ -7,10 +7,9 @@
 ])
 
 <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 mb-8">
-    {{-- Header - เหมือนหน้าประกาศ --}}
-    <div class="bg-[#af1a00] px-6 py-4 flex justify-between items-center">
+    {{-- Header --}}
+    <div class="bg-[#af1a00] px-6 py-4 flex justify-center items-center">
         <h2 class="text-xl font-semibold text-white">{{ $title }}</h2>
-        <span class="text-white text-sm"></span>
     </div>
 
     {{-- Content - ใช้ document-tree เหมือนหน้าประกาศ --}}

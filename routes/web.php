@@ -23,7 +23,7 @@ Route::get('/document/{id}/view', [FrontendController::class, 'viewDocument'])->
 Route::get('/document/{id}/download', [FrontendController::class, 'downloadDocument'])->name('document.download');
 
 // ดู/ดาวน์โหลดไฟล์ Content Section (นับจำนวน)
-Route::get('/file/{id}/view', [FrontendController::class, 'viewFile'])->name('file.view');
+Route::get('/file/{id}/view/{filename}', [FrontendController::class, 'viewFile'])->where('filename', '.*')->name('file.view');
 Route::get('/file/{id}/download', [FrontendController::class, 'downloadFile'])->name('file.download');
 
 // SCD Box / Content Section
@@ -32,22 +32,22 @@ Route::get('/content-section/{year}/{section}/folder/{folder}', [FrontendControl
 
 // กลุ่ม Route สำหรับ Admin เท่านั้น
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    
+
     // Dashboard (หน้าแรก)
     Route::get('/dashboard', \App\Livewire\Backend\AdminDashboard::class)->name('dashboard');
-    
+
     // Years Management
     Route::get('/years', \App\Livewire\Backend\YearsIndex::class)->name('years.index');
-    
+
     // Reports Management
     Route::get('/reports/{year?}', \App\Livewire\Backend\ReportsIndex::class)->name('reports.index');
-    
+
     // Banners Management
     Route::get('/banners/{year?}', \App\Livewire\Backend\BannersIndex::class)->name('banners.index');
-    
+
     // Announcements Management
     Route::get('/announcements/{year?}', \App\Livewire\Backend\AnnouncementsIndex::class)->name('announcements.index');
-    
+
     // Contents Management
     Route::get('/contents/{year?}', \App\Livewire\Backend\ContentsIndex::class)->name('contents.index');
 
@@ -55,4 +55,4 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::view('/profile', 'admin.pages.profile')->name('profile');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
