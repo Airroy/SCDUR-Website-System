@@ -1,11 +1,11 @@
 <!-- Footer -->
-<footer class="bg-white text-gray-800 pt-[50px] px-5 mt-20">
+<footer class="bg-gray-100 text-gray-800 pt-[50px] px-5 mt-20">
 
     <div class="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 mb-0 pb-10">
 
         <!-- แนะนำหน่วยงาน -->
         <div class="text-center md:text-left">
-            <h3 class="text-red-600 text-xl font-semibold mb-5">
+            <h3 class="text-gray-600 text-xl font-semibold mb-5">
                 แนะนำหน่วยงาน
             </h3>
             <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
@@ -15,7 +15,7 @@
 
         <!-- เอกสารประชาสัมพันธ์ -->
         <div class="text-center md:text-left">
-            <h3 class="text-red-600 text-xl font-semibold mb-5">
+            <h3 class="text-gray-600 text-xl font-semibold mb-5">
                 เอกสารประชาสัมพันธ์
             </h3>
             <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
@@ -25,7 +25,7 @@
 
         <!-- ติดต่อเรา -->
         <div class="text-center md:text-left">
-            <h3 class="text-red-600 text-xl font-semibold mb-5">
+            <h3 class="text-gray-600 text-xl font-semibold mb-5">
                 ติดต่อเรา
             </h3>
             <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
@@ -38,11 +38,11 @@
             </p>
             <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
                 Email: <a href="mailto:ISC@aru.ac.th"
-                    class="text-red-600 no-underline transition-colors duration-300 hover:text-orange-400">ISC@aru.ac.th</a>
+                    class="text-gray-600 underline transition-colors duration-300 hover:text-red-600">ISC@aru.ac.th</a>
             </p>
             <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
                 TEL: <a href="tel:0-3532-2589"
-                    class="text-red-600 no-underline transition-colors duration-300 hover:text-orange-400">0-3532-2589</a>
+                    class="text-gray-600 underline transition-colors duration-300 hover:text-red-600">0-3532-2589</a>
             </p>
         </div>
     </div>

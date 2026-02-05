@@ -10,7 +10,7 @@ Route::middleware('guest')->group(function () {
     // Route::get('register', \App\Livewire\Auth\Register::class)
     //     ->name('register');
 
-    Route::get('login', \App\Livewire\Auth\Login::class)
+    Route::get('aru-scdur-panel', \App\Livewire\Auth\Login::class)
         ->name('login');
 
     // Forgot/Reset Password - ปิดไว้เพราะยังไม่ได้ตั้งค่า Mail

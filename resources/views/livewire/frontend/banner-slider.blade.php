@@ -12,7 +12,7 @@
             @endif
         @endforeach
 
-        <div class="relative w-full overflow-hidden rounded-xl shadow-lg" x-data="infiniteSlider({{ $slideCount }})" x-init="init()"
+        <div class="relative w-full overflow-hidden shadow-lg" x-data="infiniteSlider({{ $slideCount }})" x-init="init()"
             @mouseenter="stopAutoPlay()" @mouseleave="startAutoPlay()">
 
             {{-- Slides Container --}}
@@ -23,7 +23,7 @@
                 @php $lastBanner = $slides->last(); @endphp
                 <div class="min-w-full flex-shrink-0 relative">
                     @if ($lastBanner->image_path)
-                        <div class="w-full relative" style="aspect-ratio: 1920/720;">
+                        <div class="w-full relative" style="aspect-ratio: 1140/428;">
                             <div
                                 class="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse">
                             </div>
@@ -32,14 +32,14 @@
                                 onload="this.style.opacity=1" style="opacity: 0; transition: opacity 0.3s ease-in-out;">
                         </div>
                     @else
-                        <div class="w-full bg-gray-200" style="aspect-ratio: 1920/720;"></div>
+                        <div class="w-full bg-gray-200" style="aspect-ratio: 1140/428;"></div>
                     @endif
                     @if ($lastBanner->link_type === 'url' && $lastBanner->link_url)
                         <a href="{{ $lastBanner->link_url }}" target="_blank" rel="noopener noreferrer"
-                            class="absolute inset-0 bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
+                            class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                     @elseif($lastBanner->link_type === 'pdf' && $lastBanner->pdf_path)
                         <a href="{{ Storage::url($lastBanner->pdf_path) }}" target="_blank" rel="noopener noreferrer"
-                            class="absolute inset-0 bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
+                            class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                     @endif
                 </div>
 
@@ -47,7 +47,7 @@
                 @foreach ($slides as $index => $banner)
                     <div class="min-w-full flex-shrink-0 relative">
                         @if ($banner->image_path)
-                            <div class="w-full relative" style="aspect-ratio: 1920/720;">
+                            <div class="w-full relative" style="aspect-ratio: 1140/428;">
                                 <div
                                     class="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse">
                                 </div>
@@ -57,14 +57,14 @@
                                     style="opacity: 0; transition: opacity 0.3s ease-in-out;">
                             </div>
                         @else
-                            <div class="w-full bg-gray-200" style="aspect-ratio: 1920/720;"></div>
+                            <div class="w-full bg-gray-200" style="aspect-ratio: 1140/428;"></div>
                         @endif
                         @if ($banner->link_type === 'url' && $banner->link_url)
                             <a href="{{ $banner->link_url }}" target="_blank" rel="noopener noreferrer"
-                                class="absolute inset-0 bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
+                                class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                         @elseif($banner->link_type === 'pdf' && $banner->pdf_path)
                             <a href="{{ Storage::url($banner->pdf_path) }}" target="_blank" rel="noopener noreferrer"
-                                class="absolute inset-0 bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
+                                class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                         @endif
                     </div>
                 @endforeach
@@ -73,7 +73,7 @@
                 @php $firstBanner = $slides->first(); @endphp
                 <div class="min-w-full flex-shrink-0 relative">
                     @if ($firstBanner->image_path)
-                        <div class="w-full relative" style="aspect-ratio: 1920/720;">
+                        <div class="w-full relative" style="aspect-ratio: 1140/428;">
                             <div
                                 class="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse">
                             </div>
@@ -82,33 +82,45 @@
                                 onload="this.style.opacity=1" style="opacity: 0; transition: opacity 0.3s ease-in-out;">
                         </div>
                     @else
-                        <div class="w-full bg-gray-200" style="aspect-ratio: 1920/720;"></div>
+                        <div class="w-full bg-gray-200" style="aspect-ratio: 1140/428;"></div>
                     @endif
                     @if ($firstBanner->link_type === 'url' && $firstBanner->link_url)
                         <a href="{{ $firstBanner->link_url }}" target="_blank" rel="noopener noreferrer"
-                            class="absolute inset-0 bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
+                            class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                     @elseif($firstBanner->link_type === 'pdf' && $firstBanner->pdf_path)
                         <a href="{{ Storage::url($firstBanner->pdf_path) }}" target="_blank" rel="noopener noreferrer"
-                            class="absolute inset-0 bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
+                            class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                     @endif
                 </div>
             </div>
 
-            {{-- Previous Button --}}
+            {{-- Previous Button Area - กดพื้นที่ซ้ายทั้งหมด --}}
             <button @click="prev()"
-                class="absolute top-1/2 left-4 -translate-y-1/2 bg-[#af1a00]/50 hover:bg-[#af1a00]/80 text-white rounded-full p-3 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-110 z-20"
+                class="absolute top-0 left-0 bottom-0 w-[30%] flex items-center justify-start pl-8 z-20 group"
+                style="background: transparent; transition: all 0.3s ease-out;"
+                onmouseenter="this.style.background='linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0) 100%)';"
+                onmouseleave="this.style.background='transparent';"
                 aria-label="Previous slide">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+                <svg class="w-10 h-10 text-white drop-shadow-lg
+                           group-hover:scale-110 group-hover:-translate-x-1
+                           transition-all duration-300" 
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
                 </svg>
             </button>
 
-            {{-- Next Button --}}
+            {{-- Next Button Area - กดพื้นที่ขวาทั้งหมด --}}
             <button @click="next()"
-                class="absolute top-1/2 right-4 -translate-y-1/2 bg-[#af1a00]/50 hover:bg-[#af1a00]/80 text-white rounded-full p-3 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-110 z-20"
+                class="absolute top-0 right-0 bottom-0 w-[30%] flex items-center justify-end pr-8 z-20 group"
+                style="background: transparent; transition: all 0.3s ease-out;"
+                onmouseenter="this.style.background='linear-gradient(to left, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0) 100%)';"
+                onmouseleave="this.style.background='transparent';"
                 aria-label="Next slide">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                <svg class="w-10 h-10 text-white drop-shadow-lg
+                           group-hover:scale-110 group-hover:translate-x-1
+                           transition-all duration-300" 
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
                 </svg>
             </button>
 
@@ -128,9 +140,9 @@
         </div>
     @else
         {{-- No Banner --}}
-        <div class="relative w-full overflow-hidden rounded-xl shadow-lg">
+        <div class="relative w-full overflow-hidden shadow-lg">
             <div class="w-full bg-gradient-to-r from-gray-100 to-gray-200 flex items-center justify-center"
-                style="aspect-ratio: 1920/720;">
+                style="aspect-ratio: 1140/428;">
                 <div class="text-center">
                     <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">

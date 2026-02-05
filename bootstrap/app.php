@@ -27,8 +27,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 Request::HEADER_X_FORWARDED_PROTO
         );
 
-        // ✅ เปิดใช้ AccessLog ทุก Request
-        $middleware->append(AccessLog::class);
+        // ✅ เปิดใช้ AccessLog หลังจาก session middleware ทำงานแล้ว
+        $middleware->web(append: [
+            AccessLog::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

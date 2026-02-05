@@ -3,9 +3,9 @@
     'label' => 'รูปภาพ',
     'required' => false,
     'existingImage' => null,
-    'aspectRatio' => '1920/720',
-    'outputWidth' => 1920,
-    'outputHeight' => 720,
+    'aspectRatio' => '1140/428',
+    'outputWidth' => 1140,
+    'outputHeight' => 428,
     'helpText' => null,
 ])
 
@@ -157,7 +157,7 @@
             return;
         }
 
-        // บังคับ output เป็นขนาดที่กำหนดเสมอ (1920x720)
+        // บังคับ output เป็นขนาดที่กำหนดเสมอ (1140x428)
         // จะ upscale ให้อัตโนมัติถ้ารูปเล็กกว่า
         const canvas = this.cropper.getCroppedCanvas({
             width: {{ $outputWidth }},

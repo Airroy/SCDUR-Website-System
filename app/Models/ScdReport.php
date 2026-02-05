@@ -11,6 +11,7 @@ class ScdReport extends Model
         'scd_year_id',
         'file_name',
         'file_path',
+        'view_count',
     ];
 
     public function scdYear(): BelongsTo

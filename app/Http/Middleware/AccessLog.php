@@ -67,7 +67,15 @@ class AccessLog
         $lines[] = "User: " . (auth()->check() ? (auth()->user()->email ?? auth()->user()->name) : 'Guest');
         $lines[] = "Device: {$device}";
         $lines[] = "Browser: {$browser}";
-        $lines[] = "Session: " . ($request->session() ? substr($request->session()->getId(), 0, 8) : 'none');
+
+        // ✅ แก้ไข: ตรวจสอบว่า session มีหรือไม่ก่อนใช้งาน
+        try {
+            $sessionId = $request->hasSession() ? substr($request->session()->getId(), 0, 8) : 'none';
+        } catch (\Exception $e) {
+            $sessionId = 'error';
+        }
+        $lines[] = "Session: " . $sessionId;
+
         $lines[] = "Memory: " . round(memory_get_usage(true) / 1024 / 1024, 2) . "MB";
 
         // Query Parameters

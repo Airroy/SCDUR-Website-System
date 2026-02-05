@@ -20,12 +20,12 @@ class HomeController extends Controller
 
 
         // ===============================
-        // เลือกปีที่ใช้งาน
+        // เลือกปีที่ใช้งาน (รับเป็นปี ค.ศ. 4 หลัก)
         // ===============================
-        $selectedYearId = $request->query('year');
+        $selectedYear = $request->query('year');
 
-        $activeYear = $selectedYearId
-            ? ScdYear::find($selectedYearId)
+        $activeYear = $selectedYear
+            ? ScdYear::where('year', $selectedYear)->first()
             : $publishedYears->first();
 
 
@@ -34,11 +34,11 @@ class HomeController extends Controller
         // ===============================
         $announcements = $activeYear
             ? ContentNode::where('scd_year_id', $activeYear->id)
-                ->where('category_group', 'announcement')
-                ->whereNull('parent_id')
-                ->orderBy('sequence')
-                ->limit(6)
-                ->get()
+            ->where('category_group', 'announcement')
+            ->whereNull('parent_id')
+            ->orderBy('sequence')
+            ->limit(6)
+            ->get()
             : collect([]);
 
 
@@ -48,10 +48,10 @@ class HomeController extends Controller
         // ===============================
         $contentSections = $activeYear
             ? ContentNode::where('scd_year_id', $activeYear->id)
-                ->where('category_group', 'content') // แก้จาก content_section เป็น content
-                ->whereNull('parent_id')
-                ->orderBy('sequence')
-                ->get()
+            ->where('category_group', 'content') // แก้จาก content_section เป็น content
+            ->whereNull('parent_id')
+            ->orderBy('sequence')
+            ->get()
             : collect([]);
 
 

@@ -37,7 +37,7 @@
 
                 {{-- ปุ่มดาวน์โหลด SCD Report --}}
                 @if ($report)
-                    <a href="{{ Storage::url($report->file_path) }}" target="_blank"
+                    <a href="{{ route('scd-report.download', $year->year) }}"
                         class="inline-flex items-center gap-2 px-4 py-2 bg-[#af1a00] hover:bg-[#8b1500] text-white font-semibold rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg text-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
