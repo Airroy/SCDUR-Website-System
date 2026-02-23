@@ -6,7 +6,7 @@
         <!-- Page Header -->
         <div class="p-6">
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">รูปภาพสไลด์ประจำปี {{ $selectedYear->year }}</h1>
+                <h1 class="text-3xl font-bold text-gray-900">รูปภาพสไลด์ประจำปี {{ $selectedYear->year }}</h1>
                 <p class="mt-1 text-gray-600">เพิ่ม แก้ไข และจัดการรูปภาพสไลด์บนหน้าหลัก</p>
             </div>
 
@@ -42,17 +42,20 @@
                         หมวด <span class="text-red-600">*</span>
                     </label>
                     <div class="space-y-2">
-                        <label class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors
+                        <label
+                            class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors
                             {{ $category == '0' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300' }}">
                             <input type="radio" wire:model.live="category" value="0" class="hidden">
-                            <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0
+                            <div
+                                class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0
                                 {{ $category == '0' ? 'border-green-500' : 'border-gray-400' }}">
                                 @if ($category == '0')
                                     <div class="w-2 h-2 rounded-full bg-green-500"></div>
                                 @endif
                             </div>
                             <div>
-                                <p class="text-sm font-medium {{ $category == '0' ? 'text-green-700' : 'text-gray-700' }}">
+                                <p
+                                    class="text-sm font-medium {{ $category == '0' ? 'text-green-700' : 'text-gray-700' }}">
                                     แสดงผล
                                 </p>
                                 <p class="text-xs {{ $category == '0' ? 'text-green-500' : 'text-gray-400' }}">
@@ -61,17 +64,20 @@
                             </div>
                         </label>
 
-                        <label class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors
+                        <label
+                            class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors
                             {{ $category == '1' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300' }}">
                             <input type="radio" wire:model.live="category" value="1" class="hidden">
-                            <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0
+                            <div
+                                class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0
                                 {{ $category == '1' ? 'border-red-500' : 'border-gray-400' }}">
                                 @if ($category == '1')
                                     <div class="w-2 h-2 rounded-full bg-red-500"></div>
                                 @endif
                             </div>
                             <div>
-                                <p class="text-sm font-medium {{ $category == '1' ? 'text-red-700' : 'text-gray-700' }}">
+                                <p
+                                    class="text-sm font-medium {{ $category == '1' ? 'text-red-700' : 'text-gray-700' }}">
                                     ซ่อน (ไม่แสดงผล)
                                 </p>
                                 <p class="text-xs {{ $category == '1' ? 'text-red-500' : 'text-gray-400' }}">
@@ -190,4 +196,7 @@
             </div>
         </form>
     </x-backend.modal>
+
+    <!-- Sort Modal -->
+    <x-backend.sort-modal :show="$showSortModal" :items="$sortableItems" :title="$sortCategory == 0 ? 'จัดลำดับสไลด์ (แสดงผล)' : 'จัดลำดับสไลด์ (ซ่อน)'" />
 </div>

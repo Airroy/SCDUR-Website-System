@@ -21,6 +21,10 @@ class ContentsIndex extends Component
 
     // Modal & Form Properties
     public $showModal = false;
+
+    // Sort modal state
+    public $showSortModal = false;
+    public $sortableItems = [];
     public $editMode = false;
     public $type = 'folder'; // 'folder' or 'file'
     public $nodeId = null;
@@ -72,6 +76,45 @@ class ContentsIndex extends Component
             ]);
             $node = $node->parent;
         }
+    }
+
+    /**
+     * เปิด Sort Modal สำหรับจัดลำดับตัวชี้วัดในโฟลเดอร์ปัจจุบัน
+     */
+    public function openSortModal()
+    {
+        if (!$this->selectedYear) return;
+
+        $contents = ContentSection::where('scd_year_id', $this->selectedYear->id)
+            ->where('parent_id', $this->currentParentId)
+            ->orderBy('sequence')
+            ->get();
+
+        $this->sortableItems = $contents->map(fn($item) => [
+            'id' => $item->id,
+            'label' => $item->name,
+            'sublabel' => $item->type === 'folder' ? 'หมวดหมู่' : 'ไฟล์',
+            'image' => $item->image_path ? Storage::url($item->image_path) : null,
+        ])->toArray();
+
+        $this->showSortModal = true;
+    }
+
+    /**
+     * บันทึกลำดับใหม่
+     */
+    public function saveSortOrder($orderedIds)
+    {
+        foreach ($orderedIds as $index => $id) {
+            ContentSection::where('id', $id)->update(['sequence' => $index + 1]);
+        }
+
+        $this->showSortModal = false;
+        $this->sortableItems = [];
+        $this->dispatch('notify', [
+            'message' => 'บันทึกลำดับสำเร็จ',
+            'type' => 'success'
+        ]);
     }
 
     public function openAddFolderModal()

@@ -6,7 +6,7 @@
         <!-- Page Header -->
         <div class="p-6">
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">
+                <h1 class="text-3xl font-bold text-gray-900">
                     {{ $category === 'announcement' ? 'ประกาศ' : 'คำสั่ง' }}ประจำปี {{ $selectedYear->year }}
                 </h1>
                 <p class="mt-1 text-gray-600">เพิ่ม แก้ไข
@@ -56,4 +56,7 @@
             <p class="mt-2 text-sm text-gray-500">กรุณาเลือกปีจากเมนูด้านซ้ายเพื่อเริ่มจัดการเนื้อหา</p>
         </div>
     @endif
+
+    <!-- Sort Modal -->
+    <x-backend.sort-modal :show="$showSortModal" :items="$sortableItems" :title="'จัดลำดับ' . ($category === 'announcement' ? 'ประกาศ' : 'คำสั่ง')" />
 </div>

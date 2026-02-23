@@ -17,6 +17,10 @@ class AnnouncementsIndex extends Component
     public $breadcrumbs = [];
     public $currentPage = 'announcements'; // เก็บว่าอยู่หน้าไหน
 
+    // Sort modal state
+    public $showSortModal = false;
+    public $sortableItems = [];
+
     protected $listeners = [
         'refreshAnnouncementTable' => '$refresh',
         'navigateToFolder' => 'navigateToFolder',
@@ -97,6 +101,46 @@ class AnnouncementsIndex extends Component
             ->where('parent_id', $this->currentParentId)
             ->where('type', 'file')
             ->exists();
+    }
+
+    /**
+     * เปิด Sort Modal สำหรับจัดลำดับรายการในโฟลเดอร์ปัจจุบัน
+     */
+    public function openSortModal()
+    {
+        if (!$this->selectedYear) return;
+
+        $model = $this->getModel();
+        $items = $model::where('scd_year_id', $this->selectedYear->id)
+            ->where('parent_id', $this->currentParentId)
+            ->orderBy('sequence')
+            ->get();
+
+        $this->sortableItems = $items->map(fn($item) => [
+            'id' => $item->id,
+            'label' => $item->name,
+            'sublabel' => $item->type === 'folder' ? 'หมวดหมู่' : 'ไฟล์ PDF',
+        ])->toArray();
+
+        $this->showSortModal = true;
+    }
+
+    /**
+     * บันทึกลำดับใหม่
+     */
+    public function saveSortOrder($orderedIds)
+    {
+        $model = $this->getModel();
+        foreach ($orderedIds as $index => $id) {
+            $model::where('id', $id)->update(['sequence' => $index + 1]);
+        }
+
+        $this->showSortModal = false;
+        $this->sortableItems = [];
+        $this->dispatch('notify', [
+            'message' => 'บันทึกลำดับสำเร็จ',
+            'type' => 'success'
+        ]);
     }
 
     public function render()

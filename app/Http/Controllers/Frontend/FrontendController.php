@@ -50,12 +50,17 @@ class FrontendController extends Controller
         // ปีการศึกษา
         $yearModel = ScdYear::where('year', $year)->firstOrFail();
 
-        // หมวด (Section) - ค้นหาจาก slug
+        // หมวด (Section) - ค้นหาจาก slug หรือ fallback id
         $sections = ContentSection::where('scd_year_id', $yearModel->id)
             ->whereNull('parent_id')
             ->get();
 
+        // ลองหาจาก slug ปกติก่อน ถ้าไม่เจอลองหาจาก fallback format "section-{id}"
         $section = $sections->first(fn($s) => \Illuminate\Support\Str::slug($s->name) === $slug);
+
+        if (!$section && preg_match('/^section-(\d+)$/', $slug, $matches)) {
+            $section = $sections->first(fn($s) => $s->id == $matches[1]);
+        }
 
         if (!$section) {
             abort(404);

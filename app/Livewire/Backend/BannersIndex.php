@@ -19,6 +19,11 @@ class BannersIndex extends Component
 
     // Modal state
     public $showModal = false;
+
+    // Sort modal state
+    public $showSortModal = false;
+    public $sortableItems = [];
+    public $sortCategory = 0;
     public $editMode = false;
     public $bannerId = null;
 
@@ -47,6 +52,47 @@ class BannersIndex extends Component
         if ($name === 'banner_image') {
             $this->banner_image = $data;
         }
+    }
+
+    /**
+     * เปิด Sort Modal สำหรับจัดลำดับ Banner ตาม category
+     */
+    public function openSortModal($category = 0)
+    {
+        if (!$this->selectedYear) return;
+
+        $banners = Banner::where('scd_year_id', $this->selectedYear->id)
+            ->where('category', $category)
+            ->orderBy('sequence')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $this->sortCategory = $category;
+        $this->sortableItems = $banners->map(fn($b) => [
+            'id' => $b->id,
+            'label' => 'สไลด์ #' . $b->id,
+            'sublabel' => $b->link_type === 'none' ? 'ไม่มีลิงค์' : ($b->link_type === 'url' ? 'URL' : 'PDF'),
+            'image' => $b->image_path ? Storage::url($b->image_path) : null,
+        ])->toArray();
+
+        $this->showSortModal = true;
+    }
+
+    /**
+     * บันทึกลำดับ Banner ใหม่
+     */
+    public function saveSortOrder($orderedIds)
+    {
+        foreach ($orderedIds as $index => $id) {
+            Banner::where('id', $id)->update(['sequence' => $index + 1]);
+        }
+
+        $this->showSortModal = false;
+        $this->sortableItems = [];
+        $this->dispatch('notify', [
+            'message' => 'บันทึกลำดับสำเร็จ',
+            'type' => 'success'
+        ]);
     }
 
     public function openAddModal()
@@ -273,6 +319,7 @@ class BannersIndex extends Component
         $banners = $this->selectedYear
             ? Banner::where('scd_year_id', $this->selectedYear->id)
             ->orderBy('category')
+            ->orderBy('sequence')
             ->orderBy('created_at', 'desc')
             ->get()
             : collect([]);

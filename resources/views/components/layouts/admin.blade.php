@@ -135,14 +135,14 @@
                             <div class="px-2 py-2 space-y-0.5">
                                 @foreach ($allYears as $year)
                                     @php $isThisYearActive = $isYearSubRoute && $activeRouteYear == $year->year; @endphp
-                                    <a href="{{ route('admin.reports.index', $year->year) }}"
+                                    <a href="{{ route('admin.contents.index', $year->year) }}"
                                         class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all
                                             {{ $isThisYearActive ? 'bg-red-600 text-white shadow-sm' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">
                                         <span
                                             class="w-1.5 h-1.5 rounded-full flex-shrink-0
                                             {{ $year->is_published ? ($isThisYearActive ? 'bg-white/80' : 'bg-green-500') : ($isThisYearActive ? 'bg-white/30' : 'bg-gray-300') }}">
                                         </span>
-                                        <span class="flex-1">ปี {{ $year->year + 543 }}</span>
+                                        <span class="flex-1">ปี {{ $year->year }}</span>
                                         @if ($year->is_published)
                                             <span
                                                 class="text-[10px] px-1.5 py-0.5 rounded-full font-medium

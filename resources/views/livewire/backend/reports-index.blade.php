@@ -6,7 +6,7 @@
         <!-- Page Header -->
         <div class="p-6">
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">รายงานผลประจำปี {{ $selectedYear->year }}</h1>
+                <h1 class="text-3xl font-bold text-gray-900">รายงานผลประจำปี {{ $selectedYear->year }}</h1>
                 <p class="mt-1 text-gray-600">เพิ่ม แก้ไข และจัดการไฟล์รายงาน SCD</p>
             </div>
 

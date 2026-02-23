@@ -12,6 +12,7 @@ class Banner extends Model
     protected $fillable = [
         'scd_year_id',
         'category',
+        'sequence',
         'image_path',
         'link_type',
         'link_url',
@@ -21,6 +22,7 @@ class Banner extends Model
 
     protected $casts = [
         'category' => 'integer',
+        'sequence' => 'integer',
     ];
 
     public function scdYear(): BelongsTo

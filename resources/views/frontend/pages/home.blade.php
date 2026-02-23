@@ -37,7 +37,10 @@
                         <div
                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 @if ($chunkIndex > 0) mt-8 @endif">
                             @foreach ($chunk as $section)
-                                <a href="{{ route('scd.section', [$activeYear->year, Str::slug($section->name)]) }}"
+                                @php
+                                    $sectionSlug = Str::slug($section->name) ?: 'section-' . $section->id;
+                                @endphp
+                                <a href="{{ route('scd.section', [$activeYear->year, $sectionSlug]) }}"
                                     class="group block text-center">
                                     <div class="transition-transform duration-300 hover:-translate-y-2">
                                         <!-- รูปภาพ -->
