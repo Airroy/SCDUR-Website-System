@@ -17,7 +17,7 @@ class BannerService
      */
     public function getBanners(ScdYear $year): Collection
     {
-        return $year->banners()->orderBy('sequence')->get();
+        return $year->banners()->orderBy('category')->orderBy('created_at', 'desc')->get();
     }
 
     /**
@@ -99,22 +99,10 @@ class BannerService
     }
 
     /**
-     * Check if a sequence is unique within the year
+     * Check if a category value is valid
      */
-    public function isSequenceUnique(ScdYear $year, int $sequence, ?int $excludeId = null): bool
+    public function isValidCategory(int $category): bool
     {
-        return !Banner::where('scd_year_id', $year->id)
-            ->where('sequence', $sequence)
-            ->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))
-            ->exists();
-    }
-
-    /**
-     * Get next available sequence number
-     */
-    public function getNextSequence(ScdYear $year): int
-    {
-        $maxSequence = Banner::where('scd_year_id', $year->id)->max('sequence');
-        return ($maxSequence ?? 0) + 1;
+        return in_array($category, [0, 1]);
     }
 }

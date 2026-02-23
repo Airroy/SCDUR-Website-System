@@ -9,9 +9,13 @@
             <div class="bg-white shadow-md border border-gray-200 p-6 sm:p-8 mb-6 sm:mb-8">
                 <!-- Breadcrumb -->
                 <nav class="text-sm text-gray-600 mb-2">
-                    <a href="{{ route('home', ['year' => $section->scdYear->year]) }}"
-                        class="hover:text-[#af1a00] transition-colors">
+                    <a href="{{ route('home') }}" class="hover:text-[#af1a00] hover:underline transition-all">
                         หน้าหลัก
+                    </a>
+                    <span class="mx-2 text-gray-400">›</span>
+                    <a href="{{ route('scd.year', $section->scdYear->year) }}"
+                        class="hover:text-[#af1a00] hover:underline transition-all">
+                        SCD{{ $section->scdYear->year }}
                     </a>
                     <span class="mx-2 text-gray-400">›</span>
                     <span class="text-[#af1a00] font-semibold">{{ $section->name }}</span>

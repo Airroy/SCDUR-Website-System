@@ -90,7 +90,7 @@
                         file:bg-red-50 file:text-red-700
                         hover:file:bg-red-100"
                 >
-                <p class="mt-1 text-xs text-gray-500">รองรับไฟล์ PDF เท่านั้น (สูงสุด 20MB)</p>
+                <p class="mt-1 text-xs text-gray-500">รองรับไฟล์ PDF เท่านั้น (สูงสุด 100MB)</p>
                 @error('file') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 
                 <div wire:loading wire:target="file" class="mt-2">

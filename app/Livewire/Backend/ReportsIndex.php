@@ -16,12 +16,12 @@ class ReportsIndex extends Component
 
     public $currentPage = 'reports';
     public $selectedYear;
-    
+
     // Modal state
     public $showModal = false;
     public $editMode = false;
     public $reportId = null;
-    
+
     // Form fields
     public $file_name;
     public $file;
@@ -43,21 +43,21 @@ class ReportsIndex extends Component
     {
         $this->resetForm();
         $report = ScdReport::findOrFail($reportId);
-        
+
         $this->editMode = true;
         $this->reportId = $reportId;
         $this->file_name = $report->file_name;
         $this->existingFile = $report->file_path;
-        
+
         $this->showModal = true;
     }
 
     public function saveReport()
     {
         // Validate
+        $maxPdfSize = config('upload.max_file_sizes.pdf', 102400); // 100MB default
         $this->validate([
-            'file_name' => 'required|string|max:255',
-            'file' => $this->editMode ? 'nullable|mimes:pdf|max:10240' : 'required|mimes:pdf|max:10240',
+            'file' => $this->editMode ? "nullable|mimes:pdf|max:{$maxPdfSize}" : "required|mimes:pdf|max:{$maxPdfSize}",
         ]);
 
         if ($this->editMode) {
@@ -72,18 +72,19 @@ class ReportsIndex extends Component
         // Check if report already exists for this year
         $existingReport = ScdReport::where('scd_year_id', $this->selectedYear->id)->first();
         if ($existingReport) {
-            $this->addError('file_name', 'รายงานสำหรับปีนี้มีอยู่แล้ว กรุณาแก้ไขรายงานที่มีอยู่');
+            $this->addError('file', 'รายงานสำหรับปีนี้มีอยู่แล้ว กรุณาแก้ไขรายงานที่มีอยู่');
             return;
         }
 
         $data = [
             'scd_year_id' => $this->selectedYear->id,
-            'file_name' => $this->file_name,
         ];
 
-        // Upload file
+        // Upload file (ใช้ชื่อไฟล์ต้นฉบับ)
         if ($this->file) {
-            $data['file_path'] = $this->file->store('reports', 'public');
+            $originalName = $this->file->getClientOriginalName();
+            $data['file_name'] = pathinfo($originalName, PATHINFO_FILENAME);
+            $data['file_path'] = $this->file->storeAs('reports', $originalName, 'public');
         }
 
         ScdReport::create($data);
@@ -95,18 +96,18 @@ class ReportsIndex extends Component
     private function updateReport()
     {
         $report = ScdReport::findOrFail($this->reportId);
-        
-        $data = [
-            'file_name' => $this->file_name,
-        ];
 
-        // Upload new file
+        $data = [];
+
+        // Upload new file (ใช้ชื่อไฟล์ต้นฉบับ)
         if ($this->file) {
             // Delete old file
             if ($report->file_path) {
                 Storage::disk('public')->delete($report->file_path);
             }
-            $data['file_path'] = $this->file->store('reports', 'public');
+            $originalName = $this->file->getClientOriginalName();
+            $data['file_name'] = pathinfo($originalName, PATHINFO_FILENAME);
+            $data['file_path'] = $this->file->storeAs('reports', $originalName, 'public');
         }
 
         $report->update($data);
@@ -118,12 +119,12 @@ class ReportsIndex extends Component
     public function deleteReport($reportId)
     {
         $report = ScdReport::findOrFail($reportId);
-        
+
         // Delete file from storage
         if ($report->file_path) {
             Storage::disk('public')->delete($report->file_path);
         }
-        
+
         $report->delete();
     }
 
@@ -138,7 +139,7 @@ class ReportsIndex extends Component
 
     public function render()
     {
-        $reports = $this->selectedYear 
+        $reports = $this->selectedYear
             ? ScdReport::where('scd_year_id', $this->selectedYear->id)->get()
             : collect();
 

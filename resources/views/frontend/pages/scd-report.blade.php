@@ -41,7 +41,7 @@
                         <!-- View & Download Buttons -->
                         <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                             <!-- View Button -->
-                            <a href="{{ route('scd-report.view', ['year' => $year->year, 'filename' => 'รายงานผล SCD ' . $year->year . '.pdf']) }}"
+                            <a href="{{ route('scd-report.view', ['year' => $year->year, 'filename' => basename($report->file_path)]) }}"
                                 target="_blank"
                                 class="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-semibold rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg whitespace-nowrap">
                                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor"
@@ -94,7 +94,8 @@
                         <div
                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 {{ $chunkIndex < $totalChunks - 1 ? 'pb-8 sm:pb-10 border-b-2 border-gray-300' : '' }}">
                             @foreach ($chunk as $section)
-                                <a href="{{ route('content.section', $section->id) }}" class="group block">
+                                <a href="{{ route('scd.section', [$year->year, Str::slug($section->name)]) }}"
+                                    class="group block">
                                     <div class="transition-transform duration-300 hover:-translate-y-2">
                                         <!-- Image Container -->
                                         @if ($section->image_path)

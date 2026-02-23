@@ -32,7 +32,7 @@
                         @foreach($years as $year)
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">ปี {{ $year->year }}</td>
-                            <td class="hidden sm:table-cell px-4 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">{{ $year->created_date->format('d/m/Y') }}</td>
+                            <td class="hidden sm:table-cell px-4 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">{{ $year->created_date->toThaiDateFull() }}</td>
                             <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                                 <button wire:click="togglePublish({{ $year->id }})" 
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition {{ $year->is_published ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-gray-100 text-gray-800 hover:bg-gray-200' }}">

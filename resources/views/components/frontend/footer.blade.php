@@ -1,7 +1,7 @@
 <!-- Footer -->
-<footer class="bg-gray-100 text-gray-800 pt-[50px] px-5 mt-20">
+<footer class="bg-gray-100 text-gray-800 pt-[50px] mt-20">
 
-    <div class="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 mb-0 pb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-10 mb-0 pb-10">
 
         <!-- แนะนำหน่วยงาน -->
         <div class="text-center md:text-left">
@@ -9,7 +9,7 @@
                 แนะนำหน่วยงาน
             </h3>
             <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
-                มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน
+                <a href="/" class="text-gray-600 underline transition-colors duration-300 hover:text-red-600">มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน</a>
             </p>
         </div>
 
@@ -19,7 +19,7 @@
                 เอกสารประชาสัมพันธ์
             </h3>
             <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
-                เอกสารแนบฟอร์ม
+                <a href="#" class="text-gray-600 underline transition-colors duration-300 hover:text-red-600">เอกสารแนบฟอร์ม</a>
             </p>
         </div>
 
@@ -48,7 +48,7 @@
     </div>
 
     <!-- Footer Bottom -->
-    <div class="bg-[#2d2921] text-center py-5 text-white text-sm -mx-5">
+    <div class="bg-[#2d2921] text-center py-5 text-white text-sm">
         <p>
             Sustainable Community Development University Ranking: SCDUR .
             Designed By <a href="#" class="text-yellow-600 no-underline hover:underline">Thitirat Kawbonsut</a>

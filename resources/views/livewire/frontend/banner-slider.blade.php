@@ -38,7 +38,8 @@
                         <a href="{{ $lastBanner->link_url }}" target="_blank" rel="noopener noreferrer"
                             class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                     @elseif($lastBanner->link_type === 'pdf' && $lastBanner->pdf_path)
-                        <a href="{{ Storage::url($lastBanner->pdf_path) }}" target="_blank" rel="noopener noreferrer"
+                        <a href="{{ route('banner.pdf.view', [$lastBanner->id, basename($lastBanner->pdf_path)]) }}"
+                            target="_blank" rel="noopener noreferrer"
                             class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                     @endif
                 </div>
@@ -63,7 +64,8 @@
                             <a href="{{ $banner->link_url }}" target="_blank" rel="noopener noreferrer"
                                 class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                         @elseif($banner->link_type === 'pdf' && $banner->pdf_path)
-                            <a href="{{ Storage::url($banner->pdf_path) }}" target="_blank" rel="noopener noreferrer"
+                            <a href="{{ route('banner.pdf.view', [$banner->id, basename($banner->pdf_path)]) }}"
+                                target="_blank" rel="noopener noreferrer"
                                 class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                         @endif
                     </div>
@@ -88,7 +90,8 @@
                         <a href="{{ $firstBanner->link_url }}" target="_blank" rel="noopener noreferrer"
                             class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                     @elseif($firstBanner->link_type === 'pdf' && $firstBanner->pdf_path)
-                        <a href="{{ Storage::url($firstBanner->pdf_path) }}" target="_blank" rel="noopener noreferrer"
+                        <a href="{{ route('banner.pdf.view', [$firstBanner->id, basename($firstBanner->pdf_path)]) }}"
+                            target="_blank" rel="noopener noreferrer"
                             class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                     @endif
                 </div>
@@ -99,12 +102,11 @@
                 class="absolute top-0 left-0 bottom-0 w-[30%] flex items-center justify-start pl-8 z-20 group"
                 style="background: transparent; transition: all 0.3s ease-out;"
                 onmouseenter="this.style.background='linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0) 100%)';"
-                onmouseleave="this.style.background='transparent';"
-                aria-label="Previous slide">
+                onmouseleave="this.style.background='transparent';" aria-label="Previous slide">
                 <svg class="w-10 h-10 text-white drop-shadow-lg
                            group-hover:scale-110 group-hover:-translate-x-1
-                           transition-all duration-300" 
-                     fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                           transition-all duration-300"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
                 </svg>
             </button>
@@ -114,12 +116,11 @@
                 class="absolute top-0 right-0 bottom-0 w-[30%] flex items-center justify-end pr-8 z-20 group"
                 style="background: transparent; transition: all 0.3s ease-out;"
                 onmouseenter="this.style.background='linear-gradient(to left, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0) 100%)';"
-                onmouseleave="this.style.background='transparent';"
-                aria-label="Next slide">
+                onmouseleave="this.style.background='transparent';" aria-label="Next slide">
                 <svg class="w-10 h-10 text-white drop-shadow-lg
                            group-hover:scale-110 group-hover:translate-x-1
-                           transition-all duration-300" 
-                     fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                           transition-all duration-300"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
                 </svg>
             </button>

@@ -3,7 +3,8 @@
 namespace App\Livewire\Backend;
 
 use App\Models\ScdYear;
-use App\Models\ContentNode;
+use App\Models\Announcement;
+use App\Models\Order;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -24,18 +25,34 @@ class AnnouncementsIndex extends Component
     public function mount($year = null)
     {
         $this->selectedYear = $year ? ScdYear::where('year', $year)->first() : null;
+
+        // ตรวจสอบจาก route ว่าอยู่หน้าประกาศหรือคำสั่ง
+        if (request()->routeIs('admin.directives.*')) {
+            $this->category = 'order';
+            $this->currentPage = 'directives';
+        }
+    }
+
+    /**
+     * Get the model class based on current category
+     */
+    private function getModel(): string
+    {
+        return $this->category === 'announcement' ? Announcement::class : Order::class;
     }
 
     public function switchCategory($category)
     {
-        $this->category = $category;
-        $this->currentParentId = null;
-        $this->breadcrumbs = [];
+        // Redirect ไป URL ที่ถูกต้อง
+        $route = $category === 'announcement' ? 'admin.announcements.index' : 'admin.directives.index';
+        $params = $this->selectedYear ? ['year' => $this->selectedYear->year] : [];
+        return $this->redirect(route($route, $params), navigate: true);
     }
 
     public function navigateToFolder($folderId)
     {
-        $folder = ContentNode::find($folderId);
+        $model = $this->getModel();
+        $folder = $model::find($folderId);
         if ($folder) {
             $this->currentParentId = $folderId;
             $this->buildBreadcrumbs($folder);
@@ -48,7 +65,8 @@ class AnnouncementsIndex extends Component
             $this->currentParentId = null;
             $this->breadcrumbs = [];
         } else {
-            $folder = ContentNode::find($parentId);
+            $model = $this->getModel();
+            $folder = $model::find($parentId);
             if ($folder) {
                 $this->currentParentId = $parentId;
                 $this->buildBreadcrumbs($folder);
@@ -60,7 +78,7 @@ class AnnouncementsIndex extends Component
     {
         $this->breadcrumbs = [];
         $current = $folder;
-        
+
         while ($current) {
             array_unshift($this->breadcrumbs, [
                 'id' => $current->id,
@@ -73,9 +91,9 @@ class AnnouncementsIndex extends Component
     public function hasFilesInCurrentLevel()
     {
         if (!$this->selectedYear) return false;
-        
-        return ContentNode::where('scd_year_id', $this->selectedYear->id)
-            ->where('category_group', $this->category)
+
+        $model = $this->getModel();
+        return $model::where('scd_year_id', $this->selectedYear->id)
             ->where('parent_id', $this->currentParentId)
             ->where('type', 'file')
             ->exists();
@@ -86,14 +104,14 @@ class AnnouncementsIndex extends Component
         $items = collect();
         $hasFiles = false;
         $hasFolders = false;
-        
+
         if ($this->selectedYear) {
-            $items = ContentNode::where('scd_year_id', $this->selectedYear->id)
-                ->where('category_group', $this->category)
+            $model = $this->getModel();
+            $items = $model::where('scd_year_id', $this->selectedYear->id)
                 ->where('parent_id', $this->currentParentId)
                 ->orderBy('sequence')
                 ->get();
-            
+
             $hasFiles = $items->where('type', 'file')->isNotEmpty();
             $hasFolders = $items->where('type', 'folder')->isNotEmpty();
         }

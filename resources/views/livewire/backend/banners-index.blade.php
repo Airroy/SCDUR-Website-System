@@ -36,28 +36,51 @@
             </div>
 
             <div class="px-6 py-4 space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
-                <!-- Sequence -->
+                <!-- Category -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        ลำดับที่ <span class="text-red-600">*</span>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        หมวด <span class="text-red-600">*</span>
                     </label>
-                    <input type="number" wire:model="sequence"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                        placeholder="เช่น 1, 2, 3..." min="1" required>
-                    @error('sequence')
-                        <span class="text-sm text-red-600 mt-1">{{ $message }}</span>
-                    @enderror
-                </div>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors
+                            {{ $category == '0' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300' }}">
+                            <input type="radio" wire:model.live="category" value="0" class="hidden">
+                            <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0
+                                {{ $category == '0' ? 'border-green-500' : 'border-gray-400' }}">
+                                @if ($category == '0')
+                                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                                @endif
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium {{ $category == '0' ? 'text-green-700' : 'text-gray-700' }}">
+                                    แสดงผล
+                                </p>
+                                <p class="text-xs {{ $category == '0' ? 'text-green-500' : 'text-gray-400' }}">
+                                    สไลด์จะแสดงบนหน้าเว็บไซต์
+                                </p>
+                            </div>
+                        </label>
 
-                <!-- Title (Optional) -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        ชื่อรูปภาพสไลด์ (ไม่บังคับ)
-                    </label>
-                    <input type="text" wire:model="title"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                        placeholder="ชื่อเพื่ออ้างอิง">
-                    @error('title')
+                        <label class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors
+                            {{ $category == '1' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300' }}">
+                            <input type="radio" wire:model.live="category" value="1" class="hidden">
+                            <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0
+                                {{ $category == '1' ? 'border-red-500' : 'border-gray-400' }}">
+                                @if ($category == '1')
+                                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                                @endif
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium {{ $category == '1' ? 'text-red-700' : 'text-gray-700' }}">
+                                    ซ่อน (ไม่แสดงผล)
+                                </p>
+                                <p class="text-xs {{ $category == '1' ? 'text-red-500' : 'text-gray-400' }}">
+                                    สไลด์จะไม่แสดงบนหน้าเว็บไซต์
+                                </p>
+                            </div>
+                        </label>
+                    </div>
+                    @error('category')
                         <span class="text-sm text-red-600 mt-1">{{ $message }}</span>
                     @enderror
                 </div>
@@ -79,10 +102,10 @@
                             รูปภาพสไลด์ <span class="text-red-600">*</span>
                         </label>
 
-                        {{-- ใช้ Image Cropper Component (ไม่แสดง label และ existingImage ซ้ำ) --}}
+                        {{-- ใช้ Image Cropper Component --}}
                         <x-image-cropper-simple name="banner_image" label="" :required="!$editMode" :existingImage="null"
                             aspectRatio="1140/428" :outputWidth="1140" :outputHeight="428"
-                            helpText="รองรับ JPG, PNG ขนาดแนะนำ 1140x428 px (สูงสุด 10MB)" />
+                            helpText="รองรับ JPG, PNG ขนาดแนะนำ 1140x428 px (สูงสุด 100MB)" />
 
                         @error('banner_image')
                             <span class="text-sm text-red-600 mt-1">{{ $message }}</span>
@@ -131,36 +154,26 @@
 
                 <!-- PDF Upload -->
                 @if ($link_type === 'pdf')
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                ไฟล์ PDF <span class="text-red-600">*</span>
-                            </label>
-                            <input type="file" wire:model="pdf_file" accept=".pdf"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                            @error('pdf_file')
-                                <span class="text-sm text-red-600 mt-1">{{ $message }}</span>
-                            @enderror
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            ไฟล์ PDF <span class="text-red-600">*</span>
+                        </label>
+                        <input type="file" wire:model="pdf_file" accept=".pdf"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                        @error('pdf_file')
+                            <span class="text-sm text-red-600 mt-1">{{ $message }}</span>
+                        @enderror
 
-                            @if ($existingPdf && !$pdf_file)
-                                <p class="text-sm text-gray-500 mt-1">
-                                    ไฟล์ปัจจุบัน: <a href="{{ Storage::url($existingPdf) }}" target="_blank"
-                                        class="text-blue-600 hover:underline">ดูไฟล์</a>
-                                </p>
-                            @endif
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                ชื่อไฟล์ <span class="text-red-600">*</span>
-                            </label>
-                            <input type="text" wire:model="pdf_name"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                                placeholder="ชื่อไฟล์ที่จะแสดง" required>
-                            @error('pdf_name')
-                                <span class="text-sm text-red-600 mt-1">{{ $message }}</span>
-                            @enderror
-                        </div>
+                        @if ($pdf_file)
+                            <p class="text-sm text-green-600 mt-1">
+                                ไฟล์ที่เลือก: {{ $pdf_file->getClientOriginalName() }}
+                            </p>
+                        @elseif ($existingPdf)
+                            <p class="text-sm text-gray-500 mt-1">
+                                ไฟล์ปัจจุบัน: <a href="{{ Storage::url($existingPdf) }}" target="_blank"
+                                    class="text-blue-600 hover:underline">ดูไฟล์</a>
+                            </p>
+                        @endif
                     </div>
                 @endif
             </div>

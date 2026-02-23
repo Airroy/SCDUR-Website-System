@@ -3,7 +3,7 @@
 namespace App\Livewire\Backend;
 
 use App\Models\ScdYear;
-use App\Models\ContentNode;
+use App\Models\ContentSection;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
@@ -16,12 +16,12 @@ class ContentSectionManager extends Component
     public $parentId = null;
     public $hasFilesInParent = false;
     public $hasFoldersInParent = false;
-    
+
     // Modal state
     public $showModal = false;
     public $editMode = false;
     public $contentId = null;
-    
+
     // Form fields
     public $sequence;
     public $name;
@@ -64,8 +64,8 @@ class ContentSectionManager extends Component
     public function openEditModal($contentId)
     {
         $this->resetForm();
-        $node = ContentNode::findOrFail($contentId);
-        
+        $node = ContentSection::findOrFail($contentId);
+
         $this->editMode = true;
         $this->contentId = $contentId;
         $this->sequence = $node->sequence;
@@ -73,7 +73,7 @@ class ContentSectionManager extends Component
         $this->type = $node->type;
         $this->existingFile = $node->file_path;
         $this->existingImage = $node->image_path;
-        
+
         $this->showModal = true;
     }
 
@@ -117,8 +117,7 @@ class ContentSectionManager extends Component
         $this->validate($rules, $messages);
 
         // Check duplicate sequence
-        $existingNode = ContentNode::where('scd_year_id', $this->year->id)
-            ->where('category_group', 'content') // Use 'content' as category_group
+        $existingNode = ContentSection::where('scd_year_id', $this->year->id)
             ->where('parent_id', $this->parentId)
             ->where('sequence', $this->sequence)
             ->when($this->editMode, fn($q) => $q->where('id', '!=', $this->contentId))
@@ -144,15 +143,15 @@ class ContentSectionManager extends Component
         $data = [
             'scd_year_id' => $this->year->id,
             'parent_id' => $this->parentId,
-            'category_group' => 'content', // Use 'content' as category_group
             'sequence' => $this->sequence,
             'name' => $this->name,
             'type' => $this->type,
         ];
 
-        // Upload file
+        // Upload file (ใช้ชื่อไฟล์ต้นฉบับ)
         if ($this->type === 'file' && $this->file) {
-            $data['file_path'] = $this->file->store('contents', 'public');
+            $originalName = $this->file->getClientOriginalName();
+            $data['file_path'] = $this->file->storeAs('contents', $originalName, 'public');
         }
 
         // Upload image for root level folders
@@ -160,40 +159,41 @@ class ContentSectionManager extends Component
             $data['image_path'] = $this->image->store('content-images', 'public');
         }
 
-        ContentNode::create($data);
+        ContentSection::create($data);
 
         $this->showModal = false;
         $this->dispatch('notify', [
             'message' => $this->type === 'folder' ? 'เพิ่มหมวดหมู่สำเร็จ' : 'เพิ่มไฟล์สำเร็จ',
             'type' => 'success'
         ]);
-        
+
         // Update local state
         if ($this->type === 'folder') {
             $this->hasFoldersInParent = true;
         } else {
             $this->hasFilesInParent = true;
         }
-        
+
         $this->dispatch('refreshContentTable');
     }
 
     private function updateNode()
     {
-        $node = ContentNode::findOrFail($this->contentId);
-        
+        $node = ContentSection::findOrFail($this->contentId);
+
         $data = [
             'sequence' => $this->sequence,
             'name' => $this->name,
         ];
 
-        // Upload new file (only for file type)
+        // Upload new file (only for file type) - ใช้ชื่อไฟล์ต้นฉบับ
         if ($this->type === 'file' && $this->file) {
             // Delete old file
             if ($node->file_path) {
                 Storage::disk('public')->delete($node->file_path);
             }
-            $data['file_path'] = $this->file->store('contents', 'public');
+            $originalName = $this->file->getClientOriginalName();
+            $data['file_path'] = $this->file->storeAs('contents', $originalName, 'public');
         }
 
         // Upload new image (only for root level folders)
@@ -217,37 +217,35 @@ class ContentSectionManager extends Component
 
     public function deleteNode($contentId)
     {
-        $node = ContentNode::findOrFail($contentId);
+        $node = ContentSection::findOrFail($contentId);
         $deletedType = $node->type;
-        
+
         // Delete file
         if ($node->file_path) {
             Storage::disk('public')->delete($node->file_path);
         }
-        
+
         // Delete image
         if ($node->image_path) {
             Storage::disk('public')->delete($node->image_path);
         }
-        
+
         // Delete children recursively
         $this->deleteChildren($node->id);
-        
+
         $node->delete();
 
         // Recheck if there are still files/folders in this level
-        $remainingFiles = ContentNode::where('scd_year_id', $this->year->id)
-            ->where('category_group', 'content')
+        $remainingFiles = ContentSection::where('scd_year_id', $this->year->id)
             ->where('parent_id', $this->parentId)
             ->where('type', 'file')
             ->exists();
-            
-        $remainingFolders = ContentNode::where('scd_year_id', $this->year->id)
-            ->where('category_group', 'content')
+
+        $remainingFolders = ContentSection::where('scd_year_id', $this->year->id)
             ->where('parent_id', $this->parentId)
             ->where('type', 'folder')
             ->exists();
-            
+
         $this->hasFilesInParent = $remainingFiles;
         $this->hasFoldersInParent = $remainingFolders;
 
@@ -260,7 +258,7 @@ class ContentSectionManager extends Component
 
     private function deleteChildren($parentId)
     {
-        $children = ContentNode::where('parent_id', $parentId)->get();
+        $children = ContentSection::where('parent_id', $parentId)->get();
         foreach ($children as $child) {
             if ($child->file_path) {
                 Storage::disk('public')->delete($child->file_path);

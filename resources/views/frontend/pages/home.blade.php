@@ -1,5 +1,11 @@
 <x-layouts.frontend>
-    <x-slot:title>หน้าหลัก - มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน</x-slot:title>
+    <x-slot:title>
+        @if ($isYearPage && $activeYear)
+            SCD Rankings {{ $activeYear->year }}
+        @else
+            หน้าหลัก - มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน
+        @endif
+    </x-slot:title>
 
     <!-- Banner Slider Section -->
     <section class="py-6 sm:py-8 bg-white">
@@ -31,7 +37,7 @@
                         <div
                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 @if ($chunkIndex > 0) mt-8 @endif">
                             @foreach ($chunk as $section)
-                                <a href="{{ route('content-section', [$activeYear->year, $section->id]) }}"
+                                <a href="{{ route('scd.section', [$activeYear->year, Str::slug($section->name)]) }}"
                                     class="group block text-center">
                                     <div class="transition-transform duration-300 hover:-translate-y-2">
                                         <!-- รูปภาพ -->

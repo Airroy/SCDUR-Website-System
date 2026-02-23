@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
-use App\Models\ContentNode;
+use App\Models\Announcement;
+use App\Models\Order;
+use App\Models\ContentSection;
 use App\Models\ScdYear;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class ContentNodeService
 {
@@ -13,13 +16,28 @@ class ContentNodeService
     ) {}
 
     /**
+     * Get the model class for a given category group
+     */
+    public function getModelClass(string $categoryGroup): string
+    {
+        return match ($categoryGroup) {
+            'announcement' => Announcement::class,
+            'order' => Order::class,
+            'content', 'content_section' => ContentSection::class,
+            default => ContentSection::class,
+        };
+    }
+
+    /**
      * Get nodes for a specific year and parent
      */
     public function getNodes(ScdYear $year, ?int $parentId = null, string $categoryGroup = 'content_section'): Collection
     {
-        return ContentNode::where('scd_year_id', $year->id)
-            ->where('category_group', $categoryGroup)
-            ->when($parentId, 
+        $model = $this->getModelClass($categoryGroup);
+
+        return $model::where('scd_year_id', $year->id)
+            ->when(
+                $parentId,
                 fn($q) => $q->where('parent_id', $parentId),
                 fn($q) => $q->whereNull('parent_id')
             )
@@ -28,9 +46,9 @@ class ContentNodeService
     }
 
     /**
-     * Create a new content node
+     * Create a new node
      */
-    public function create(array $data, $imageFile = null, $pdfFile = null): ContentNode
+    public function create(array $data, $imageFile = null, $pdfFile = null, string $categoryGroup = 'content_section'): Model
     {
         if ($imageFile && $data['type'] === 'folder') {
             $data['image_path'] = $this->fileUploadService->uploadImage($imageFile, 'content-sections');
@@ -40,26 +58,27 @@ class ContentNodeService
             $data['file_path'] = $this->fileUploadService->uploadPdf($pdfFile, 'content-sections');
         }
 
-        return ContentNode::create($data);
+        $model = $this->getModelClass($categoryGroup);
+        return $model::create($data);
     }
 
     /**
-     * Update an existing content node
+     * Update an existing node
      */
-    public function update(ContentNode $node, array $data, $imageFile = null, $pdfFile = null): ContentNode
+    public function update(Model $node, array $data, $imageFile = null, $pdfFile = null): Model
     {
         if ($imageFile && $data['type'] === 'folder') {
             $data['image_path'] = $this->fileUploadService->replaceFile(
-                $imageFile, 
-                $node->image_path, 
+                $imageFile,
+                $node->image_path,
                 'content-sections'
             );
         }
 
         if ($pdfFile && $data['type'] === 'file') {
             $data['file_path'] = $this->fileUploadService->replaceFile(
-                $pdfFile, 
-                $node->file_path, 
+                $pdfFile,
+                $node->file_path,
                 'content-sections'
             );
         }
@@ -69,20 +88,20 @@ class ContentNodeService
     }
 
     /**
-     * Delete a content node and its files
+     * Delete a node and its files
      */
-    public function delete(ContentNode $node): bool
+    public function delete(Model $node): bool
     {
         $this->fileUploadService->delete($node->image_path);
         $this->fileUploadService->delete($node->file_path);
-        
+
         return $node->delete();
     }
 
     /**
      * Get breadcrumbs for navigation
      */
-    public function getBreadcrumbs(?ContentNode $node): array
+    public function getBreadcrumbs(?Model $node): array
     {
         if (!$node) return [];
 
@@ -99,8 +118,9 @@ class ContentNodeService
      */
     public function isSequenceUnique(ScdYear $year, int $sequence, ?int $parentId, ?int $excludeId = null, string $categoryGroup = 'content_section'): bool
     {
-        return !ContentNode::where('scd_year_id', $year->id)
-            ->where('category_group', $categoryGroup)
+        $model = $this->getModelClass($categoryGroup);
+
+        return !$model::where('scd_year_id', $year->id)
             ->where('parent_id', $parentId)
             ->where('sequence', $sequence)
             ->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))
@@ -112,8 +132,9 @@ class ContentNodeService
      */
     public function getNextSequence(ScdYear $year, ?int $parentId = null, string $categoryGroup = 'content_section'): int
     {
-        $maxSequence = ContentNode::where('scd_year_id', $year->id)
-            ->where('category_group', $categoryGroup)
+        $model = $this->getModelClass($categoryGroup);
+
+        $maxSequence = $model::where('scd_year_id', $year->id)
             ->where('parent_id', $parentId)
             ->max('sequence');
 
@@ -125,8 +146,9 @@ class ContentNodeService
      */
     public function hasFolders(ScdYear $year, ?int $parentId = null, string $categoryGroup = 'content_section'): bool
     {
-        return ContentNode::where('scd_year_id', $year->id)
-            ->where('category_group', $categoryGroup)
+        $model = $this->getModelClass($categoryGroup);
+
+        return $model::where('scd_year_id', $year->id)
             ->where('parent_id', $parentId)
             ->where('type', 'folder')
             ->exists();
@@ -137,8 +159,9 @@ class ContentNodeService
      */
     public function hasFiles(ScdYear $year, ?int $parentId = null, string $categoryGroup = 'content_section'): bool
     {
-        return ContentNode::where('scd_year_id', $year->id)
-            ->where('category_group', $categoryGroup)
+        $model = $this->getModelClass($categoryGroup);
+
+        return $model::where('scd_year_id', $year->id)
             ->where('parent_id', $parentId)
             ->where('type', 'file')
             ->exists();

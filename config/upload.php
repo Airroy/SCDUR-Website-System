@@ -13,22 +13,22 @@ return [
 
     'max_file_sizes' => [
         // รูปภาพ Banner/Slider/Hero
-        'banner' => 10240,          // 10 MB (สำหรับ Banner ขนาดใหญ่)
-        'slider' => 10240,          // 10 MB
-        'hero' => 10240,            // 10 MB
+        'banner' => 102400,         // 100 MB
+        'slider' => 102400,         // 100 MB
+        'hero' => 102400,           // 100 MB
 
         // รูปภาพทั่วไป/ปก Content Section
-        'cover' => 5120,            // 5 MB (รูปปกหมวดหมู่)
-        'content_image' => 5120,    // 5 MB
+        'cover' => 102400,          // 100 MB
+        'content_image' => 102400,  // 100 MB
 
         // รูปโปรไฟล์/ไอคอน
-        'profile' => 2048,          // 2 MB
-        'thumbnail' => 2048,        // 2 MB
+        'profile' => 102400,        // 100 MB
+        'thumbnail' => 102400,      // 100 MB
 
         // ไฟล์ PDF
-        'pdf' => 20480,             // 20 MB (เอกสารทั่วไป)
-        'pdf_large' => 30720,       // 30 MB (เอกสารขนาดใหญ่)
-        'document' => 20480,        // 20 MB
+        'pdf' => 102400,            // 100 MB
+        'pdf_large' => 102400,      // 100 MB
+        'document' => 102400,       // 100 MB
     ],
 
     /*
@@ -56,11 +56,11 @@ return [
     */
 
     'messages' => [
-        'banner' => 'รูป Banner ต้องมีขนาดไม่เกิน 10 MB',
-        'cover' => 'รูปปกต้องมีขนาดไม่เกิน 5 MB',
-        'profile' => 'รูปโปรไฟล์ต้องมีขนาดไม่เกิน 2 MB',
-        'pdf' => 'ไฟล์ PDF ต้องมีขนาดไม่เกิน 20 MB',
-        'pdf_large' => 'ไฟล์ PDF ต้องมีขนาดไม่เกิน 30 MB',
+        'banner' => 'รูป Banner ต้องมีขนาดไม่เกิน 100 MB',
+        'cover' => 'รูปปกต้องมีขนาดไม่เกิน 100 MB',
+        'profile' => 'รูปโปรไฟล์ต้องมีขนาดไม่เกิน 100 MB',
+        'pdf' => 'ไฟล์ PDF ต้องมีขนาดไม่เกิน 100 MB',
+        'pdf_large' => 'ไฟล์ PDF ต้องมีขนาดไม่เกิน 100 MB',
         'image_required' => 'กรุณาเลือกรูปภาพ',
         'file_required' => 'กรุณาเลือกไฟล์',
         'invalid_type' => 'ประเภทไฟล์ไม่ถูกต้อง',

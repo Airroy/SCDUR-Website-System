@@ -35,6 +35,18 @@
                 $selectedYear = $selectedYearParam
                     ? $allYears->where('year', $selectedYearParam)->first()
                     : $currentYear;
+
+                $activeRouteYear = request()->route('year');
+                $isYearSubRoute =
+                    request()->routeIs('admin.reports.*') ||
+                    request()->routeIs('admin.banners.*') ||
+                    request()->routeIs('admin.announcements.*') ||
+                    request()->routeIs('admin.directives.*') ||
+                    request()->routeIs('admin.contents.*');
+                $initialActiveYear =
+                    $isYearSubRoute && $activeRouteYear ? (int) $activeRouteYear : $allYears->first()?->year ?? 0;
+
+                $isYearSectionActive = $isYearSubRoute || request()->routeIs('admin.years.*');
             @endphp
 
             <div class="flex flex-col h-full">
@@ -55,9 +67,20 @@
                 </div>
 
                 <!-- Menu -->
-                <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto">
+                <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto" x-data="{
+                    yearDropdown: localStorage.getItem('yearDropdown') !== 'false',
+                    toggleYearDropdown() {
+                        this.yearDropdown = !this.yearDropdown;
+                        localStorage.setItem('yearDropdown', this.yearDropdown);
+                    }
+                }">
+
+                    <!-- หน้าหลัก -->
                     <a href="{{ route('admin.dashboard') }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-white text-red-600 shadow-xl' : 'text-white hover:bg-white/20' }}">
+                        @click="yearDropdown = false; localStorage.setItem('yearDropdown', 'false')"
+                        :class="yearDropdown ? 'text-white hover:bg-white/20' :
+                            '{{ request()->routeIs('admin.dashboard') ? 'bg-white text-red-600 shadow-xl' : 'text-white hover:bg-white/20' }}'"
+                        class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
@@ -66,29 +89,89 @@
                         <span>หน้าหลัก</span>
                     </a>
 
-                    <a href="{{ route('admin.years.index') }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {{ request()->routeIs('admin.years.*') ? 'bg-white text-red-600 shadow-xl' : 'text-white hover:bg-white/20' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                            </path>
-                        </svg>
-                        <span>จัดการปี SCD</span>
-                    </a>
+                    <!-- จัดการปี SCD -->
+                    @php $isYearActive = $isYearSubRoute || request()->routeIs('admin.years.*'); @endphp
+                    <div>
+                        <!-- Header button -->
+                        <button type="button" @click="toggleYearDropdown()"
+                            :class="yearDropdown
+                                ?
+                                'bg-white text-red-600 shadow-xl rounded-t-xl rounded-b-none' :
+                                '{{ $isYearActive ? 'bg-white text-red-600 shadow-xl rounded-xl' : 'text-white hover:bg-white/20 rounded-xl' }}'"
+                            class="w-full flex items-center gap-3 px-4 py-3 font-medium transition-all">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                            <span class="flex-1 text-left">จัดการปี SCD</span>
+                            <svg class="w-4 h-4 flex-shrink-0 opacity-60 transition-transform duration-200"
+                                :class="yearDropdown ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Dropdown -->
+                        <div x-show="yearDropdown" x-collapse x-cloak
+                            class="bg-white rounded-b-xl shadow-lg overflow-hidden">
+
+                            <!-- ปุ่มเพิ่ม/จัดการปี -->
+                            <div class="px-3 pt-2 pb-2 border-b border-gray-100">
+                                <a href="{{ route('admin.years.index') }}"
+                                    class="flex items-center justify-center gap-1.5 w-full px-2 py-2.5 rounded-md text-[11px] font-semibold transition-all
+            {{ request()->routeIs('admin.years.*') ? 'bg-red-600 text-white' : 'bg-red-100 text-red-600 hover:bg-red-100' }}">
+                                    <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    <span>เพิ่ม / จัดการปี</span>
+                                </a>
+                            </div>
+
+                            <!-- รายการปี -->
+                            <div class="px-2 py-2 space-y-0.5">
+                                @foreach ($allYears as $year)
+                                    @php $isThisYearActive = $isYearSubRoute && $activeRouteYear == $year->year; @endphp
+                                    <a href="{{ route('admin.reports.index', $year->year) }}"
+                                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all
+                                            {{ $isThisYearActive ? 'bg-red-600 text-white shadow-sm' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">
+                                        <span
+                                            class="w-1.5 h-1.5 rounded-full flex-shrink-0
+                                            {{ $year->is_published ? ($isThisYearActive ? 'bg-white/80' : 'bg-green-500') : ($isThisYearActive ? 'bg-white/30' : 'bg-gray-300') }}">
+                                        </span>
+                                        <span class="flex-1">ปี {{ $year->year + 543 }}</span>
+                                        @if ($year->is_published)
+                                            <span
+                                                class="text-[10px] px-1.5 py-0.5 rounded-full font-medium
+                                                {{ $isThisYearActive ? 'bg-white/20 text-white' : 'bg-green-100 text-green-700' }}">
+                                                เผยแพร่
+                                            </span>
+                                        @endif
+                                    </a>
+                                @endforeach
+                            </div>
+
+                        </div>
+                    </div>
+
                 </nav>
 
                 <!-- User -->
                 <div class="px-4 py-4" x-data="{ open: false }">
                     <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 flex items-center gap-3">
                         <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                            <span class="text-red-600 font-bold text-lg">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                            <span
+                                class="text-red-600 font-bold text-lg">{{ substr(auth()->user()->name, 0, 1) }}</span>
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-semibold text-white truncate">{{ auth()->user()->name }}</p>
                             <p class="text-xs text-red-100 truncate">แอดมิน</p>
                         </div>
                         <div class="relative">
-                            <button @click="open = !open"
+                            <button @click.stop="open = !open"
                                 class="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path
@@ -98,7 +181,7 @@
                             </button>
 
                             <!-- Dropdown Menu -->
-                            <div x-show="open" @click.away="open = false"
+                            <div x-show="open" @click.away="open = false" @click.stop
                                 x-transition:enter="transition ease-out duration-100"
                                 x-transition:enter-start="transform opacity-0 scale-95"
                                 x-transition:enter-end="transform opacity-100 scale-100"
@@ -121,7 +204,8 @@
                                     @csrf
                                     <button type="submit"
                                         class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
                                             </path>

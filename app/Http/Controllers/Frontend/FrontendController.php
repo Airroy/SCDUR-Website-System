@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\ScdYear;
-use App\Models\ContentNode;
+use App\Models\Announcement;
+use App\Models\Banner;
+use App\Models\Order;
+use App\Models\ContentSection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Schema;
@@ -25,14 +28,12 @@ class FrontendController extends Controller
     {
         $year = ScdYear::where('year', $year)->firstOrFail();
 
-        $announcements = ContentNode::where('scd_year_id', $year->id)
-            ->where('category_group', 'announcement')
+        $announcements = Announcement::where('scd_year_id', $year->id)
             ->whereNull('parent_id')
             ->orderBy('sequence')
             ->get();
 
-        $orders = ContentNode::where('scd_year_id', $year->id)
-            ->where('category_group', 'order')
+        $orders = Order::where('scd_year_id', $year->id)
             ->whereNull('parent_id')
             ->orderBy('sequence')
             ->get();
@@ -44,18 +45,24 @@ class FrontendController extends Controller
         ));
     }
 
-    public function contentSection($year, $sectionId)
+    public function contentSection($year, $slug)
     {
         // ปีการศึกษา
         $yearModel = ScdYear::where('year', $year)->firstOrFail();
 
-        // หมวด (Section)
-        $section = ContentNode::where('id', $sectionId)
-            ->where('scd_year_id', $yearModel->id)
-            ->firstOrFail();
+        // หมวด (Section) - ค้นหาจาก slug
+        $sections = ContentSection::where('scd_year_id', $yearModel->id)
+            ->whereNull('parent_id')
+            ->get();
+
+        $section = $sections->first(fn($s) => \Illuminate\Support\Str::slug($s->name) === $slug);
+
+        if (!$section) {
+            abort(404);
+        }
 
         // รายการย่อยในหมวด
-        $items = ContentNode::where('parent_id', $section->id)
+        $items = ContentSection::where('parent_id', $section->id)
             ->orderBy('sequence')
             ->get();
 
@@ -68,52 +75,99 @@ class FrontendController extends Controller
         ));
     }
 
-    public function viewFile($id, $filename = null)
+    public function viewFile($source, $id, $filename = null)
     {
-        $item = ContentNode::findOrFail($id);
+        // ค้นหาจากตารางที่ระบุ
+        $model = match ($source) {
+            'announcement' => Announcement::class,
+            'directive' => Order::class,
+            'content' => ContentSection::class,
+        };
+        $item = $model::findOrFail($id);
 
         // ตรวจสอบว่าไฟล์มีอยู่จริงหรือไม่
         if (!Storage::disk('public')->exists($item->file_path)) {
             return back()->with('error', 'ไม่พบไฟล์ที่ต้องการดู');
         }
 
-        // นับจำนวนการดู
-        $item->increment('view_count');
+        // นับจำนวนการดู (ป้องกันนับซ้ำใน session เดียวกัน)
+        $sessionKey = "viewed_{$source}_{$id}";
+        if (!session()->has($sessionKey)) {
+            $item->increment('view_count');
+            session()->put($sessionKey, true);
+        }
 
-        // ✅ เปิดดูไฟล์ในเบราว์เซอร์
+        // ✅ เปิดดูไฟล์ในเบราว์เซอร์ (ใช้ชื่อไฟล์ต้นฉบับ)
         $filePath = storage_path('app/public/' . $item->file_path);
+        $lastModified = filemtime($filePath);
+        $etag = md5($item->file_path . $lastModified);
 
-        return response()->make(file_get_contents($filePath), 200, [
+        $originalFilename = basename($item->file_path);
+        $encodedName = rawurlencode($originalFilename);
+
+        return response()->file($filePath, [
             'Content-Type' => 'application/pdf',
-            'Content-Length' => filesize($filePath),
+            'Content-Disposition' => "inline; filename*=UTF-8''{$encodedName}",
+            'Cache-Control' => 'private, max-age=300',
+            'ETag' => $etag,
+            'Last-Modified' => gmdate('D, d M Y H:i:s', $lastModified) . ' GMT',
         ]);
     }
 
-    public function downloadFile($id)
+    public function downloadFile($source, $id)
     {
-        $item = ContentNode::findOrFail($id);
+        // ค้นหาจากตารางที่ระบุ
+        $model = match ($source) {
+            'announcement' => Announcement::class,
+            'directive' => Order::class,
+            'content' => ContentSection::class,
+        };
+        $item = $model::findOrFail($id);
 
         // ตรวจสอบว่าไฟล์มีอยู่จริงหรือไม่
         if (!Storage::disk('public')->exists($item->file_path)) {
             return back()->with('error', 'ไม่พบไฟล์ที่ต้องการดาวน์โหลด');
         }
 
-        // นับจำนวนดาวน์โหลด
-        $item->increment('download_count');
+        // นับจำนวนดาวน์โหลด (ป้องกันนับซ้ำใน session เดียวกัน)
+        $sessionKey = "downloaded_{$source}_{$id}";
+        if (!session()->has($sessionKey)) {
+            $item->increment('download_count');
+            session()->put($sessionKey, true);
+        }
 
-        // ✅ บังคับดาวน์โหลด (ไม่เปิดดู)
+        // ✅ บังคับดาวน์โหลด (ใช้ชื่อไฟล์ต้นฉบับ)
         $filePath = storage_path('app/public/' . $item->file_path);
-        $cleanName = preg_replace('/[^\p{L}\p{N}\s\-_.]/u', '', $item->name);
-        $cleanName = trim($cleanName) ?: 'document';
-        $encodedName = rawurlencode($cleanName . '.pdf');
+        $originalFilename = basename($item->file_path);
+        $encodedName = rawurlencode($originalFilename);
 
-        return response()->make(file_get_contents($filePath), 200, [
+        return response()->download($filePath, $originalFilename, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => "attachment; filename*=UTF-8''{$encodedName}",
-            'Content-Length' => filesize($filePath),
-            'Cache-Control' => 'no-cache, no-store, must-revalidate',
-            'Pragma' => 'no-cache',
-            'Expires' => '0',
+        ]);
+    }
+
+    public function viewBannerPdf($id, $filename = null)
+    {
+        $banner = Banner::findOrFail($id);
+
+        if (!$banner->pdf_path || !Storage::disk('public')->exists($banner->pdf_path)) {
+            return back()->with('error', 'ไม่พบไฟล์ PDF');
+        }
+
+        $filePath = storage_path('app/public/' . $banner->pdf_path);
+        $lastModified = filemtime($filePath);
+        $etag = md5($banner->pdf_path . $lastModified);
+
+        $originalFilename = basename($banner->pdf_path);
+        $encodedName = rawurlencode($originalFilename);
+
+        return response()->file($filePath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => "inline; filename*=UTF-8''{$encodedName}",
+            'Cache-Control' => 'private, max-age=300',
+            'ETag' => $etag,
+            'Last-Modified' => gmdate('D, d M Y H:i:s', $lastModified) . ' GMT',
         ]);
     }
 
@@ -132,21 +186,23 @@ class FrontendController extends Controller
             return back()->with('error', 'ไม่พบไฟล์รายงาน SCD');
         }
 
-        // นับจำนวนดู (ถ้ามีฟิลด์ view_count)
+        // นับจำนวนดู (ป้องกันนับซ้ำใน session เดียวกัน)
         if (Schema::hasColumn('scd_reports', 'view_count')) {
-            $report->increment('view_count');
+            $sessionKey = "viewed_report_{$year->id}";
+            if (!session()->has($sessionKey)) {
+                $report->increment('view_count');
+                session()->put($sessionKey, true);
+            }
         }
 
-        // สร้างชื่อไฟล์ที่เหมาะสม
-        $displayName = "รายงานผล SCD {$year->year}.pdf";
-        $encodedName = rawurlencode($displayName);
-
-        // ✅ เปิดดูไฟล์ในเบราว์เซอร์พร้อมชื่อไฟล์ที่เหมาะสม
+        // ✅ เปิดดูไฟล์ในเบราว์เซอร์ (ใช้ชื่อไฟล์ต้นฉบับ)
         $filePath = storage_path('app/public/' . $report->file_path);
+        $originalFilename = basename($report->file_path);
+        $encodedName = rawurlencode($originalFilename);
 
         return response()->file($filePath, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => "inline; filename=\"{$displayName}\"; filename*=UTF-8''{$encodedName}",
+            'Content-Disposition' => "inline; filename*=UTF-8''{$encodedName}",
         ]);
     }
 
@@ -165,17 +221,19 @@ class FrontendController extends Controller
             return back()->with('error', 'ไม่พบไฟล์รายงาน SCD');
         }
 
-        // นับจำนวนดาวน์โหลด (ถ้ามีฟิลด์ download_count)
+        // นับจำนวนดาวน์โหลด (ป้องกันนับซ้ำใน session เดียวกัน)
         if (Schema::hasColumn('scd_reports', 'download_count')) {
-            $report->increment('download_count');
+            $sessionKey = "downloaded_report_{$year->id}";
+            if (!session()->has($sessionKey)) {
+                $report->increment('download_count');
+                session()->put($sessionKey, true);
+            }
         }
 
-        // สร้างชื่อไฟล์ที่เหมาะสม
-        $filename = "รายงาน ARU-SCD{$year->year} - " . ($year->year + 543) . ".pdf";
-        $encodedName = rawurlencode($filename);
-
-        // ✅ บังคับดาวน์โหลด (ไม่เปิดดู) พร้อมชื่อไฟล์ที่เหมาะสม
+        // ✅ บังคับดาวน์โหลด (ใช้ชื่อไฟล์ต้นฉบับ)
         $filePath = storage_path('app/public/' . $report->file_path);
+        $originalFilename = basename($report->file_path);
+        $encodedName = rawurlencode($originalFilename);
 
         return response()->make(file_get_contents($filePath), 200, [
             'Content-Type' => 'application/pdf',

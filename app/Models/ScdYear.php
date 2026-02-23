@@ -29,9 +29,19 @@ class ScdYear extends Model
         return $this->hasMany(Banner::class);
     }
 
-    public function contentNodes(): HasMany
+    public function announcements(): HasMany
     {
-        return $this->hasMany(ContentNode::class);
+        return $this->hasMany(Announcement::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function contentSections(): HasMany
+    {
+        return $this->hasMany(ContentSection::class);
     }
 
     public function getYearNameAttribute(): string

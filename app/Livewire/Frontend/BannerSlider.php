@@ -15,19 +15,20 @@ class BannerSlider extends Component
         // ถ้าไม่ได้ส่ง yearId มา ให้ใช้ปีล่าสุด
         if (!$yearId) {
             $activeYear = ScdYear::where('is_published', true)
-                                ->latest('year')
-                                ->first();
+                ->latest('year')
+                ->first();
             $this->yearId = $activeYear?->id;
         }
     }
 
     public function render()
     {
-        // ดึง Banner ตามปีที่ได้รับ
-        $banners = $this->yearId 
+        // ดึง Banner ตามปีที่ได้รับ (เฉพาะหมวด 0 = แสดงผล, เรียงจากใหม่ → เก่า)
+        $banners = $this->yearId
             ? Banner::where('scd_year_id', $this->yearId)
-                    ->orderBy('sequence')
-                    ->get()
+            ->where('category', 0)
+            ->orderBy('created_at', 'desc')
+            ->get()
             : collect([]);
 
         return view('livewire.frontend.banner-slider', [

@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\ScdYear;
-use App\Models\ContentNode;
+use App\Models\Announcement;
+use App\Models\ContentSection;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, $year = null)
     {
         // ===============================
         // ดึงปีที่ publish แล้ว
@@ -20,12 +21,10 @@ class HomeController extends Controller
 
 
         // ===============================
-        // เลือกปีที่ใช้งาน (รับเป็นปี ค.ศ. 4 หลัก)
+        // เลือกปีที่ใช้งาน (รับจาก route param /scd/{year})
         // ===============================
-        $selectedYear = $request->query('year');
-
-        $activeYear = $selectedYear
-            ? ScdYear::where('year', $selectedYear)->first()
+        $activeYear = $year
+            ? ScdYear::where('year', $year)->first()
             : $publishedYears->first();
 
 
@@ -33,8 +32,7 @@ class HomeController extends Controller
         // ดึงประกาศ
         // ===============================
         $announcements = $activeYear
-            ? ContentNode::where('scd_year_id', $activeYear->id)
-            ->where('category_group', 'announcement')
+            ? Announcement::where('scd_year_id', $activeYear->id)
             ->whereNull('parent_id')
             ->orderBy('sequence')
             ->limit(6)
@@ -44,11 +42,9 @@ class HomeController extends Controller
 
         // ===============================
         // ดึงหมวดเนื้อหา (content)
-        // *** แก้ตรงนี้ ***
         // ===============================
         $contentSections = $activeYear
-            ? ContentNode::where('scd_year_id', $activeYear->id)
-            ->where('category_group', 'content') // แก้จาก content_section เป็น content
+            ? ContentSection::where('scd_year_id', $activeYear->id)
             ->whereNull('parent_id')
             ->orderBy('sequence')
             ->get()
@@ -63,6 +59,7 @@ class HomeController extends Controller
             'publishedYears'   => $publishedYears,
             'announcements'    => $announcements,
             'contentSections'  => $contentSections,
+            'isYearPage'       => $year !== null,  // เพื่อแยกว่าเป็นหน้าปีหรือหน้าหลัก
         ]);
     }
 }

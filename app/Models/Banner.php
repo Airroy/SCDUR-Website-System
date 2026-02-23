@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Banner extends Model
 {
+    protected $table = 'scd_banners';
+
     protected $fillable = [
         'scd_year_id',
-        'sequence',
-        'title',
+        'category',
         'image_path',
         'link_type',
         'link_url',
@@ -19,7 +20,7 @@ class Banner extends Model
     ];
 
     protected $casts = [
-        'sequence' => 'integer',
+        'category' => 'integer',
     ];
 
     public function scdYear(): BelongsTo

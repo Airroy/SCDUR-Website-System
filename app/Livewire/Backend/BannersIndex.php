@@ -23,7 +23,7 @@ class BannersIndex extends Component
     public $bannerId = null;
 
     // Form fields
-    public $sequence;
+    public $category = 0;
     public $banner_image; // รับ base64 จาก image-cropper
     public $image; // รับไฟล์ upload ปกติ
     public $existingImage;
@@ -32,8 +32,6 @@ class BannersIndex extends Component
     public $pdf_file;
     public $pdf_name;
     public $existingPdf;
-
-    public $title;
 
     public function mount($year = null)
     {
@@ -65,8 +63,7 @@ class BannersIndex extends Component
 
         $this->editMode = true;
         $this->bannerId = $bannerId;
-        $this->sequence = $banner->sequence;
-        $this->title = $banner->title;
+        $this->category = $banner->category;
         $this->existingImage = $banner->image_path;
         $this->link_type = $banner->link_type;
         $this->link_url = $banner->link_url;
@@ -84,7 +81,7 @@ class BannersIndex extends Component
 
         // Validate
         $rules = [
-            'sequence' => 'required|integer|min:1',
+            'category' => 'required|integer|in:0,1',
             'banner_image' => 'nullable|string', // base64
             'image' => $this->editMode
                 ? "nullable|image|max:{$maxBannerSize}"
@@ -94,7 +91,7 @@ class BannersIndex extends Component
             'pdf_file' => $this->link_type === 'pdf' && !$this->editMode
                 ? "required|mimes:pdf|max:{$maxPdfSize}"
                 : "nullable|mimes:pdf|max:{$maxPdfSize}",
-            'pdf_name' => $this->link_type === 'pdf' ? 'required|string|max:255' : 'nullable',
+
         ];
 
         // Custom error messages
@@ -113,20 +110,6 @@ class BannersIndex extends Component
 
         $this->validate($rules, $messages);
 
-        // Check duplicate sequence
-        $existingBanner = Banner::where('scd_year_id', $this->selectedYear->id)
-            ->where('sequence', $this->sequence)
-            ->when($this->editMode, fn($q) => $q->where('id', '!=', $this->bannerId))
-            ->first();
-
-        if ($existingBanner) {
-            $this->dispatch('notify', [
-                'message' => 'ลำดับที่ ' . $this->sequence . ' มีอยู่แล้ว กรุณาเลือกลำดับอื่น',
-                'type' => 'error'
-            ]);
-            return;
-        }
-
         if ($this->editMode) {
             $this->updateBanner();
         } else {
@@ -138,11 +121,9 @@ class BannersIndex extends Component
     {
         $data = [
             'scd_year_id' => $this->selectedYear->id,
-            'sequence' => $this->sequence,
-            'title' => $this->title,
+            'category' => $this->category,
             'link_type' => $this->link_type,
             'link_url' => $this->link_type === 'url' ? $this->link_url : null,
-            'pdf_name' => $this->link_type === 'pdf' ? $this->pdf_name : null,
         ];
 
         // Upload image (รองรับทั้ง base64 และ file upload)
@@ -152,9 +133,11 @@ class BannersIndex extends Component
             $data['image_path'] = $this->image->store('banners', 'public');
         }
 
-        // Upload PDF
+        // Upload PDF (ใช้ชื่อไฟล์ต้นฉบับ)
         if ($this->link_type === 'pdf' && $this->pdf_file) {
-            $data['pdf_path'] = $this->pdf_file->store('banners/pdfs', 'public');
+            $originalName = $this->pdf_file->getClientOriginalName();
+            $data['pdf_name'] = pathinfo($originalName, PATHINFO_FILENAME);
+            $data['pdf_path'] = $this->pdf_file->storeAs('banners/pdfs', $originalName, 'public');
         }
 
         Banner::create($data);
@@ -171,11 +154,9 @@ class BannersIndex extends Component
         $banner = Banner::findOrFail($this->bannerId);
 
         $data = [
-            'sequence' => $this->sequence,
-            'title' => $this->title,
+            'category' => $this->category,
             'link_type' => $this->link_type,
             'link_url' => $this->link_type === 'url' ? $this->link_url : null,
-            'pdf_name' => $this->link_type === 'pdf' ? $this->pdf_name : null,
         ];
 
         // Upload new image (รองรับทั้ง base64 และ file upload)
@@ -193,13 +174,15 @@ class BannersIndex extends Component
             $data['image_path'] = $this->image->store('banners', 'public');
         }
 
-        // Upload new PDF
+        // Upload new PDF (ใช้ชื่อไฟล์ต้นฉบับ)
         if ($this->link_type === 'pdf' && $this->pdf_file) {
             // Delete old PDF
             if ($banner->pdf_path) {
                 Storage::disk('public')->delete($banner->pdf_path);
             }
-            $data['pdf_path'] = $this->pdf_file->store('banners/pdfs', 'public');
+            $originalName = $this->pdf_file->getClientOriginalName();
+            $data['pdf_name'] = pathinfo($originalName, PATHINFO_FILENAME);
+            $data['pdf_path'] = $this->pdf_file->storeAs('banners/pdfs', $originalName, 'public');
         } elseif ($this->link_type !== 'pdf' && $banner->pdf_path) {
             // Delete PDF if changed to other type
             Storage::disk('public')->delete($banner->pdf_path);
@@ -271,7 +254,7 @@ class BannersIndex extends Component
     {
         $this->reset([
             'bannerId',
-            'sequence',
+            'category',
             'banner_image',
             'image',
             'existingImage',
@@ -282,13 +265,15 @@ class BannersIndex extends Component
             'existingPdf'
         ]);
         $this->link_type = 'none';
+        $this->category = 0;
     }
 
     public function render()
     {
         $banners = $this->selectedYear
             ? Banner::where('scd_year_id', $this->selectedYear->id)
-            ->orderBy('sequence')
+            ->orderBy('category')
+            ->orderBy('created_at', 'desc')
             ->get()
             : collect([]);
 

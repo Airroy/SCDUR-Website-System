@@ -3,7 +3,7 @@
 namespace App\Livewire\Backend;
 
 use App\Models\ScdYear;
-use App\Models\ContentNode;
+use App\Models\ContentSection;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
@@ -18,13 +18,13 @@ class ContentsIndex extends Component
     public $selectedYear;
     public $currentParentId = null;
     public $breadcrumbs = [];
-    
+
     // Modal & Form Properties
     public $showModal = false;
     public $editMode = false;
     public $type = 'folder'; // 'folder' or 'file'
     public $nodeId = null;
-    
+
     // Form Fields
     public $sequence;
     public $name;
@@ -45,7 +45,7 @@ class ContentsIndex extends Component
 
     public function navigateToFolder($folderId)
     {
-        $folder = ContentNode::findOrFail($folderId);
+        $folder = ContentSection::findOrFail($folderId);
         $this->currentParentId = $folderId;
         $this->buildBreadcrumbs($folderId);
     }
@@ -63,8 +63,8 @@ class ContentsIndex extends Component
     private function buildBreadcrumbs($nodeId)
     {
         $this->breadcrumbs = [];
-        $node = ContentNode::find($nodeId);
-        
+        $node = ContentSection::find($nodeId);
+
         while ($node) {
             array_unshift($this->breadcrumbs, [
                 'id' => $node->id,
@@ -90,15 +90,15 @@ class ContentsIndex extends Component
 
     public function editNode($nodeId)
     {
-        $node = ContentNode::findOrFail($nodeId);
-        
+        $node = ContentSection::findOrFail($nodeId);
+
         $this->nodeId = $node->id;
         $this->type = $node->type;
         $this->sequence = $node->sequence;
         $this->name = $node->name;
         $this->existingImage = $node->image_path;
         $this->existingFile = $node->file_path;
-        
+
         $this->editMode = true;
         $this->showModal = true;
     }
@@ -112,19 +112,21 @@ class ContentsIndex extends Component
 
         // Add validation for image (required only for root folders)
         if ($this->type === 'folder' && $this->currentParentId === null) {
+            $maxImageSize = config('upload.max_file_sizes.cover', 102400);
             if (!$this->editMode) {
-                $rules['image'] = 'required|image|max:2048';
+                $rules['image'] = "required|image|max:{$maxImageSize}";
             } else {
-                $rules['image'] = 'nullable|image|max:2048';
+                $rules['image'] = "nullable|image|max:{$maxImageSize}";
             }
         }
 
         // Add validation for file
         if ($this->type === 'file') {
+            $maxPdfSize = config('upload.max_file_sizes.pdf', 102400);
             if (!$this->editMode) {
-                $rules['file'] = 'required|mimes:pdf|max:10240';
+                $rules['file'] = "required|mimes:pdf|max:{$maxPdfSize}";
             } else {
-                $rules['file'] = 'nullable|mimes:pdf|max:10240';
+                $rules['file'] = "nullable|mimes:pdf|max:{$maxPdfSize}";
             }
         }
 
@@ -132,7 +134,6 @@ class ContentsIndex extends Component
 
         $data = [
             'scd_year_id' => $this->selectedYear->id,
-            'category_group' => 'content',
             'parent_id' => $this->currentParentId,
             'type' => $this->type,
             'sequence' => $this->sequence,
@@ -147,20 +148,21 @@ class ContentsIndex extends Component
             $data['image_path'] = $this->image->store('content-images', 'public');
         }
 
-        // Handle file upload
+        // Handle file upload (ใช้ชื่อไฟล์ต้นฉบับ)
         if ($this->file) {
             if ($this->existingFile) {
                 Storage::disk('public')->delete($this->existingFile);
             }
-            $data['file_path'] = $this->file->store('content-files', 'public');
+            $originalName = $this->file->getClientOriginalName();
+            $data['file_path'] = $this->file->storeAs('content-files', $originalName, 'public');
         }
 
         if ($this->editMode) {
-            $node = ContentNode::findOrFail($this->nodeId);
+            $node = ContentSection::findOrFail($this->nodeId);
             $node->update($data);
             session()->flash('success', 'อัพเดทสำเร็จ');
         } else {
-            ContentNode::create($data);
+            ContentSection::create($data);
             session()->flash('success', 'เพิ่มสำเร็จ');
         }
 
@@ -170,8 +172,8 @@ class ContentsIndex extends Component
 
     public function deleteNode($nodeId)
     {
-        $node = ContentNode::findOrFail($nodeId);
-        
+        $node = ContentSection::findOrFail($nodeId);
+
         // Delete associated files
         if ($node->image_path) {
             Storage::disk('public')->delete($node->image_path);
@@ -179,7 +181,7 @@ class ContentsIndex extends Component
         if ($node->file_path) {
             Storage::disk('public')->delete($node->file_path);
         }
-        
+
         $node->delete();
         session()->flash('success', 'ลบสำเร็จ');
     }
@@ -199,8 +201,7 @@ class ContentsIndex extends Component
         $hasFilesInParent = false;
 
         if ($this->selectedYear) {
-            $contents = ContentNode::where('scd_year_id', $this->selectedYear->id)
-                ->where('category_group', 'content')
+            $contents = ContentSection::where('scd_year_id', $this->selectedYear->id)
                 ->where('parent_id', $this->currentParentId)
                 ->orderBy('sequence')
                 ->get();

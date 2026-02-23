@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Http\Request;
 use App\Http\Middleware\AccessLog; // ✅ เพิ่มบรรทัดนี้
+use App\Http\Middleware\AdminAuth; // ✅ เพิ่ม AdminAuth middleware
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,6 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 Request::HEADER_X_FORWARDED_PORT |
                 Request::HEADER_X_FORWARDED_PROTO
         );
+
+        // ✅ Register AdminAuth middleware alias
+        $middleware->alias([
+            'admin.auth' => AdminAuth::class,
+        ]);
 
         // ✅ เปิดใช้ AccessLog หลังจาก session middleware ทำงานแล้ว
         $middleware->web(append: [

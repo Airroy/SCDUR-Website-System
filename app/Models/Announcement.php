@@ -6,21 +6,26 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class ContentNode extends Model
+class Announcement extends Model
 {
+    protected $table = 'scd_announcements';
+
     protected $fillable = [
         'scd_year_id',
         'parent_id',
-        'category_group',
         'type',
         'name',
         'sequence',
         'image_path',
         'file_path',
+        'view_count',
+        'download_count',
     ];
 
     protected $casts = [
         'sequence' => 'integer',
+        'view_count' => 'integer',
+        'download_count' => 'integer',
     ];
 
     // Relationships
@@ -31,26 +36,20 @@ class ContentNode extends Model
 
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(ContentNode::class, 'parent_id');
+        return $this->belongsTo(Announcement::class, 'parent_id');
     }
 
     public function children(): HasMany
     {
-        return $this->hasMany(ContentNode::class, 'parent_id')->orderBy('sequence');
+        return $this->hasMany(Announcement::class, 'parent_id')->orderBy('sequence');
     }
 
-    // Recursive children
     public function allChildren(): HasMany
     {
         return $this->children()->with('allChildren');
     }
 
     // Scopes
-    public function scopeOfGroup($query, $group)
-    {
-        return $query->where('category_group', $group);
-    }
-
     public function scopeRootNodes($query)
     {
         return $query->whereNull('parent_id');

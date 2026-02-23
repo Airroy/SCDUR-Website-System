@@ -390,15 +390,16 @@ ScdYear.php
     - is_published (boolean)
     - timestamps
   Relations:
-    - hasMany(Banner)       : banners
-    - hasMany(ContentNode)  : content_nodes
-    - hasOne(ScdReport)     : scd_report
-    - hasMany(Announcement) : announcements
+    - hasMany(Banner)          : scd_banners
+    - hasMany(Announcement)    : scd_announcements
+    - hasMany(Order)            : scd_directives
+    - hasMany(ContentSection)   : scd_contents
+    - hasOne(ScdReport)         : scd_report
   Scopes:
     - scopePublished()      : เฉพาะปีที่เผยแพร่
 
 Banner.php
-  Table: banners
+  Table: scd_banners
   ฟังก์ชัน: Banner Slider หน้าแรก
   Columns:
     - id, scd_year_id
@@ -410,14 +411,14 @@ Banner.php
   Features:
     - Sortable by order
 
-ContentNode.php
-  Table: content_nodes
-  ฟังก์ชัน: Content Sections หน้าแรก
+Announcement.php
+  Table: scd_announcements
+  ฟังก์ชัน: ประกาศ (Announcements)
   Columns:
     - id, scd_year_id, parent_id
-    - type (โฟลเดอร์/ไฟล์)
-    - name, image_path, content
-    - order
+    - type (folder/file)
+    - name, sequence, image_path, file_path
+    - view_count, download_count
     - timestamps
   Relations:
     - belongsTo(ScdYear)
@@ -425,7 +426,38 @@ ContentNode.php
     - belongsTo(self) as parent
   Features:
     - Hierarchical structure (tree)
-    - Support หมวดหมู่
+
+Order.php
+  Table: scd_directives
+  ฟังก์ชัน: คำสั่ง (Directives)
+  Columns:
+    - id, scd_year_id, parent_id
+    - type (folder/file)
+    - name, sequence, image_path, file_path
+    - view_count, download_count
+    - timestamps
+  Relations:
+    - belongsTo(ScdYear)
+    - hasMany(self) as children : สำหรับโครงสร้าง tree
+    - belongsTo(self) as parent
+  Features:
+    - Hierarchical structure (tree)
+
+ContentSection.php
+  Table: scd_contents
+  ฟังก์ชัน: ข้อมูล SCD ย่อย (SCD Contents)
+  Columns:
+    - id, scd_year_id, parent_id
+    - type (folder/file)
+    - name, sequence, image_path, file_path
+    - view_count, download_count
+    - timestamps
+  Relations:
+    - belongsTo(ScdYear)
+    - hasMany(self) as children : สำหรับโครงสร้าง tree
+    - belongsTo(self) as parent
+  Features:
+    - Hierarchical structure (tree)
 
 ScdReport.php
   Table: scd_reports
@@ -440,21 +472,6 @@ ScdReport.php
   Features:
     - One report per year
 
-Announcement.php
-  Table: announcements
-  ฟังก์ชัน: ประกาศและคำสั่ง
-  Columns:
-    - id, scd_year_id
-    - category (ประกาศ/คำสั่ง)
-    - title, description
-    - file_path
-    - announced_at (วันที่ประกาศ)
-    - timestamps
-  Relations:
-    - belongsTo(ScdYear)
-  Features:
-    - แยกหมวดหมู่
-    - แนบไฟล์ได้
 ```
 
 ---
@@ -531,13 +548,12 @@ VoltServiceProvider.php
   สร้างตาราง: banners
   - Banner slider พร้อมลำดับการแสดง
 
-2026_01_08_050556_create_content_nodes_table.php
-  สร้างตาราง: content_nodes
-  - Content sections แบบ tree structure
-
-2026_01_15_create_announcements_table.php
-  สร้างตาราง: announcements
-  - ประกาศและคำสั่ง
+2026_02_06_000001_split_content_nodes_into_separate_tables.php
+  สร้างตาราง: announcements, orders, content_sections
+  - แยกตาราง content_nodes เดิมออกเป็น 3 ตาราง
+  - announcements: ประกาศ
+  - orders: คำสั่ง
+  - content_sections: ข้อมูล SCD ย่อย
 ```
 
 ### database/seeders/
@@ -953,7 +969,7 @@ database.sqlite         # SQLite database (ถ้าใช้)
 ## 📊 สถิติโปรเจกต์
 
 ### Models
-- 5 Models: User, ScdYear, Banner, ContentNode, ScdReport, Announcement
+- 7 Models: User, ScdYear, Banner, Announcement, Order, ContentSection, ScdReport
 
 ### Controllers
 - 2 Frontend Controllers

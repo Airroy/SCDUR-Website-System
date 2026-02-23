@@ -3,7 +3,8 @@
 namespace App\Livewire\Backend;
 
 use App\Models\ScdYear;
-use App\Models\ContentNode;
+use App\Models\Announcement;
+use App\Models\Order;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
@@ -17,12 +18,12 @@ class AnnouncementManager extends Component
     public $parentId = null;
     public $hasFilesInParent = false;
     public $hasFoldersInParent = false;
-    
+
     // Modal state
     public $showModal = false;
     public $editMode = false;
     public $nodeId = null;
-    
+
     // Form fields
     public $sequence;
     public $name;
@@ -35,6 +36,14 @@ class AnnouncementManager extends Component
         'deleteAnnouncement' => 'deleteNode',
         'refreshAnnouncementTable' => '$refresh',
     ];
+
+    /**
+     * Get the model class based on categoryGroup
+     */
+    private function getModel(): string
+    {
+        return $this->categoryGroup === 'announcement' ? Announcement::class : Order::class;
+    }
 
     public function mount($year, $categoryGroup, $parentId = null, $hasFilesInParent = false, $hasFoldersInParent = false)
     {
@@ -64,15 +73,16 @@ class AnnouncementManager extends Component
     public function openEditModal($announcementId)
     {
         $this->resetForm();
-        $node = ContentNode::findOrFail($announcementId);
-        
+        $model = $this->getModel();
+        $node = $model::findOrFail($announcementId);
+
         $this->editMode = true;
         $this->nodeId = $announcementId;
         $this->sequence = $node->sequence;
         $this->name = $node->name;
         $this->type = $node->type;
         $this->existingFile = $node->file_path;
-        
+
         $this->showModal = true;
     }
 
@@ -104,8 +114,8 @@ class AnnouncementManager extends Component
         $this->validate($rules, $messages);
 
         // Check duplicate sequence
-        $existingNode = ContentNode::where('scd_year_id', $this->year->id)
-            ->where('category_group', $this->categoryGroup)
+        $model = $this->getModel();
+        $existingNode = $model::where('scd_year_id', $this->year->id)
             ->where('parent_id', $this->parentId)
             ->where('sequence', $this->sequence)
             ->when($this->editMode, fn($q) => $q->where('id', '!=', $this->nodeId))
@@ -131,53 +141,56 @@ class AnnouncementManager extends Component
         $data = [
             'scd_year_id' => $this->year->id,
             'parent_id' => $this->parentId,
-            'category_group' => $this->categoryGroup,
             'sequence' => $this->sequence,
             'name' => $this->name,
             'type' => $this->type,
         ];
 
-        // Upload file
+        // Upload file (ใช้ชื่อไฟล์ต้นฉบับ)
         if ($this->type === 'file' && $this->file) {
             $folder = $this->categoryGroup === 'announcement' ? 'announcements' : 'orders';
-            $data['file_path'] = $this->file->store($folder, 'public');
+            $originalName = $this->file->getClientOriginalName();
+            $data['file_path'] = $this->file->storeAs($folder, $originalName, 'public');
         }
 
-        ContentNode::create($data);
+        $model = $this->getModel();
+        $model::create($data);
 
         $this->showModal = false;
         $this->dispatch('notify', [
             'message' => $this->type === 'folder' ? 'เพิ่มหมวดหมู่สำเร็จ' : 'เพิ่มไฟล์สำเร็จ',
             'type' => 'success'
         ]);
-        
+
         // Update local state
         if ($this->type === 'folder') {
             $this->hasFoldersInParent = true;
         } else {
             $this->hasFilesInParent = true;
         }
-        
+
         $this->dispatch('refreshAnnouncementTable');
     }
 
     private function updateNode()
     {
-        $node = ContentNode::findOrFail($this->nodeId);
-        
+        $model = $this->getModel();
+        $node = $model::findOrFail($this->nodeId);
+
         $data = [
             'sequence' => $this->sequence,
             'name' => $this->name,
         ];
 
-        // Upload new file (only for file type)
+        // Upload new file (only for file type) - ใช้ชื่อไฟล์ต้นฉบับ
         if ($this->type === 'file' && $this->file) {
             // Delete old file
             if ($node->file_path) {
                 Storage::disk('public')->delete($node->file_path);
             }
             $folder = $this->categoryGroup === 'announcement' ? 'announcements' : 'orders';
-            $data['file_path'] = $this->file->store($folder, 'public');
+            $originalName = $this->file->getClientOriginalName();
+            $data['file_path'] = $this->file->storeAs($folder, $originalName, 'public');
         }
 
         $node->update($data);
@@ -192,32 +205,31 @@ class AnnouncementManager extends Component
 
     public function deleteNode($announcementId)
     {
-        $node = ContentNode::findOrFail($announcementId);
+        $model = $this->getModel();
+        $node = $model::findOrFail($announcementId);
         $deletedType = $node->type;
-        
+
         // Delete file
         if ($node->file_path) {
             Storage::disk('public')->delete($node->file_path);
         }
-        
+
         // Delete children recursively
         $this->deleteChildren($node->id);
-        
+
         $node->delete();
 
         // Recheck if there are still files/folders in this level
-        $remainingFiles = ContentNode::where('scd_year_id', $this->year->id)
-            ->where('category_group', $this->categoryGroup)
+        $remainingFiles = $model::where('scd_year_id', $this->year->id)
             ->where('parent_id', $this->parentId)
             ->where('type', 'file')
             ->exists();
-            
-        $remainingFolders = ContentNode::where('scd_year_id', $this->year->id)
-            ->where('category_group', $this->categoryGroup)
+
+        $remainingFolders = $model::where('scd_year_id', $this->year->id)
             ->where('parent_id', $this->parentId)
             ->where('type', 'folder')
             ->exists();
-            
+
         $this->hasFilesInParent = $remainingFiles;
         $this->hasFoldersInParent = $remainingFolders;
 
@@ -230,7 +242,8 @@ class AnnouncementManager extends Component
 
     private function deleteChildren($parentId)
     {
-        $children = ContentNode::where('parent_id', $parentId)->get();
+        $model = $this->getModel();
+        $children = $model::where('parent_id', $parentId)->get();
         foreach ($children as $child) {
             if ($child->file_path) {
                 Storage::disk('public')->delete($child->file_path);

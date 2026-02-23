@@ -44,7 +44,7 @@
                         class="absolute top-full left-0 bg-[#a82200] min-w-[250px] list-none p-0 m-0 shadow-[0_4px_15px_rgba(0,0,0,0.3)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
                         @forelse($publishedYears as $year)
                             <li class="border-b border-white/5 last:border-0">
-                                <a href="{{ route('home', ['year' => $year->year]) }}"
+                                <a href="{{ route('scd.year', $year->year) }}"
                                     class="block py-3 px-5 text-white no-underline text-sm transition-all duration-200 hover:bg-[#8a1500]">
                                     SCD {{ $year->year }}
                                 </a>
@@ -69,7 +69,7 @@
                         @forelse($publishedYears as $year)
                             @if ($year->report && $year->report->file_path)
                                 <li class="border-b border-white/5 last:border-0">
-                                    <a href="{{ route('scd-report.view', ['year' => $year->year, 'filename' => 'รายงานผล SCD ' . $year->year . '.pdf']) }}"
+                                    <a href="{{ route('scd-report.view', ['year' => $year->year, 'filename' => basename($year->report->file_path)]) }}"
                                         target="_blank"
                                         class="block py-3 px-5 text-white no-underline text-sm transition-all duration-200 hover:bg-[#8a1500]">
                                         รายงานผล SCD {{ $year->year }}
@@ -177,7 +177,7 @@
                         class="bg-[#8a1500] rounded-lg mt-1 ml-3 overflow-hidden">
                         @forelse($publishedYears as $year)
                             <li>
-                                <a href="{{ route('home', ['year' => $year->year]) }}"
+                                <a href="{{ route('scd.year', $year->year) }}"
                                     class="block py-2 px-4 text-white text-sm transition-all duration-200 hover:bg-[#6b1000]">
                                     SCD {{ $year->year }}
                                 </a>
@@ -206,7 +206,7 @@
                         @forelse($publishedYears as $year)
                             @if ($year->report && $year->report->file_path)
                                 <li>
-                                    <a href="{{ route('scd-report.view', ['year' => $year->year, 'filename' => 'รายงาน SCD ' . $year->year . '.pdf']) }}"
+                                    <a href="{{ route('scd-report.view', ['year' => $year->year, 'filename' => basename($year->report->file_path)]) }}"
                                         target="_blank"
                                         class="block py-2 px-4 text-white text-sm transition-all duration-200 hover:bg-[#6b1000]">
                                         รายงาน SCD {{ $year->year }}
