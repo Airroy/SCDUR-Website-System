@@ -2,26 +2,10 @@
     <!-- Add Buttons -->
     <div class="flex space-x-2">
         @if(!$hasFilesInParent)
-            <button 
-                wire:click="openAddFolderModal"
-                class="inline-flex items-center px-3 py-2 bg-yellow-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-600 focus:bg-yellow-600 active:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition ease-in-out duration-150"
-            >
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
-                </svg>
-                เพิ่มหมวดหมู่
-            </button>
+            <x-backend.action-button color="yellow" label="เพิ่มหมวดหมู่" action="openAddFolderModal" />
         @endif
         @if(!$hasFoldersInParent)
-        <button 
-            wire:click="openAddFileModal"
-            class="inline-flex items-center px-3 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150"
-        >
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            เพิ่มไฟล์
-        </button>
+            <x-backend.action-button color="red" label="เพิ่มไฟล์" action="openAddFileModal" />
         @endif
     </div>
 
@@ -35,18 +19,56 @@
                     ($editMode ? '' : 'ใหม่')"
             :submitLabel="$editMode ? 'บันทึก' : 'เพิ่ม'"
         >
-            <!-- Sequence -->
+            {{-- ✅ เอา block Sequence ออกแล้ว --}}
+
+            <!-- สถานะ (แสดงผล/ซ่อน) -->
             <div class="mb-4">
-                <label for="sequence" class="block text-sm font-medium text-gray-700">ลำดับ <span class="text-red-500">*</span></label>
-                <input 
-                    type="number" 
-                    wire:model="sequence" 
-                    id="sequence"
-                    min="1"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
-                    placeholder="กรอกลำดับ (ห้ามซ้ำ)"
-                >
-                @error('sequence') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    สถานะการแสดงผล
+                </label>
+                <div class="space-y-2">
+                    <label
+                        class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors
+                        {{ !$is_hidden ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300' }}">
+                        <input type="radio" wire:model.live="is_hidden" value="0" class="hidden">
+                        <div
+                            class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0
+                            {{ !$is_hidden ? 'border-green-500' : 'border-gray-400' }}">
+                            @if (!$is_hidden)
+                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                            @endif
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium {{ !$is_hidden ? 'text-green-700' : 'text-gray-700' }}">
+                                แสดงผล
+                            </p>
+                            <p class="text-xs {{ !$is_hidden ? 'text-green-500' : 'text-gray-400' }}">
+                                รายการจะแสดงบนหน้าเว็บไซต์
+                            </p>
+                        </div>
+                    </label>
+
+                    <label
+                        class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors
+                        {{ $is_hidden ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300' }}">
+                        <input type="radio" wire:model.live="is_hidden" value="1" class="hidden">
+                        <div
+                            class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0
+                            {{ $is_hidden ? 'border-red-500' : 'border-gray-400' }}">
+                            @if ($is_hidden)
+                                <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                            @endif
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium {{ $is_hidden ? 'text-red-700' : 'text-gray-700' }}">
+                                ซ่อน (ไม่แสดงผล)
+                            </p>
+                            <p class="text-xs {{ $is_hidden ? 'text-red-500' : 'text-gray-400' }}">
+                                รายการจะไม่แสดงบนหน้าเว็บไซต์
+                            </p>
+                        </div>
+                    </label>
+                </div>
             </div>
 
             <!-- Name -->

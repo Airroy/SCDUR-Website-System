@@ -2,10 +2,9 @@
 
 @php
     $level = $level ?? 0;
-
-    // ประกาศตัวแปรที่หายไปให้ครบถ้วน
-    $indentPx = $level * 24;
-    $indentStyle = $level > 0 ? "padding-left: {$indentPx}px;" : 'padding-left: 1.5rem;';
+    $baseIndent = 24; // px ต่อ level
+    $indentPx = 24 + ($level * $baseIndent); // level 0 = 24px, level 1 = 48px, level 2 = 72px ...
+    $indentStyle = "padding-left: {$indentPx}px;";
 @endphp
 
 @foreach ($items as $index => $item)

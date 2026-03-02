@@ -30,11 +30,13 @@ class FrontendController extends Controller
 
         $announcements = Announcement::where('scd_year_id', $year->id)
             ->whereNull('parent_id')
+            ->where('is_hidden', false)
             ->orderBy('sequence')
             ->get();
 
         $orders = Order::where('scd_year_id', $year->id)
             ->whereNull('parent_id')
+            ->where('is_hidden', false)
             ->orderBy('sequence')
             ->get();
 
@@ -53,6 +55,7 @@ class FrontendController extends Controller
         // หมวด (Section) - ค้นหาจาก slug หรือ fallback id
         $sections = ContentSection::where('scd_year_id', $yearModel->id)
             ->whereNull('parent_id')
+            ->where('is_hidden', false)
             ->get();
 
         // ลองหาจาก slug ปกติก่อน ถ้าไม่เจอลองหาจาก fallback format "section-{id}"
@@ -68,6 +71,7 @@ class FrontendController extends Controller
 
         // รายการย่อยในหมวด
         $items = ContentSection::where('parent_id', $section->id)
+            ->where('is_hidden', false)
             ->orderBy('sequence')
             ->get();
 

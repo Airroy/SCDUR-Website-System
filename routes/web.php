@@ -38,7 +38,7 @@ Route::get('/scd-report/{year}/download', [FrontendController::class, 'downloadS
 //ปิดหน้า login ให้ไปที่หน้าแรก
 Route::redirect('/login', '/');
 
-// ⚠️ Admin Routes - ป้องกันด้วย 404  
+// ⚠️ Admin Routes - ป้องกันด้วย 404
 Route::prefix('admin')->name('admin.')->middleware(['admin.auth'])->group(function () {
 
     // Dashboard (หน้าแรก)
@@ -55,12 +55,15 @@ Route::prefix('admin')->name('admin.')->middleware(['admin.auth'])->group(functi
 
     // Announcements Management
     Route::get('/announcements/{year?}', \App\Livewire\Backend\AnnouncementsIndex::class)->name('announcements.index');
+    Route::get('/announcements/{year}/folder/{folderId}', \App\Livewire\Backend\AnnouncementsIndex::class)->name('announcements.folder'); // ✅ เพิ่มใหม่
 
     // Directives Management
     Route::get('/directives/{year?}', \App\Livewire\Backend\AnnouncementsIndex::class)->name('directives.index');
+    Route::get('/directives/{year}/folder/{folderId}', \App\Livewire\Backend\AnnouncementsIndex::class)->name('directives.folder'); // ✅ เพิ่มใหม่
 
     // Contents Management
     Route::get('/contents/{year?}', \App\Livewire\Backend\ContentsIndex::class)->name('contents.index');
+    Route::get('/contents/{year}/folder/{folderId}', \App\Livewire\Backend\ContentsIndex::class)->name('contents.folder');
 
     // Profile
     Route::view('/profile', 'admin.pages.profile')->name('profile');

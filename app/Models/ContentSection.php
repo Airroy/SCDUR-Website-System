@@ -20,12 +20,14 @@ class ContentSection extends Model
         'file_path',
         'view_count',
         'download_count',
+        'is_hidden',
     ];
 
     protected $casts = [
         'sequence' => 'integer',
         'view_count' => 'integer',
         'download_count' => 'integer',
+        'is_hidden' => 'boolean',
     ];
 
     // Relationships

@@ -23,11 +23,11 @@ class BannerSlider extends Component
 
     public function render()
     {
-        // ดึง Banner ตามปีที่ได้รับ (เฉพาะหมวด 0 = แสดงผล, เรียงจากใหม่ → เก่า)
+        // ดึง Banner ตามปีที่ได้รับ (เฉพาะหมวด 0 = แสดงผล, เรียงตามลำดับที่จัดไว้)
         $banners = $this->yearId
             ? Banner::where('scd_year_id', $this->yearId)
             ->where('category', 0)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('sequence')
             ->get()
             : collect([]);
 

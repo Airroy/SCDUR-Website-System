@@ -9,16 +9,8 @@
             @endif
         </h3>
         <div class="flex items-center gap-2">
-            @if ($items->count() > 1)
-                <button wire:click="openSortModal"
-                    class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
-                    title="จัดการลำดับ">
-                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                    </svg>
-                    จัดลำดับ
-                </button>
+            @if ($items->where('is_hidden', false)->count() > 1)
+                <x-backend.action-button color="gray" label="จัดลำดับ" action="openSortModal" title="จัดการลำดับ" />
             @endif
             @livewire(
                 'backend.announcement-manager',
@@ -45,29 +37,85 @@
             <p class="mt-1 text-sm text-gray-500">เริ่มต้นโดยการเพิ่มหมวดหมู่หรือไฟล์</p>
         </div>
     @else
-        <div class="overflow-x-auto">
+        {{-- ========== มือถือเท่านั้น ========== --}}
+        <div class="md:hidden divide-y divide-gray-100">
+            @foreach ($items as $item)
+                <div class="px-4 py-3 {{ $item->is_hidden ? 'bg-red-50' : '' }}">
+                    <div class="flex items-start gap-2 mb-2">
+                        <span
+                            class="text-xs text-gray-400 font-medium mt-0.5 w-4 flex-shrink-0">{{ $loop->iteration }}</span>
+                        <div class="flex-1 min-w-0">
+                            @if ($item->type === 'folder')
+                                <button wire:click="navigateToFolder({{ $item->id }})"
+                                    class="text-sm font-medium text-blue-600 hover:underline text-left w-full">
+                                    {{ $item->name }}
+                                </button>
+                            @else
+                                <p class="text-sm font-medium text-gray-900">{{ $item->name }}</p>
+                                @if ($item->file_path)
+                                    <p class="text-xs text-gray-400 truncate">{{ basename($item->file_path) }}</p>
+                                @endif
+                            @endif
+                        </div>
+                        <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                            @if ($item->type === 'folder')
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">หมวดหมู่</span>
+                            @else
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">PDF</span>
+                            @endif
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $item->is_hidden ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-800' }}">
+                                {{ $item->is_hidden ? 'ซ่อน' : 'แสดงผล' }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 pl-6">
+                        @if ($item->type === 'folder')
+                            <x-backend.action-button color="blue" label="เปิดโฟลเดอร์"
+                                action="navigateToFolder({{ $item->id }})" />
+                        @elseif ($item->file_path)
+                            <x-backend.action-button color="blue-link" label="ดูไฟล์" :href="Storage::url($item->file_path)"
+                                target="_blank" />
+                        @endif
+                        <x-backend.action-button color="yellow-outline" label="แก้ไข"
+                            action="$dispatch('openEditAnnouncementModal', { announcementId: {{ $item->id }} })" />
+                        <x-backend.action-button color="red-outline" label="ลบ"
+                            action="$dispatch('deleteAnnouncement', { announcementId: {{ $item->id }} })"
+                            confirm="คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?" />
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        {{-- ========== คอม — ของเดิมทั้งหมด ไม่แตะเลย ========== --}}
+        <div class="hidden md:block overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col"
+                        <th
                             class="w-24 px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ลำดับ</th>
-                        <th scope="col"
+                        <th
                             class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ชื่อรายการ</th>
-                        <th scope="col"
-                            class="hidden md:table-cell w-40 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th
+                            class="hidden md:table-cell w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ชนิด</th>
-                        <th scope="col"
+                        <th
+                            class="hidden md:table-cell w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            สถานะ</th>
+                        <th
                             class="w-80 px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             จัดการ</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach ($items as $item)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="{{ $item->is_hidden ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50' }}">
                             <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {{ $item->sequence }}
+                                {{ $loop->iteration }}
                             </td>
                             <td class="px-3 sm:px-6 py-4">
                                 <div class="max-w-xs overflow-hidden">
@@ -79,11 +127,14 @@
                                         </button>
                                     @else
                                         <div class="text-sm font-medium text-gray-900 truncate w-full"
-                                            title="{{ $item->name }}">{{ $item->name }}</div>
+                                            title="{{ $item->name }}">
+                                            {{ $item->name }}
+                                        </div>
                                         @if ($item->file_path)
                                             <div class="text-xs text-gray-500 truncate w-full"
                                                 title="{{ basename($item->file_path) }}">
-                                                {{ basename($item->file_path) }}</div>
+                                                {{ basename($item->file_path) }}
+                                            </div>
                                         @endif
                                     @endif
                                 </div>
@@ -91,42 +142,32 @@
                             <td class="hidden md:table-cell px-6 py-4">
                                 @if ($item->type === 'folder')
                                     <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        หมวดหมู่
-                                    </span>
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">หมวดหมู่</span>
                                 @else
                                     <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        ไฟล์ PDF
-                                    </span>
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">ไฟล์
+                                        PDF</span>
                                 @endif
+                            </td>
+                            <td class="hidden md:table-cell px-6 py-4">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $item->is_hidden ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-800' }}">
+                                    {{ $item->is_hidden ? 'ซ่อน' : 'แสดงผล' }}
+                                </span>
                             </td>
                             <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
                                 <div class="flex flex-wrap items-center gap-1 sm:gap-2">
                                     @if ($item->type === 'folder')
-                                        <button wire:click="navigateToFolder({{ $item->id }})"
-                                            class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-colors duration-200">
-                                            เปิด
-                                        </button>
-                                    @else
-                                        @if ($item->file_path)
-                                            <a href="{{ Storage::url($item->file_path) }}" target="_blank"
-                                                class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-colors duration-200">
-                                                ดูไฟล์
-                                            </a>
-                                        @endif
+                                        <x-backend.action-button color="blue" label="เปิด"
+                                            action="navigateToFolder({{ $item->id }})" />
+                                    @elseif ($item->file_path)
+                                        <x-backend.action-button color="blue-link" label="ดูไฟล์" :href="Storage::url($item->file_path)" />
                                     @endif
-                                    <button
-                                        wire:click="$dispatch('openEditAnnouncementModal', { announcementId: {{ $item->id }} })"
-                                        class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm border border-yellow-600 text-yellow-600 rounded hover:bg-yellow-600 hover:text-white transition-colors duration-200">
-                                        แก้ไข
-                                    </button>
-                                    <button
-                                        wire:click="$dispatch('deleteAnnouncement', { announcementId: {{ $item->id }} })"
-                                        wire:confirm="คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?"
-                                        class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm border border-red-600 text-red-600 rounded hover:bg-red-600 hover:text-white transition-colors duration-200">
-                                        ลบ
-                                    </button>
+                                    <x-backend.action-button color="yellow-outline" label="แก้ไข"
+                                        action="$dispatch('openEditAnnouncementModal', { announcementId: {{ $item->id }} })" />
+                                    <x-backend.action-button color="red-outline" label="ลบ"
+                                        action="$dispatch('deleteAnnouncement', { announcementId: {{ $item->id }} })"
+                                        confirm="คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?" />
                                 </div>
                             </td>
                         </tr>
@@ -134,5 +175,6 @@
                 </tbody>
             </table>
         </div>
+
     @endif
 </div>

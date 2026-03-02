@@ -17,7 +17,7 @@ class BannerService
      */
     public function getBanners(ScdYear $year): Collection
     {
-        return $year->banners()->orderBy('category')->orderBy('created_at', 'desc')->get();
+        return $year->banners()->orderBy('category')->orderBy('sequence')->get();
     }
 
     /**

@@ -17,20 +17,16 @@ class BannersIndex extends Component
     public $currentPage = 'banners';
     public $selectedYear;
 
-    // Modal state
     public $showModal = false;
-
-    // Sort modal state
     public $showSortModal = false;
     public $sortableItems = [];
     public $sortCategory = 0;
     public $editMode = false;
     public $bannerId = null;
 
-    // Form fields
     public $category = 0;
-    public $banner_image; // รับ base64 จาก image-cropper
-    public $image; // รับไฟล์ upload ปกติ
+    public $banner_image;
+    public $image;
     public $existingImage;
     public $link_type = 'none';
     public $link_url;
@@ -41,11 +37,9 @@ class BannersIndex extends Component
     public function mount($year = null)
     {
         $this->selectedYear = $year ? ScdYear::where('year', $year)->first() : null;
+        $this->dispatch('updateTitle', 'รูปสไลด์ Banner' . ($this->selectedYear ? ' ' . $this->selectedYear->year : ''));
     }
 
-    /**
-     * รับค่า cropped image จาก Alpine.js event
-     */
     #[\Livewire\Attributes\On('cropped-image')]
     public function handleCroppedImage($name, $data)
     {
@@ -54,9 +48,6 @@ class BannersIndex extends Component
         }
     }
 
-    /**
-     * เปิด Sort Modal สำหรับจัดลำดับ Banner ตาม category
-     */
     public function openSortModal($category = 0)
     {
         if (!$this->selectedYear) return;
@@ -78,21 +69,14 @@ class BannersIndex extends Component
         $this->showSortModal = true;
     }
 
-    /**
-     * บันทึกลำดับ Banner ใหม่
-     */
     public function saveSortOrder($orderedIds)
     {
         foreach ($orderedIds as $index => $id) {
             Banner::where('id', $id)->update(['sequence' => $index + 1]);
         }
-
         $this->showSortModal = false;
         $this->sortableItems = [];
-        $this->dispatch('notify', [
-            'message' => 'บันทึกลำดับสำเร็จ',
-            'type' => 'success'
-        ]);
+        $this->dispatch('notify', ['message' => 'บันทึกลำดับสำเร็จ', 'type' => 'success']);
     }
 
     public function openAddModal()
@@ -106,7 +90,6 @@ class BannersIndex extends Component
     {
         $this->resetForm();
         $banner = Banner::findOrFail($bannerId);
-
         $this->editMode = true;
         $this->bannerId = $bannerId;
         $this->category = $banner->category;
@@ -115,32 +98,25 @@ class BannersIndex extends Component
         $this->link_url = $banner->link_url;
         $this->pdf_name = $banner->pdf_name;
         $this->existingPdf = $banner->pdf_path;
-
         $this->showModal = true;
     }
 
     public function saveBanner()
     {
-        // ดึงค่า max file size จาก config
-        $maxBannerSize = config('upload.max_file_sizes.banner', 5120); // 5MB default
-        $maxPdfSize = config('upload.max_file_sizes.pdf', 10240); // 10MB default
+        $maxBannerSize = config('upload.max_file_sizes.banner', 5120);
+        $maxPdfSize = config('upload.max_file_sizes.pdf', 10240);
 
-        // Validate
         $rules = [
             'category' => 'required|integer|in:0,1',
-            'banner_image' => 'nullable|string', // base64
-            'image' => $this->editMode
-                ? "nullable|image|max:{$maxBannerSize}"
-                : "nullable|image|max:{$maxBannerSize}",
+            'banner_image' => 'nullable|string',
+            'image' => "nullable|image|max:{$maxBannerSize}",
             'link_type' => 'required|in:none,url,pdf',
             'link_url' => $this->link_type === 'url' ? 'required|url' : 'nullable',
             'pdf_file' => $this->link_type === 'pdf' && !$this->editMode
                 ? "required|mimes:pdf|max:{$maxPdfSize}"
                 : "nullable|mimes:pdf|max:{$maxPdfSize}",
-
         ];
 
-        // Custom error messages
         $messages = [
             'image.max' => config('upload.messages.banner', 'รูป Banner ต้องมีขนาดไม่เกิน ' . ($maxBannerSize / 1024) . ' MB'),
             'pdf_file.max' => config('upload.messages.pdf', 'ไฟล์ PDF ต้องมีขนาดไม่เกิน ' . ($maxPdfSize / 1024) . ' MB'),
@@ -148,7 +124,6 @@ class BannersIndex extends Component
             'pdf_file.mimes' => 'ไฟล์ต้องเป็น PDF เท่านั้น',
         ];
 
-        // ตรวจสอบว่าต้องมีรูปภาพ (ถ้าไม่ใช่โหมดแก้ไข)
         if (!$this->editMode && !$this->banner_image && !$this->image) {
             $this->addError('image', config('upload.messages.image_required', 'กรุณาเลือกรูปภาพ'));
             return;
@@ -170,16 +145,17 @@ class BannersIndex extends Component
             'category' => $this->category,
             'link_type' => $this->link_type,
             'link_url' => $this->link_type === 'url' ? $this->link_url : null,
+            'sequence' => Banner::where('scd_year_id', $this->selectedYear->id)
+                ->where('category', $this->category)
+                ->max('sequence') + 1,
         ];
 
-        // Upload image (รองรับทั้ง base64 และ file upload)
         if ($this->banner_image) {
             $data['image_path'] = $this->saveBase64Image($this->banner_image, 'banners');
         } elseif ($this->image) {
             $data['image_path'] = $this->image->store('banners', 'public');
         }
 
-        // Upload PDF (ใช้ชื่อไฟล์ต้นฉบับ)
         if ($this->link_type === 'pdf' && $this->pdf_file) {
             $originalName = $this->pdf_file->getClientOriginalName();
             $data['pdf_name'] = pathinfo($originalName, PATHINFO_FILENAME);
@@ -187,12 +163,8 @@ class BannersIndex extends Component
         }
 
         Banner::create($data);
-
         $this->showModal = false;
-        $this->dispatch('notify', [
-            'message' => 'เพิ่มรูปภาพสไลด์สำเร็จ',
-            'type' => 'success'
-        ]);
+        $this->dispatch('notify', ['message' => 'เพิ่มรูปภาพสไลด์สำเร็จ', 'type' => 'success']);
     }
 
     private function updateBanner()
@@ -205,92 +177,51 @@ class BannersIndex extends Component
             'link_url' => $this->link_type === 'url' ? $this->link_url : null,
         ];
 
-        // Upload new image (รองรับทั้ง base64 และ file upload)
         if ($this->banner_image) {
-            // Delete old image
-            if ($banner->image_path) {
-                Storage::disk('public')->delete($banner->image_path);
-            }
+            if ($banner->image_path) Storage::disk('public')->delete($banner->image_path);
             $data['image_path'] = $this->saveBase64Image($this->banner_image, 'banners');
         } elseif ($this->image) {
-            // Delete old image
-            if ($banner->image_path) {
-                Storage::disk('public')->delete($banner->image_path);
-            }
+            if ($banner->image_path) Storage::disk('public')->delete($banner->image_path);
             $data['image_path'] = $this->image->store('banners', 'public');
         }
 
-        // Upload new PDF (ใช้ชื่อไฟล์ต้นฉบับ)
         if ($this->link_type === 'pdf' && $this->pdf_file) {
-            // Delete old PDF
-            if ($banner->pdf_path) {
-                Storage::disk('public')->delete($banner->pdf_path);
-            }
+            if ($banner->pdf_path) Storage::disk('public')->delete($banner->pdf_path);
             $originalName = $this->pdf_file->getClientOriginalName();
             $data['pdf_name'] = pathinfo($originalName, PATHINFO_FILENAME);
             $data['pdf_path'] = $this->pdf_file->storeAs('banners/pdfs', $originalName, 'public');
         } elseif ($this->link_type !== 'pdf' && $banner->pdf_path) {
-            // Delete PDF if changed to other type
             Storage::disk('public')->delete($banner->pdf_path);
             $data['pdf_path'] = null;
             $data['pdf_name'] = null;
         }
 
         $banner->update($data);
-
         $this->showModal = false;
-        $this->dispatch('notify', [
-            'message' => 'แก้ไขรูปภาพสไลด์สำเร็จ',
-            'type' => 'success'
-        ]);
+        $this->dispatch('notify', ['message' => 'แก้ไขรูปภาพสไลด์สำเร็จ', 'type' => 'success']);
     }
 
     public function deleteBanner($bannerId)
     {
         $banner = Banner::findOrFail($bannerId);
-
-        // Delete files
-        if ($banner->image_path) {
-            Storage::disk('public')->delete($banner->image_path);
-        }
-        if ($banner->pdf_path) {
-            Storage::disk('public')->delete($banner->pdf_path);
-        }
-
+        if ($banner->image_path) Storage::disk('public')->delete($banner->image_path);
+        if ($banner->pdf_path) Storage::disk('public')->delete($banner->pdf_path);
         $banner->delete();
-
-        $this->dispatch('notify', [
-            'message' => 'ลบรูปภาพสไลด์สำเร็จ',
-            'type' => 'success'
-        ]);
+        $this->dispatch('notify', ['message' => 'ลบรูปภาพสไลด์สำเร็จ', 'type' => 'success']);
     }
 
-    /**
-     * แปลง base64 เป็นไฟล์และบันทึก
-     */
     private function saveBase64Image($base64String, $folder)
     {
-        if (empty($base64String)) {
-            return null;
-        }
+        if (empty($base64String)) return null;
 
-        // ตรวจสอบประเภทไฟล์จาก base64 header
-        $extension = 'png'; // default เป็น PNG
-        if (strpos($base64String, 'data:image/jpeg') === 0) {
-            $extension = 'jpg';
-        } elseif (strpos($base64String, 'data:image/png') === 0) {
-            $extension = 'png';
-        }
+        $extension = 'png';
+        if (strpos($base64String, 'data:image/jpeg') === 0) $extension = 'jpg';
+        elseif (strpos($base64String, 'data:image/png') === 0) $extension = 'png';
 
-        // แยก header ออก
         $image = preg_replace('/^data:image\/\w+;base64,/', '', $base64String);
         $image = str_replace(' ', '+', $image);
-
-        // สร้างชื่อไฟล์
         $imageName = uniqid() . '_' . time() . '.' . $extension;
         $path = $folder . '/' . $imageName;
-
-        // บันทึกลง storage/app/public
         Storage::disk('public')->put($path, base64_decode($image));
 
         return $path;
@@ -298,18 +229,7 @@ class BannersIndex extends Component
 
     private function resetForm()
     {
-        $this->reset([
-            'bannerId',
-            'category',
-            'banner_image',
-            'image',
-            'existingImage',
-            'link_type',
-            'link_url',
-            'pdf_file',
-            'pdf_name',
-            'existingPdf'
-        ]);
+        $this->reset(['bannerId', 'category', 'banner_image', 'image', 'existingImage', 'link_type', 'link_url', 'pdf_file', 'pdf_name', 'existingPdf']);
         $this->link_type = 'none';
         $this->category = 0;
     }
@@ -318,14 +238,9 @@ class BannersIndex extends Component
     {
         $banners = $this->selectedYear
             ? Banner::where('scd_year_id', $this->selectedYear->id)
-            ->orderBy('category')
-            ->orderBy('sequence')
-            ->orderBy('created_at', 'desc')
-            ->get()
+            ->orderBy('category')->orderBy('sequence')->orderBy('created_at', 'desc')->get()
             : collect([]);
 
-        return view('livewire.backend.banners-index', [
-            'banners' => $banners
-        ]);
+        return view('livewire.backend.banners-index', ['banners' => $banners]);
     }
 }

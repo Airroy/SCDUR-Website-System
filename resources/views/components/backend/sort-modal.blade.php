@@ -29,19 +29,21 @@
     ][$maxWidth];
 @endphp
 
+<div>
 @if ($show)
-    <div class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4"
-        aria-labelledby="sort-modal-title" role="dialog" aria-modal="true" x-data="sortableList({{ json_encode($items) }})" x-cloak>
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        aria-labelledby="sort-modal-title" role="dialog" aria-modal="true"
+        x-data="sortableList({{ json_encode($items) }})" x-cloak>
+
         <!-- Background overlay -->
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" wire:click="$set('showSortModal', false)">
-        </div>
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 
-        <!-- Modal panel -->
-        <div
-            class="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full {{ $maxWidthClass }}">
+        <!-- Modal panel — fixed max-height, flex column -->
+        <div class="relative bg-white rounded-lg text-left shadow-xl transform transition-all w-full {{ $maxWidthClass }} flex flex-col"
+            style="max-height: calc(100vh - 2rem);">
 
-            <!-- Header -->
-            <div class="px-6 py-4 bg-white border-b border-gray-200">
+            <!-- Header (fixed) -->
+            <div class="flex-shrink-0 px-6 py-4 bg-white border-b border-gray-200 rounded-t-lg">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
@@ -51,8 +53,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 id="sort-modal-title" class="text-lg font-semibold text-gray-900">{{ $title }}
-                            </h3>
+                            <h3 id="sort-modal-title" class="text-lg font-semibold text-gray-900">{{ $title }}</h3>
                             <p class="text-xs text-gray-500">ลากรายการหรือกดลูกศรเพื่อเปลี่ยนลำดับ</p>
                         </div>
                     </div>
@@ -66,8 +67,8 @@
                 </div>
             </div>
 
-            <!-- Sortable List -->
-            <div class="px-6 py-4 max-h-[60vh] overflow-y-auto">
+            <!-- Sortable List (scrollable) -->
+            <div class="flex-1 overflow-y-auto px-6 py-4 min-h-0">
                 <template x-if="items.length === 0">
                     <div class="text-center py-8">
                         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor"
@@ -86,24 +87,25 @@
                             :class="{
                                 'border-red-300 bg-red-50 shadow-md scale-[1.02]': dragIndex === index,
                                 'border-red-200 bg-red-50/50': dragOverIndex === index && dragIndex !== index,
-                                'border-gray-200 hover:border-gray-300 hover:shadow-sm': dragIndex !== index &&
-                                    dragOverIndex !== index
+                                'border-gray-200 hover:border-gray-300 hover:shadow-sm': dragIndex !== index && dragOverIndex !== index
                             }"
-                            draggable="true" @dragstart="dragStart(index, $event)" @dragover.prevent="dragOver(index)"
-                            @dragenter.prevent="dragOver(index)" @dragleave="dragLeave(index)"
-                            @drop.prevent="drop(index)" @dragend="dragEnd()">
+                            draggable="true"
+                            @dragstart="dragStart(index, $event)"
+                            @dragover.prevent="dragOver(index)"
+                            @dragenter.prevent="dragOver(index)"
+                            @dragleave="dragLeave(index)"
+                            @drop.prevent="drop(index)"
+                            @dragend="dragEnd()">
+
                             <!-- Drag Handle -->
-                            <div
-                                class="flex-shrink-0 text-gray-400 group-hover:text-gray-600 cursor-grab active:cursor-grabbing">
+                            <div class="flex-shrink-0 text-gray-400 group-hover:text-gray-600 cursor-grab active:cursor-grabbing">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M8 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm8-12a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" />
+                                    <path d="M8 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm8-12a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" />
                                 </svg>
                             </div>
 
                             <!-- Sequence Number -->
-                            <div
-                                class="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                            <div class="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
                                 <span class="text-sm font-bold text-gray-700" x-text="index + 1"></span>
                             </div>
 
@@ -123,22 +125,20 @@
 
                             <!-- Up/Down Buttons -->
                             <div class="flex-shrink-0 flex flex-col gap-0.5">
-                                <button type="button" @click="moveUp(index)" class="p-1 rounded transition-colors"
-                                    :class="index === 0 ? 'text-gray-300 cursor-not-allowed' :
-                                        'text-gray-500 hover:text-red-600 hover:bg-red-50'"
+                                <button type="button" @click="moveUp(index)"
+                                    class="p-1 rounded transition-colors"
+                                    :class="index === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-red-600 hover:bg-red-50'"
                                     :disabled="index === 0" title="เลื่อนขึ้น">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M5 15l7-7 7 7"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                                     </svg>
                                 </button>
-                                <button type="button" @click="moveDown(index)" class="p-1 rounded transition-colors"
-                                    :class="index === items.length - 1 ? 'text-gray-300 cursor-not-allowed' :
-                                        'text-gray-500 hover:text-red-600 hover:bg-red-50'"
+                                <button type="button" @click="moveDown(index)"
+                                    class="p-1 rounded transition-colors"
+                                    :class="index === items.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-red-600 hover:bg-red-50'"
                                     :disabled="index === items.length - 1" title="เลื่อนลง">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
                                 </button>
                             </div>
@@ -147,9 +147,8 @@
                 </div>
             </div>
 
-            <!-- Footer -->
-            <div
-                class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <!-- Footer (fixed) -->
+            <div class="flex-shrink-0 bg-gray-50 px-6 py-4 border-t border-gray-200 rounded-b-lg flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
                 <button type="button" wire:click="$set('showSortModal', false)"
                     class="w-full sm:w-auto inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
                     ยกเลิก
@@ -159,13 +158,11 @@
                     wire:loading.attr="disabled" wire:loading.class="opacity-50 cursor-not-allowed">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         wire:loading.remove wire:target="saveSortOrder">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
-                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" wire:loading
-                        wire:target="saveSortOrder" style="display: none;">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                            stroke-width="4"></circle>
+                    <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"
+                        wire:loading wire:target="saveSortOrder" style="display: none;">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor"
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                         </path>
@@ -177,6 +174,7 @@
         </div>
     </div>
 @endif
+</div>
 
 @once
     @push('scripts')
@@ -210,10 +208,8 @@
                             this.dragEnd();
                             return;
                         }
-
                         const item = this.items.splice(this.dragIndex, 1)[0];
                         this.items.splice(index, 0, item);
-
                         this.dragEnd();
                     },
 

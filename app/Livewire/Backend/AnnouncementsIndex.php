@@ -15,9 +15,8 @@ class AnnouncementsIndex extends Component
     public $category = 'announcement';
     public $currentParentId = null;
     public $breadcrumbs = [];
-    public $currentPage = 'announcements'; // เก็บว่าอยู่หน้าไหน
+    public $currentPage = 'announcements';
 
-    // Sort modal state
     public $showSortModal = false;
     public $sortableItems = [];
 
@@ -26,20 +25,31 @@ class AnnouncementsIndex extends Component
         'navigateToFolder' => 'navigateToFolder',
     ];
 
-    public function mount($year = null)
+    public function mount($year = null, $folderId = null)
     {
         $this->selectedYear = $year ? ScdYear::where('year', $year)->first() : null;
 
-        // ตรวจสอบจาก route ว่าอยู่หน้าประกาศหรือคำสั่ง
+        // ตรวจสอบว่าเป็น directives หรือ announcements ก่อน
+        // เพราะต้องใช้ getModel() ใน buildBreadcrumbs
         if (request()->routeIs('admin.directives.*')) {
             $this->category = 'order';
             $this->currentPage = 'directives';
+            $this->dispatch('updateTitle', 'คำสั่ง' . ($this->selectedYear ? ' ' . $this->selectedYear->year : ''));
+        } else {
+            $this->dispatch('updateTitle', 'ประกาศ' . ($this->selectedYear ? ' ' . $this->selectedYear->year : ''));
+        }
+
+        // รับ folderId จาก URL แล้ว build state
+        if ($folderId) {
+            $this->currentParentId = $folderId;
+            $model = $this->getModel();
+            $folder = $model::find($folderId);
+            if ($folder) {
+                $this->buildBreadcrumbs($folder);
+            }
         }
     }
 
-    /**
-     * Get the model class based on current category
-     */
     private function getModel(): string
     {
         return $this->category === 'announcement' ? Announcement::class : Order::class;
@@ -47,7 +57,6 @@ class AnnouncementsIndex extends Component
 
     public function switchCategory($category)
     {
-        // Redirect ไป URL ที่ถูกต้อง
         $route = $category === 'announcement' ? 'admin.announcements.index' : 'admin.directives.index';
         $params = $this->selectedYear ? ['year' => $this->selectedYear->year] : [];
         return $this->redirect(route($route, $params), navigate: true);
@@ -55,26 +64,37 @@ class AnnouncementsIndex extends Component
 
     public function navigateToFolder($folderId)
     {
-        $model = $this->getModel();
-        $folder = $model::find($folderId);
-        if ($folder) {
-            $this->currentParentId = $folderId;
-            $this->buildBreadcrumbs($folder);
-        }
+        $routeName = $this->category === 'announcement'
+            ? 'admin.announcements.folder'
+            : 'admin.directives.folder';
+
+        $this->redirect(route($routeName, [
+            'year' => $this->selectedYear->year,
+            'folderId' => $folderId,
+        ]));
     }
 
     public function navigateBack($parentId = null)
     {
         if ($parentId === null) {
-            $this->currentParentId = null;
-            $this->breadcrumbs = [];
+            // กลับไปหน้าหลักของปีนั้น
+            $routeName = $this->category === 'announcement'
+                ? 'admin.announcements.index'
+                : 'admin.directives.index';
+
+            $this->redirect(route($routeName, [
+                'year' => $this->selectedYear->year,
+            ]));
         } else {
-            $model = $this->getModel();
-            $folder = $model::find($parentId);
-            if ($folder) {
-                $this->currentParentId = $parentId;
-                $this->buildBreadcrumbs($folder);
-            }
+            // กลับไป folder ก่อนหน้า
+            $routeName = $this->category === 'announcement'
+                ? 'admin.announcements.folder'
+                : 'admin.directives.folder';
+
+            $this->redirect(route($routeName, [
+                'year' => $this->selectedYear->year,
+                'folderId' => $parentId,
+            ]));
         }
     }
 
@@ -82,10 +102,10 @@ class AnnouncementsIndex extends Component
     {
         $this->breadcrumbs = [];
         $current = $folder;
-
         while ($current) {
             array_unshift($this->breadcrumbs, [
                 'id' => $current->id,
+                'parent_id' => $current->parent_id,
                 'name' => $current->name,
             ]);
             $current = $current->parent;
@@ -95,7 +115,6 @@ class AnnouncementsIndex extends Component
     public function hasFilesInCurrentLevel()
     {
         if (!$this->selectedYear) return false;
-
         $model = $this->getModel();
         return $model::where('scd_year_id', $this->selectedYear->id)
             ->where('parent_id', $this->currentParentId)
@@ -103,16 +122,13 @@ class AnnouncementsIndex extends Component
             ->exists();
     }
 
-    /**
-     * เปิด Sort Modal สำหรับจัดลำดับรายการในโฟลเดอร์ปัจจุบัน
-     */
     public function openSortModal()
     {
         if (!$this->selectedYear) return;
-
         $model = $this->getModel();
         $items = $model::where('scd_year_id', $this->selectedYear->id)
             ->where('parent_id', $this->currentParentId)
+            ->where('is_hidden', false)
             ->orderBy('sequence')
             ->get();
 
@@ -125,34 +141,27 @@ class AnnouncementsIndex extends Component
         $this->showSortModal = true;
     }
 
-    /**
-     * บันทึกลำดับใหม่
-     */
     public function saveSortOrder($orderedIds)
     {
         $model = $this->getModel();
         foreach ($orderedIds as $index => $id) {
             $model::where('id', $id)->update(['sequence' => $index + 1]);
         }
-
         $this->showSortModal = false;
         $this->sortableItems = [];
-        $this->dispatch('notify', [
-            'message' => 'บันทึกลำดับสำเร็จ',
-            'type' => 'success'
-        ]);
+        $this->dispatch('notify', ['message' => 'บันทึกลำดับสำเร็จ', 'type' => 'success']);
     }
 
     public function render()
     {
         $items = collect();
-        $hasFiles = false;
-        $hasFolders = false;
+        $hasFiles = $hasFolders = false;
 
         if ($this->selectedYear) {
             $model = $this->getModel();
             $items = $model::where('scd_year_id', $this->selectedYear->id)
                 ->where('parent_id', $this->currentParentId)
+                ->orderBy('is_hidden')
                 ->orderBy('sequence')
                 ->get();
 

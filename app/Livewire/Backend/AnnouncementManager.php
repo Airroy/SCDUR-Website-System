@@ -27,9 +27,10 @@ class AnnouncementManager extends Component
     // Form fields
     public $sequence;
     public $name;
-    public $type = 'folder'; // default to folder
+    public $type = 'folder';
     public $file;
     public $existingFile;
+    public $is_hidden = false;
 
     protected $listeners = [
         'openEditAnnouncementModal' => 'openEditModal',
@@ -37,9 +38,6 @@ class AnnouncementManager extends Component
         'refreshAnnouncementTable' => '$refresh',
     ];
 
-    /**
-     * Get the model class based on categoryGroup
-     */
     private function getModel(): string
     {
         return $this->categoryGroup === 'announcement' ? Announcement::class : Order::class;
@@ -82,21 +80,24 @@ class AnnouncementManager extends Component
         $this->name = $node->name;
         $this->type = $node->type;
         $this->existingFile = $node->file_path;
+        $this->is_hidden = (bool) $node->is_hidden;
 
         $this->showModal = true;
     }
 
     public function saveNode()
     {
-        // ดึงค่า max file size จาก config
-        $maxPdfSize = config('upload.max_file_sizes.pdf', 10240); // 10MB default
+        $maxPdfSize = config('upload.max_file_sizes.pdf', 10240);
 
         $rules = [
-            'sequence' => 'required|integer|min:1',
             'name' => 'required|string|max:255',
         ];
 
-        // Custom messages
+        // เฉพาะ editMode เท่านั้นที่ validate sequence (เพราะตอน create ใช้ auto)
+        if ($this->editMode) {
+            $rules['sequence'] = 'required|integer|min:1';
+        }
+
         $messages = [
             'file.max' => config('upload.messages.pdf', 'ไฟล์ PDF ต้องมีขนาดไม่เกิน ' . ($maxPdfSize / 1024) . ' MB'),
             'file.required' => 'กรุณาเลือกไฟล์ PDF',
@@ -113,20 +114,22 @@ class AnnouncementManager extends Component
 
         $this->validate($rules, $messages);
 
-        // Check duplicate sequence
-        $model = $this->getModel();
-        $existingNode = $model::where('scd_year_id', $this->year->id)
-            ->where('parent_id', $this->parentId)
-            ->where('sequence', $this->sequence)
-            ->when($this->editMode, fn($q) => $q->where('id', '!=', $this->nodeId))
-            ->first();
+        // เฉพาะ editMode: เช็ค duplicate sequence
+        if ($this->editMode) {
+            $model = $this->getModel();
+            $existingNode = $model::where('scd_year_id', $this->year->id)
+                ->where('parent_id', $this->parentId)
+                ->where('sequence', $this->sequence)
+                ->where('id', '!=', $this->nodeId)
+                ->first();
 
-        if ($existingNode) {
-            $this->dispatch('notify', [
-                'message' => 'ลำดับที่ ' . $this->sequence . ' มีอยู่แล้ว กรุณาเลือกลำดับอื่น',
-                'type' => 'error'
-            ]);
-            return;
+            if ($existingNode) {
+                $this->dispatch('notify', [
+                    'message' => 'ลำดับที่ ' . $this->sequence . ' มีอยู่แล้ว กรุณาเลือกลำดับอื่น',
+                    'type' => 'error'
+                ]);
+                return;
+            }
         }
 
         if ($this->editMode) {
@@ -138,22 +141,28 @@ class AnnouncementManager extends Component
 
     private function createNode()
     {
+        $model = $this->getModel();
+
+        // Auto sequence: ต่อท้ายรายการล่าสุด
+        $nextSequence = $model::where('scd_year_id', $this->year->id)
+            ->where('parent_id', $this->parentId)
+            ->max('sequence') + 1;
+
         $data = [
             'scd_year_id' => $this->year->id,
             'parent_id' => $this->parentId,
-            'sequence' => $this->sequence,
+            'sequence' => $nextSequence,
             'name' => $this->name,
             'type' => $this->type,
+            'is_hidden' => $this->is_hidden,
         ];
 
-        // Upload file (ใช้ชื่อไฟล์ต้นฉบับ)
         if ($this->type === 'file' && $this->file) {
             $folder = $this->categoryGroup === 'announcement' ? 'announcements' : 'orders';
             $originalName = $this->file->getClientOriginalName();
             $data['file_path'] = $this->file->storeAs($folder, $originalName, 'public');
         }
 
-        $model = $this->getModel();
         $model::create($data);
 
         $this->showModal = false;
@@ -162,7 +171,6 @@ class AnnouncementManager extends Component
             'type' => 'success'
         ]);
 
-        // Update local state
         if ($this->type === 'folder') {
             $this->hasFoldersInParent = true;
         } else {
@@ -180,11 +188,10 @@ class AnnouncementManager extends Component
         $data = [
             'sequence' => $this->sequence,
             'name' => $this->name,
+            'is_hidden' => $this->is_hidden,
         ];
 
-        // Upload new file (only for file type) - ใช้ชื่อไฟล์ต้นฉบับ
         if ($this->type === 'file' && $this->file) {
-            // Delete old file
             if ($node->file_path) {
                 Storage::disk('public')->delete($node->file_path);
             }
@@ -207,19 +214,14 @@ class AnnouncementManager extends Component
     {
         $model = $this->getModel();
         $node = $model::findOrFail($announcementId);
-        $deletedType = $node->type;
 
-        // Delete file
         if ($node->file_path) {
             Storage::disk('public')->delete($node->file_path);
         }
 
-        // Delete children recursively
         $this->deleteChildren($node->id);
-
         $node->delete();
 
-        // Recheck if there are still files/folders in this level
         $remainingFiles = $model::where('scd_year_id', $this->year->id)
             ->where('parent_id', $this->parentId)
             ->where('type', 'file')
@@ -261,8 +263,10 @@ class AnnouncementManager extends Component
             'name',
             'file',
             'existingFile',
+            'is_hidden',
         ]);
         $this->type = 'folder';
+        $this->is_hidden = false;
     }
 
     public function render()

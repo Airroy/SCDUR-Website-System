@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'SCD System') }}</title>
+    <title id="page-title">{{ config('app.name', 'SCD System') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Cropper.js CSS -->
@@ -15,19 +15,12 @@
     @stack('styles')
 </head>
 
-<body class="font-sans antialiased bg-gray-50">
+<body class="font-sans antialiased bg-gray-100">
     <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
-        <!-- Mobile Overlay -->
-        <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
-            x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300"
-            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-            class="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden">
-        </div>
 
         <!-- Sidebar -->
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-            class="fixed lg:static inset-y-0 left-0 z-50 w-64 flex-shrink-0 bg-gradient-to-b from-red-600 to-red-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0">
+            class="fixed lg:static inset-y-0 left-0 z-[60] w-64 flex-shrink-0 bg-gradient-to-b from-red-600 to-red-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0">
             @php
                 $allYears = \App\Models\ScdYear::orderBy('year', 'desc')->get();
                 $currentYear = $allYears->where('is_published', true)->first() ?? $allYears->first();
@@ -68,18 +61,16 @@
 
                 <!-- Menu -->
                 <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto" x-data="{
-                    yearDropdown: localStorage.getItem('yearDropdown') !== 'false',
+                    yearDropdown: {{ $isYearSectionActive ? 'true' : 'false' }},
                     toggleYearDropdown() {
                         this.yearDropdown = !this.yearDropdown;
-                        localStorage.setItem('yearDropdown', this.yearDropdown);
                     }
                 }">
 
                     <!-- หน้าหลัก -->
                     <a href="{{ route('admin.dashboard') }}"
-                        @click="yearDropdown = false; localStorage.setItem('yearDropdown', 'false')"
-                        :class="yearDropdown ? 'text-white hover:bg-white/20' :
-                            '{{ request()->routeIs('admin.dashboard') ? 'bg-white text-red-600 shadow-xl' : 'text-white hover:bg-white/20' }}'"
+                        @click="yearDropdown = false"
+                        :class="yearDropdown ? 'text-white hover:bg-white/20' : '{{ request()->routeIs('admin.dashboard') ? 'bg-white text-red-600 shadow-xl' : 'text-white hover:bg-white/20' }}'"
                         class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -95,9 +86,8 @@
                         <!-- Header button -->
                         <button type="button" @click="toggleYearDropdown()"
                             :class="yearDropdown
-                                ?
-                                'bg-white text-red-600 shadow-xl rounded-t-xl rounded-b-none' :
-                                '{{ $isYearActive ? 'bg-white text-red-600 shadow-xl rounded-xl' : 'text-white hover:bg-white/20 rounded-xl' }}'"
+                                ? 'bg-white text-red-600 shadow-xl rounded-t-xl rounded-b-none'
+                                : '{{ $isYearActive ? 'bg-white text-red-600 shadow-xl rounded-xl' : 'text-white hover:bg-white/20 rounded-xl' }}'"
                             class="w-full flex items-center gap-3 px-4 py-3 font-medium transition-all">
                             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -121,7 +111,7 @@
                             <div class="px-3 pt-2 pb-2 border-b border-gray-100">
                                 <a href="{{ route('admin.years.index') }}"
                                     class="flex items-center justify-center gap-1.5 w-full px-2 py-2.5 rounded-md text-[11px] font-semibold transition-all
-            {{ request()->routeIs('admin.years.*') ? 'bg-red-600 text-white' : 'bg-red-100 text-red-600 hover:bg-red-100' }}">
+                                        {{ request()->routeIs('admin.years.*') ? 'bg-red-600 text-white' : 'bg-red-100 text-red-600 hover:bg-red-100' }}">
                                     <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
@@ -145,9 +135,15 @@
                                         <span class="flex-1">ปี {{ $year->year }}</span>
                                         @if ($year->is_published)
                                             <span
-                                                class="text-[10px] px-1.5 py-0.5 rounded-full font-medium
-                                                {{ $isThisYearActive ? 'bg-white/20 text-white' : 'bg-green-100 text-green-700' }}">
-                                                เผยแพร่
+                                                class="inline-flex items-center justify-center w-20 py-0.5 rounded-full text-xs font-medium whitespace-nowrap
+                                                {{ $isThisYearActive ? 'bg-white/20 text-white' : 'bg-green-100 text-green-800' }}">
+                                                เผยแพร่แล้ว
+                                            </span>
+                                        @else
+                                            <span
+                                                class="inline-flex items-center justify-center w-20 py-0.5 rounded-full text-xs font-medium whitespace-nowrap
+                                                {{ $isThisYearActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-800' }}">
+                                                ฉบับร่าง
                                             </span>
                                         @endif
                                     </a>
@@ -221,7 +217,8 @@
         </aside>
 
         <!-- Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col overflow-y-auto">
+
             <!-- Mobile Header with Hamburger -->
             <div class="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
                 <button @click="sidebarOpen = !sidebarOpen"
@@ -240,9 +237,20 @@
                 </header>
             @endif
 
-            <main class="flex-1 overflow-y-auto">
+            <main class="flex-1">
                 {{ $slot }}
             </main>
+        </div>
+
+        {{-- Overlay แบบ fixed ทับทุกอย่างยกเว้น sidebar เมื่อ sidebar เปิดบนมือถือ --}}
+        <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
+            x-transition:enter="transition-opacity ease-linear duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity ease-linear duration-300"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 bg-gray-600 bg-opacity-75 z-[55] lg:hidden">
         </div>
     </div>
 
@@ -255,6 +263,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
     @stack('scripts')
+    <script>
+        window.addEventListener('updateTitle', (e) => {
+            document.getElementById('page-title').textContent = e.detail + ' - ' + '{{ config('app.name', 'SCD System') }}';
+        });
+        window.addEventListener('refreshPage', () => {
+            window.location.reload();
+        });
+    </script>
 </body>
 
 </html>

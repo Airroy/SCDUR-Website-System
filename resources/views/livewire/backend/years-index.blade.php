@@ -15,7 +15,6 @@
     </div>
 
     <!-- Years List -->
-    <!-- Years List -->
     @if($years->count() > 0)
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
@@ -23,7 +22,7 @@
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
                             <th class="w-36 px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">ปี</th>
-                            <th class="hidden sm:table-cell w-44 px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">วันที่</th>
+                            <th class="hidden sm:table-cell w-44 px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">วันที่สร้าง</th>
                             <th class="w-40 px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">สถานะ</th>
                             <th class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">จัดการ</th>
                         </tr>
@@ -31,7 +30,7 @@
                     <tbody class="divide-y divide-gray-200">
                         @foreach($years as $year)
                         <tr class="hover:bg-gray-50 transition">
-                            <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap"> {{ $year->year }}</td>
+                            <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{{ $year->year }}</td>
                             <td class="hidden sm:table-cell px-4 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">{{ $year->created_date->toThaiDateFull() }}</td>
                             <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                                 <button wire:click="togglePublish({{ $year->id }})" 
@@ -40,38 +39,23 @@
                                 </button>
                             </td>
                             <td class="px-3 sm:px-6 py-4 text-left whitespace-nowrap">
-                                <!-- สำหรับมือถือเท่านั้น: แสดงปุ่มแนวตั้งขนาดเท่ากัน -->
-                                <div class="flex flex-col gap-2 sm:hidden">
-                                    <a href="{{ route('admin.reports.index', ['year' => $year->year]) }}" 
-                                       class="w-full px-3 py-2 text-xs text-center border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-colors duration-200">
-                                        จัดการข้อมูล
-                                    </a>
-                                    <button wire:click="editYear({{ $year->id }})"
-                                            class="w-full px-3 py-2 text-xs border border-yellow-600 text-yellow-600 rounded hover:bg-yellow-600 hover:text-white transition-colors duration-200">
-                                        แก้ไข
-                                    </button>
-                                    <button wire:click="deleteYear({{ $year->id }})" 
-                                            wire:confirm="ต้องการลบปี {{ $year->year }} ใช่หรือไม่?"
-                                            class="w-full px-3 py-2 text-xs border border-red-600 text-red-600 rounded hover:bg-red-600 hover:text-white transition-colors duration-200">
-                                        ลบ
-                                    </button>
-                                </div>
-                                
-                                <!-- สำหรับคอมเท่านั้น: โค้ดเดิมไม่แก้ -->
-                                <div class="hidden sm:flex flex-wrap items-center gap-1 sm:gap-2">
-                                    <a href="{{ route('admin.reports.index', ['year' => $year->year]) }}" 
-                                       class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-colors duration-200">
-                                        จัดการข้อมูล
-                                    </a>
-                                    <button wire:click="editYear({{ $year->id }})"
-                                            class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm border border-yellow-600 text-yellow-600 rounded hover:bg-yellow-600 hover:text-white transition-colors duration-200">
-                                        แก้ไข
-                                    </button>
-                                    <button wire:click="deleteYear({{ $year->id }})" 
-                                            wire:confirm="ต้องการลบปี {{ $year->year }} ใช่หรือไม่?"
-                                            class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm border border-red-600 text-red-600 rounded hover:bg-red-600 hover:text-white transition-colors duration-200">
-                                        ลบ
-                                    </button>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <x-backend.action-button
+                                        color="blue"
+                                        :href="route('admin.contents.index', ['year' => $year->year])"
+                                        label="จัดการข้อมูล"
+                                    />
+                                    <x-backend.action-button
+                                        color="yellow-outline"
+                                        action="editYear({{ $year->id }})"
+                                        label="แก้ไข"
+                                    />
+                                    <x-backend.action-button
+                                        color="red-outline"
+                                        action="deleteYear({{ $year->id }})"
+                                        :confirm="'ต้องการลบปี ' . $year->year . ' ใช่หรือไม่?'"
+                                        label="ลบ"
+                                    />
                                 </div>
                             </td>
                         </tr>

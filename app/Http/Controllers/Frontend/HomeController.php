@@ -34,6 +34,7 @@ class HomeController extends Controller
         $announcements = $activeYear
             ? Announcement::where('scd_year_id', $activeYear->id)
             ->whereNull('parent_id')
+            ->where('is_hidden', false)
             ->orderBy('sequence')
             ->limit(6)
             ->get()
@@ -46,6 +47,7 @@ class HomeController extends Controller
         $contentSections = $activeYear
             ? ContentSection::where('scd_year_id', $activeYear->id)
             ->whereNull('parent_id')
+            ->where('is_hidden', false)
             ->orderBy('sequence')
             ->get()
             : collect([]);

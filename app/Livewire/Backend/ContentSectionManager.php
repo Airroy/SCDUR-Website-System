@@ -32,6 +32,8 @@ class ContentSectionManager extends Component
     public $existingImage;
 
     protected $listeners = [
+        'openAddFolderModal',
+        'openAddFileModal',
         'openEditContentModal' => 'openEditModal',
         'deleteContent' => 'deleteNode',
         'refreshContentTable' => '$refresh',
@@ -161,6 +163,7 @@ class ContentSectionManager extends Component
 
         ContentSection::create($data);
 
+        $this->dispatch('upload-done'); // ✅ แจ้ง modal ว่าเสร็จแล้ว
         $this->showModal = false;
         $this->dispatch('notify', [
             'message' => $this->type === 'folder' ? 'เพิ่มหมวดหมู่สำเร็จ' : 'เพิ่มไฟล์สำเร็จ',
@@ -207,6 +210,7 @@ class ContentSectionManager extends Component
 
         $node->update($data);
 
+        $this->dispatch('upload-done'); // ✅ แจ้ง modal ว่าเสร็จแล้ว
         $this->showModal = false;
         $this->dispatch('notify', [
             'message' => 'แก้ไขรายการสำเร็จ',

@@ -21,14 +21,20 @@ class AnnouncementOrderController extends Controller
         // ดึงข้อมูลประกาศแบบ tree structure
         $announcements = Announcement::where('scd_year_id', $yearModel->id)
             ->whereNull('parent_id')
-            ->with('children')
+            ->where('is_hidden', false)
+            ->with(['children' => function ($query) {
+                $query->where('is_hidden', false);
+            }])
             ->orderBy('sequence')
             ->get();
 
         // ดึงข้อมูลคำสั่งแบบ tree structure
         $orders = Order::where('scd_year_id', $yearModel->id)
             ->whereNull('parent_id')
-            ->with('children')
+            ->where('is_hidden', false)
+            ->with(['children' => function ($query) {
+                $query->where('is_hidden', false);
+            }])
             ->orderBy('sequence')
             ->get();
 

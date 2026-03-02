@@ -1,5 +1,4 @@
 @props(['name' => '', 'show' => false, 'maxWidth' => 'lg'])
-
 @php
 $maxWidthClass = [
     'sm' => 'sm:max-w-sm',
@@ -9,7 +8,6 @@ $maxWidthClass = [
     '2xl' => 'sm:max-w-2xl',
 ][$maxWidth];
 @endphp
-
 <div 
     x-data="{ show: @js($show) }"
     x-on:open-modal.window="$event.detail == '{{ $name }}' ? show = true : null"
@@ -25,7 +23,6 @@ $maxWidthClass = [
     <!-- Background overlay -->
     <div 
         class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
-        x-on:click="show = false"
         x-show="show"
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0"
@@ -34,7 +31,6 @@ $maxWidthClass = [
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
     ></div>
-
     <!-- Modal panel -->
     <div 
         class="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full {{ $maxWidthClass }}"

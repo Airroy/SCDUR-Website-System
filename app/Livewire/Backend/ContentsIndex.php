@@ -19,48 +19,58 @@ class ContentsIndex extends Component
     public $currentParentId = null;
     public $breadcrumbs = [];
 
-    // Modal & Form Properties
     public $showModal = false;
-
-    // Sort modal state
     public $showSortModal = false;
     public $sortableItems = [];
     public $editMode = false;
-    public $type = 'folder'; // 'folder' or 'file'
+    public $type = 'folder';
     public $nodeId = null;
 
-    // Form Fields
-    public $sequence;
     public $name;
-    public $image;
-    public $file;
+    public $image;              // base64 string จาก cropper
+    public $file;               // Livewire file upload (PDF)
     public $existingImage = null;
     public $existingFile = null;
+    public $is_hidden = false;
 
     protected $listeners = [
         'refreshContentTable' => '$refresh',
-        'viewFolder' => 'navigateToFolder',
+        'viewFolder'           => 'navigateToFolder',
+        'openEditContentModal' => 'editNode',
+        'deleteContent'        => 'deleteNode',
     ];
 
-    public function mount($year = null)
+    public function mount($year = null, $folderId = null)
     {
         $this->selectedYear = $year ? ScdYear::where('year', $year)->first() : null;
+
+        if ($folderId) {
+            $this->currentParentId = $folderId;
+            $this->buildBreadcrumbs($folderId);
+        }
+
+        $this->dispatch('updateTitle', 'ตัวชี้วัด Indicators' . ($this->selectedYear ? ' ' . $this->selectedYear->year : ''));
     }
 
     public function navigateToFolder($folderId)
     {
-        $folder = ContentSection::findOrFail($folderId);
-        $this->currentParentId = $folderId;
-        $this->buildBreadcrumbs($folderId);
+        $this->redirect(route('admin.contents.folder', [
+            'year'     => $this->selectedYear->year,
+            'folderId' => $folderId,
+        ]));
     }
 
     public function navigateBack($parentId = null)
     {
-        $this->currentParentId = $parentId;
         if ($parentId) {
-            $this->buildBreadcrumbs($parentId);
+            $this->redirect(route('admin.contents.folder', [
+                'year'     => $this->selectedYear->year,
+                'folderId' => $parentId,
+            ]));
         } else {
-            $this->breadcrumbs = [];
+            $this->redirect(route('admin.contents.index', [
+                'year' => $this->selectedYear->year,
+            ]));
         }
     }
 
@@ -71,38 +81,34 @@ class ContentsIndex extends Component
 
         while ($node) {
             array_unshift($this->breadcrumbs, [
-                'id' => $node->id,
-                'name' => $node->name,
+                'id'        => $node->id,
+                'parent_id' => $node->parent_id,
+                'name'      => $node->name,
             ]);
             $node = $node->parent;
         }
     }
 
-    /**
-     * เปิด Sort Modal สำหรับจัดลำดับตัวชี้วัดในโฟลเดอร์ปัจจุบัน
-     */
     public function openSortModal()
     {
         if (!$this->selectedYear) return;
 
         $contents = ContentSection::where('scd_year_id', $this->selectedYear->id)
             ->where('parent_id', $this->currentParentId)
+            ->where('is_hidden', false)
             ->orderBy('sequence')
             ->get();
 
         $this->sortableItems = $contents->map(fn($item) => [
-            'id' => $item->id,
-            'label' => $item->name,
+            'id'       => $item->id,
+            'label'    => $item->name,
             'sublabel' => $item->type === 'folder' ? 'หมวดหมู่' : 'ไฟล์',
-            'image' => $item->image_path ? Storage::url($item->image_path) : null,
+            'image'    => $item->image_path ? Storage::url($item->image_path) : null,
         ])->toArray();
 
         $this->showSortModal = true;
     }
 
-    /**
-     * บันทึกลำดับใหม่
-     */
     public function saveSortOrder($orderedIds)
     {
         foreach ($orderedIds as $index => $id) {
@@ -111,10 +117,7 @@ class ContentsIndex extends Component
 
         $this->showSortModal = false;
         $this->sortableItems = [];
-        $this->dispatch('notify', [
-            'message' => 'บันทึกลำดับสำเร็จ',
-            'type' => 'success'
-        ]);
+        $this->dispatch('notify', ['message' => 'บันทึกลำดับสำเร็จ', 'type' => 'success']);
     }
 
     public function openAddFolderModal()
@@ -131,136 +134,172 @@ class ContentsIndex extends Component
         $this->showModal = true;
     }
 
-    public function editNode($nodeId)
+    public function editNode($contentId)
     {
-        $node = ContentSection::findOrFail($nodeId);
-
-        $this->nodeId = $node->id;
-        $this->type = $node->type;
-        $this->sequence = $node->sequence;
-        $this->name = $node->name;
+        $node = ContentSection::findOrFail($contentId);
+        $this->nodeId        = $node->id;
+        $this->type          = $node->type;
+        $this->name          = $node->name;
         $this->existingImage = $node->image_path;
-        $this->existingFile = $node->file_path;
-
-        $this->editMode = true;
-        $this->showModal = true;
+        $this->existingFile  = $node->file_path;
+        $this->is_hidden     = (bool) $node->is_hidden;
+        $this->editMode      = true;
+        $this->showModal     = true;
     }
 
     public function saveNode()
     {
         $rules = [
-            'sequence' => 'required|integer|min:1',
             'name' => 'required|string|max:255',
         ];
 
-        // Add validation for image (required only for root folders)
+        // รูปภาพเป็น base64 string (จาก cropper) เฉพาะ folder ระดับบนสุด
         if ($this->type === 'folder' && $this->currentParentId === null) {
-            $maxImageSize = config('upload.max_file_sizes.cover', 102400);
-            if (!$this->editMode) {
-                $rules['image'] = "required|image|max:{$maxImageSize}";
-            } else {
-                $rules['image'] = "nullable|image|max:{$maxImageSize}";
-            }
+            $rules['image'] = $this->editMode
+                ? 'nullable|string'
+                : 'required|string';
         }
 
-        // Add validation for file
         if ($this->type === 'file') {
-            $maxPdfSize = config('upload.max_file_sizes.pdf', 102400);
-            if (!$this->editMode) {
-                $rules['file'] = "required|mimes:pdf|max:{$maxPdfSize}";
-            } else {
-                $rules['file'] = "nullable|mimes:pdf|max:{$maxPdfSize}";
-            }
+            $maxPdfSize    = config('upload.max_file_sizes.pdf', 102400);
+            $rules['file'] = $this->editMode
+                ? "nullable|mimes:pdf|max:{$maxPdfSize}"
+                : "required|mimes:pdf|max:{$maxPdfSize}";
         }
 
-        $this->validate($rules);
-
-        $data = [
-            'scd_year_id' => $this->selectedYear->id,
-            'parent_id' => $this->currentParentId,
-            'type' => $this->type,
-            'sequence' => $this->sequence,
-            'name' => $this->name,
-        ];
-
-        // Handle image upload
-        if ($this->image) {
-            if ($this->existingImage) {
-                Storage::disk('public')->delete($this->existingImage);
-            }
-            $data['image_path'] = $this->image->store('content-images', 'public');
-        }
-
-        // Handle file upload (ใช้ชื่อไฟล์ต้นฉบับ)
-        if ($this->file) {
-            if ($this->existingFile) {
-                Storage::disk('public')->delete($this->existingFile);
-            }
-            $originalName = $this->file->getClientOriginalName();
-            $data['file_path'] = $this->file->storeAs('content-files', $originalName, 'public');
-        }
+        $this->validate($rules, [
+            'image.required' => 'กรุณาเลือกรูปภาพ',
+            'file.required'  => 'กรุณาเลือกไฟล์ PDF',
+        ]);
 
         if ($this->editMode) {
-            $node = ContentSection::findOrFail($this->nodeId);
-            $node->update($data);
-            session()->flash('success', 'อัพเดทสำเร็จ');
+            $this->updateNode();
         } else {
-            ContentSection::create($data);
-            session()->flash('success', 'เพิ่มสำเร็จ');
+            $this->createNode();
         }
 
         $this->showModal = false;
         $this->resetForm();
     }
 
-    public function deleteNode($nodeId)
+    /**
+     * บันทึก base64 image ลง disk แล้วคืน path
+     */
+    private function saveBase64Image(string $base64): string
     {
-        $node = ContentSection::findOrFail($nodeId);
+        $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $base64);
+        $imageData = base64_decode($imageData);
 
-        // Delete associated files
-        if ($node->image_path) {
-            Storage::disk('public')->delete($node->image_path);
-        }
-        if ($node->file_path) {
-            Storage::disk('public')->delete($node->file_path);
+        $filename = 'content-images/' . uniqid() . '.png';
+        Storage::disk('public')->put($filename, $imageData);
+
+        return $filename;
+    }
+
+    private function createNode()
+    {
+        // คำนวณ sequence อัตโนมัติ (ต่อท้ายเสมอ)
+        $maxSequence = ContentSection::where('scd_year_id', $this->selectedYear->id)
+            ->where('parent_id', $this->currentParentId)
+            ->max('sequence') ?? 0;
+
+        $data = [
+            'scd_year_id' => $this->selectedYear->id,
+            'parent_id'   => $this->currentParentId,
+            'type'        => $this->type,
+            'sequence'    => $maxSequence + 1,
+            'name'        => $this->name,
+            'is_hidden'   => $this->is_hidden,
+        ];
+
+        if ($this->image) {
+            $data['image_path'] = $this->saveBase64Image($this->image);
         }
 
+        if ($this->file) {
+            $originalName      = $this->file->getClientOriginalName();
+            $data['file_path'] = $this->file->storeAs('content-files', $originalName, 'public');
+        }
+
+        ContentSection::create($data);
+        session()->flash('success', 'เพิ่มสำเร็จ');
+    }
+
+    private function updateNode()
+    {
+        $node = ContentSection::findOrFail($this->nodeId);
+
+        // แก้ไขได้แค่ name / image / file / is_hidden ไม่แตะ sequence
+        $data = ['name' => $this->name, 'is_hidden' => $this->is_hidden];
+
+        if ($this->image) {
+            if ($this->existingImage) {
+                Storage::disk('public')->delete($this->existingImage);
+            }
+            $data['image_path'] = $this->saveBase64Image($this->image);
+        }
+
+        if ($this->file) {
+            if ($this->existingFile) {
+                Storage::disk('public')->delete($this->existingFile);
+            }
+            $originalName      = $this->file->getClientOriginalName();
+            $data['file_path'] = $this->file->storeAs('content-files', $originalName, 'public');
+        }
+
+        $node->update($data);
+        session()->flash('success', 'อัพเดทสำเร็จ');
+    }
+
+    public function deleteNode($contentId)
+    {
+        $node = ContentSection::findOrFail($contentId);
+        if ($node->image_path) Storage::disk('public')->delete($node->image_path);
+        if ($node->file_path)  Storage::disk('public')->delete($node->file_path);
         $node->delete();
+
+        // Re-sequence รายการที่เหลือให้ต่อเนื่อง ไม่มีเลขโหว่
+        $remaining = ContentSection::where('scd_year_id', $this->selectedYear->id)
+            ->where('parent_id', $this->currentParentId)
+            ->orderBy('sequence')
+            ->get();
+
+        foreach ($remaining as $index => $item) {
+            $item->update(['sequence' => $index + 1]);
+        }
+
         session()->flash('success', 'ลบสำเร็จ');
     }
 
     private function resetForm()
     {
-        $this->reset(['nodeId', 'sequence', 'name', 'image', 'file', 'existingImage', 'existingFile']);
+        $this->reset(['nodeId', 'name', 'image', 'file', 'existingImage', 'existingFile', 'is_hidden']);
         $this->editMode = false;
+        $this->is_hidden = false;
     }
 
     public function render()
     {
         $contents = collect();
-        $hasFolders = false;
-        $hasFiles = false;
-        $hasFoldersInParent = false;
-        $hasFilesInParent = false;
+        $hasFolders = $hasFiles = $hasFoldersInParent = $hasFilesInParent = false;
 
         if ($this->selectedYear) {
             $contents = ContentSection::where('scd_year_id', $this->selectedYear->id)
                 ->where('parent_id', $this->currentParentId)
+                ->orderBy('is_hidden')
                 ->orderBy('sequence')
                 ->get();
 
-            $hasFolders = $contents->where('type', 'folder')->isNotEmpty();
-            $hasFiles = $contents->where('type', 'file')->isNotEmpty();
-            $hasFoldersInParent = $hasFolders;
-            $hasFilesInParent = $hasFiles;
+            $hasFolders = $hasFoldersInParent = $contents->where('type', 'folder')->isNotEmpty();
+            $hasFiles   = $hasFilesInParent   = $contents->where('type', 'file')->isNotEmpty();
         }
 
-        return view('livewire.backend.contents-index', [
-            'contents' => $contents,
-            'hasFolders' => $hasFolders,
-            'hasFiles' => $hasFiles,
-            'hasFoldersInParent' => $hasFoldersInParent,
-            'hasFilesInParent' => $hasFilesInParent,
-        ]);
+        return view('livewire.backend.contents-index', compact(
+            'contents',
+            'hasFolders',
+            'hasFiles',
+            'hasFoldersInParent',
+            'hasFilesInParent'
+        ));
     }
 }

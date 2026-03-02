@@ -16,14 +16,7 @@
                 <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                     <h3 class="text-lg font-semibold text-gray-900">รายงานผล SCD</h3>
                     @if ($reports->isEmpty())
-                        <button wire:click="openAddModal"
-                            class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            เพิ่มรายงาน
-                        </button>
+                        <x-backend.action-button color="red" label="เพิ่มรายงาน" action="openAddModal" />
                     @endif
                 </div>
 
@@ -69,39 +62,32 @@
                                         </td>
                                         <td class="hidden md:table-cell px-6 py-4">
                                             @if ($report->file_path && Storage::disk('public')->exists($report->file_path))
-                                                <a href="{{ Storage::url($report->file_path) }}" target="_blank"
-                                                    class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
-                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
-                                                        </path>
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                                        </path>
-                                                    </svg>
-                                                    ดูไฟล์
-                                                </a>
+                                                <x-backend.action-button
+                                                    color="blue-link"
+                                                    :href="Storage::url($report->file_path)"
+                                                    label="ดูไฟล์"
+                                                    target="_blank"
+                                                />
                                             @else
                                                 <span class="text-sm text-gray-400">ไม่มีไฟล์</span>
                                             @endif
                                         </td>
-                                        <td
-                                            class="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td class="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $report->updated_at->format('d/m/Y H:i') }}
                                         </td>
                                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
                                             <div class="flex flex-wrap items-center gap-1 sm:gap-2">
-                                                <button wire:click="openEditModal({{ $report->id }})"
-                                                    class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm border border-yellow-600 text-yellow-600 rounded hover:bg-yellow-600 hover:text-white transition-colors duration-200">
-                                                    แก้ไข
-                                                </button>
-                                                <button wire:click="deleteReport({{ $report->id }})"
-                                                    wire:confirm="คุณแน่ใจหรือไม่ที่จะลบรายงานนี้?"
-                                                    class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm border border-red-600 text-red-600 rounded hover:bg-red-600 hover:text-white transition-colors duration-200">
-                                                    ลบ
-                                                </button>
+                                                <x-backend.action-button
+                                                    color="yellow-outline"
+                                                    label="แก้ไข"
+                                                    action="openEditModal({{ $report->id }})"
+                                                />
+                                                <x-backend.action-button
+                                                    color="red-outline"
+                                                    label="ลบ"
+                                                    action="deleteReport({{ $report->id }})"
+                                                    confirm="คุณแน่ใจหรือไม่ที่จะลบรายงานนี้?"
+                                                />
                                             </div>
                                         </td>
                                     </tr>
@@ -150,10 +136,12 @@
                                 </svg>
                                 <span class="text-sm text-gray-700">ไฟล์ปัจจุบัน</span>
                             </div>
-                            <a href="{{ Storage::url($existingFile) }}" target="_blank"
-                                class="text-sm text-blue-600 hover:text-blue-800">
-                                ดูไฟล์
-                            </a>
+                            <x-backend.action-button
+                                color="blue-link"
+                                :href="Storage::url($existingFile)"
+                                label="ดูไฟล์"
+                                target="_blank"
+                            />
                         </div>
                     @endif
 

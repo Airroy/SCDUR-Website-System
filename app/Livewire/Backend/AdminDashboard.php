@@ -9,6 +9,11 @@ use Livewire\Attributes\Layout;
 #[Layout('components.layouts.admin')]
 class AdminDashboard extends Component
 {
+    public function mount()
+    {
+        $this->dispatch('updateTitle', 'หน้าหลัก');
+    }
+
     public function render()
     {
         $stats = [
