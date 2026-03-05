@@ -228,8 +228,8 @@ class ContentsIndex extends Component
     private function updateNode()
     {
         $node = ContentSection::findOrFail($this->nodeId);
+        $oldHidden = (bool) $node->is_hidden;
 
-        // แก้ไขได้แค่ name / image / file / is_hidden ไม่แตะ sequence
         $data = ['name' => $this->name, 'is_hidden' => $this->is_hidden];
 
         if ($this->image) {
@@ -248,6 +248,27 @@ class ContentsIndex extends Component
         }
 
         $node->update($data);
+
+        // ถ้าเปลี่ยน is_hidden ให้ re-sequence ทั้งสองกลุ่ม
+        if ($oldHidden !== (bool) $this->is_hidden) {
+            // re-sequence กลุ่มเดิม
+            $oldGroup = ContentSection::where('scd_year_id', $this->selectedYear->id)
+                ->where('parent_id', $this->currentParentId)
+                ->where('is_hidden', $oldHidden)
+                ->orderBy('sequence')
+                ->get();
+            foreach ($oldGroup as $index => $item) {
+                $item->update(['sequence' => $index + 1]);
+            }
+            // ใส่ท้ายกลุ่มใหม่
+            $newMax = ContentSection::where('scd_year_id', $this->selectedYear->id)
+                ->where('parent_id', $this->currentParentId)
+                ->where('is_hidden', $this->is_hidden)
+                ->where('id', '!=', $node->id)
+                ->max('sequence') ?? 0;
+            $node->update(['sequence' => $newMax + 1]);
+        }
+
         session()->flash('success', 'อัพเดทสำเร็จ');
     }
 
@@ -256,11 +277,13 @@ class ContentsIndex extends Component
         $node = ContentSection::findOrFail($contentId);
         if ($node->image_path) Storage::disk('public')->delete($node->image_path);
         if ($node->file_path)  Storage::disk('public')->delete($node->file_path);
+        $deletedHidden = (bool) $node->is_hidden;
         $node->delete();
 
-        // Re-sequence รายการที่เหลือให้ต่อเนื่อง ไม่มีเลขโหว่
+        // Re-sequence เฉพาะกลุ่มเดียวกัน (visible/hidden แยกกัน)
         $remaining = ContentSection::where('scd_year_id', $this->selectedYear->id)
             ->where('parent_id', $this->currentParentId)
+            ->where('is_hidden', $deletedHidden)
             ->orderBy('sequence')
             ->get();
 

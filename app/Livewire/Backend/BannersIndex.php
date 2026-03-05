@@ -60,10 +60,10 @@ class BannersIndex extends Component
 
         $this->sortCategory = $category;
         $this->sortableItems = $banners->map(fn($b) => [
-            'id' => $b->id,
-            'label' => 'สไลด์ #' . $b->id,
-            'sublabel' => $b->link_type === 'none' ? 'ไม่มีลิงค์' : ($b->link_type === 'url' ? 'URL' : 'PDF'),
-            'image' => $b->image_path ? Storage::url($b->image_path) : null,
+            'id'       => $b->id,
+            'label'    => 'สไลด์ลำดับที่ ' . $b->sequence,
+            'sublabel' => $b->link_type === 'none' ? 'ไม่มีลิงค์' : ($b->link_type === 'url' ? 'URL: ' . ($b->link_url ?? '-') : 'PDF'),
+            'image'    => $b->image_path ? Storage::url($b->image_path) : null,
         ])->toArray();
 
         $this->showSortModal = true;
@@ -196,7 +196,27 @@ class BannersIndex extends Component
             $data['pdf_name'] = null;
         }
 
+        $oldCategory = $banner->category;
         $banner->update($data);
+
+        // ถ้าเปลี่ยน category ให้ re-sequence ทั้งสอง category
+        if ((int)$oldCategory !== (int)$this->category) {
+            // re-sequence category เดิม
+            $remaining = Banner::where('scd_year_id', $this->selectedYear->id)
+                ->where('category', $oldCategory)
+                ->orderBy('sequence')
+                ->get();
+            foreach ($remaining as $index => $item) {
+                $item->update(['sequence' => $index + 1]);
+            }
+            // ใส่ที่ท้าย category ใหม่ (ไม่นับ banner ตัวนี้)
+            $newMax = Banner::where('scd_year_id', $this->selectedYear->id)
+                ->where('category', $this->category)
+                ->where('id', '!=', $banner->id)
+                ->max('sequence') ?? 0;
+            $banner->update(['sequence' => $newMax + 1]);
+        }
+
         $this->showModal = false;
         $this->dispatch('notify', ['message' => 'แก้ไขรูปภาพสไลด์สำเร็จ', 'type' => 'success']);
     }

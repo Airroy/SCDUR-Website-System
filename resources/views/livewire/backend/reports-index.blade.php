@@ -56,8 +56,11 @@
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-3 sm:px-6 py-4">
                                             <div class="max-w-md overflow-hidden">
-                                                <div class="text-sm font-medium text-gray-900 truncate w-full"
-                                                    title="{{ $report->file_name }}">{{ $report->file_name }}</div>
+                                                <p class="text-sm font-medium text-gray-900 truncate w-full"
+                                                    title="{{ $report->file_name }}">{{ $report->file_name }}</p>
+                                                @if ($report->file_path)
+                                                    <p class="text-xs text-gray-400 truncate" title="{{ basename($report->file_path) }}">{{ basename($report->file_path) }}</p>
+                                                @endif
                                             </div>
                                         </td>
                                         <td class="hidden md:table-cell px-6 py-4">
@@ -73,7 +76,7 @@
                                             @endif
                                         </td>
                                         <td class="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $report->updated_at->format('d/m/Y H:i') }}
+                                            {{ $report->updated_at->locale('th')->isoFormat('D MMMM') }} {{ $report->updated_at->year + 543 }}
                                         </td>
                                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
                                             <div class="flex flex-wrap items-center gap-1 sm:gap-2">

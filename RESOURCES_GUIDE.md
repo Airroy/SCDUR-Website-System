@@ -1,7 +1,7 @@
  # 📁 คู่มือโครงสร้างโฟลเดอร์ Resources (ฉบับสมบูรณ์)
 
 > **สำหรับนักพัฒนาใหม่** - อธิบายหน้าที่ของทุกไฟล์และโฟลเดอร์ใน `resources/`  
-> **อัปเดตล่าสุด:** 21 มกราคม 2026
+> **อัปเดตล่าสุด:** 4 มีนาคม 2026
 
 ---
 
@@ -15,18 +15,20 @@ resources/
 │   ├── app.js                  # JS หลัก
 │   └── bootstrap.js            # ตั้งค่า Axios
 └── views/                      # Blade Templates
-    ├── admin/pages/            # หน้า Admin แบบ static
+    ├── admin/pages/            # หน้า Admin แบบ static (profile เท่านั้น)
     ├── components/             # Components ที่ใช้ซ้ำได้
     │   ├── layouts/            # Layout Components (โครงร่างหน้า)
     │   ├── backend/            # Components สำหรับ Admin
     │   └── frontend/           # Components สำหรับหน้าบ้าน
+    ├── errors/                 # Custom Error Pages (403, 404, 419, 500, 503)
     ├── frontend/pages/         # หน้าเว็บสำหรับผู้เยี่ยมชม
     ├── livewire/               # Livewire Components (interactive)
     │   ├── auth/               # Authentication
-    │   ├── backend/            # Admin Components
+    │   ├── backend/            # Admin Components (Full-Page)
+    │   │   └── partials/       # ตาราง partial views
     │   ├── frontend/           # Frontend Components
     │   └── profile/            # Profile Components
-    └── pages/auth/             # Volt Pages (Auth)
+    └── pages/auth/             # Volt Pages (Auth - route ถูก comment ไว้)
 ```
 
 ---
@@ -99,7 +101,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 ├───────┬─────────────────────────────┤
 │       │                             │
 │ เมนู  │      เนื้อหา                 │
-│       │      @yield('content')      │
+│       │      {{ $slot }}            │
 │       │                             │
 └───────┴─────────────────────────────┘
   Sidebar        Main Content
@@ -111,7 +113,10 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 - Responsive (Hamburger menu บน mobile)
 - Gradient สีแดง
 
-**ใช้โดย:** ทุกหน้า Admin (Dashboard, Years, Banners, etc.)
+**ใช้โดย:** ทุกหน้า Admin (Dashboard, Years, Banners, etc.)  
+**ใช้ 2 แบบ:**
+- Blade: `<x-layouts.admin>...</x-layouts.admin>`
+- Livewire Full-Page: `#[Layout('components.layouts.admin')]`
 
 **วิธีใช้:**
 ```blade
@@ -148,7 +153,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 - รับ `$publishedYears` สำหรับ dropdown เมนู
 - Livewire scripts รวมอยู่แล้ว
 
-**ใช้โดย:** หน้าแรก, เกี่ยวกับ, ติดต่อ, ประกาศ
+**ใช้โดย:** หน้าแรก, เกี่ยวกับ, ติดต่อ, ประกาศ, Content Section, SCD Report
 
 ---
 
@@ -174,7 +179,9 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 - Card สีขาวกลางหน้า
 - โลโก้ด้านบน
 
-**ใช้โดย:** Login, Forgot Password, Reset Password, Verify Email
+**ใช้โดย:** Login
+
+> **หมายเหตุ:** Forgot Password, Reset Password, Verify Email routes ถูก comment ไว้
 
 ---
 
@@ -293,6 +300,49 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 ---
 
+### `components/image-cropper-simple.blade.php`
+
+**หน้าที่:** Component อัปโหลดรูปภาพ พร้อม crop ตาม aspect ratio
+
+**Props:**
+- `name` (string) - ชื่อ wire:model (default: 'croppedImage')
+- `label` (string) - ข้อความ label (default: 'รูปภาพ')
+- `required` (boolean) - บังคับกรอก
+- `existingImage` (string) - URL รูปที่มีอยู่แล้ว
+- `aspectRatio` (string) - อัตราส่วนรูป (default: '1140/428')
+- `outputWidth` (int) - ความกว้าง output (default: 1140)
+- `outputHeight` (int) - ความสูง output (default: 428)
+- `helpText` (string) - ข้อความช่วยเหลือ
+
+**การใช้งาน:**
+```blade
+<x-image-cropper-simple 
+    name="croppedImage" 
+    label="รูป Banner"
+    :existingImage="$existingImage"
+    aspectRatio="1140/428"
+/>
+```
+
+---
+
+### `components/responsive-nav-link.blade.php`
+
+**หน้าที่:** Mobile responsive navigation link
+
+**Props:** `active` (boolean) - เป็นหน้าปัจจุบันหรือไม่
+
+**การใช้งาน:**
+```blade
+<x-responsive-nav-link href="/admin/dashboard" :active="request()->routeIs('admin.dashboard')">
+    Dashboard
+</x-responsive-nav-link>
+```
+
+**Styling:** แสดง border สีน้ำเงิน (indigo) เมื่อ active
+
+---
+
 ## 🔧 Components Backend (`components/backend/`)
 
 ### `backend/modal.blade.php`
@@ -360,6 +410,80 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 **การใช้งาน:**
 ```blade
 <x-backend.year-tabs :selectedYear="$selectedYear" currentPage="banners" />
+```
+
+---
+
+### `backend/modal-alpine.blade.php`
+
+**หน้าที่:** Modal dialog แบบ Alpine.js (เปิดผ่าน window event)
+
+**Props:**
+- `name` (string) - ชื่อ modal (ใช้จับคู่กับ event)
+- `show` (boolean) - สถานะแสดง/ซ่อน
+- `maxWidth` (string) - ขนาด: sm, md, lg, xl, 2xl
+
+**การใช้งาน:**
+```blade
+<x-backend.modal-alpine name="sort-modal" maxWidth="lg">
+    <div class="p-6">เนื้อหา</div>
+</x-backend.modal-alpine>
+
+<!-- เปิด modal จาก JS -->
+window.dispatchEvent(new CustomEvent('open-modal', { detail: 'sort-modal' }));
+```
+
+**ฟีเจอร์:**
+- เปิดผ่าน `open-modal` window event
+- ปิดด้วย Escape / click outside
+
+---
+
+### `backend/sort-modal.blade.php`
+
+**หน้าที่:** Modal สำหรับ Drag & Drop จัดลำดับรายการ
+
+**Props:**
+- `show` (boolean) - แสดง/ซ่อน
+- `title` (string) - หัวข้อ
+- `items` (array) - รายการที่จัดลำดับ `[id, label, sublabel, image]`
+- `maxWidth` (string) - ขนาด modal
+
+**การใช้งาน:**
+```blade
+<x-backend.sort-modal 
+    :show="$showSortModal"
+    title="จัดลำดับ"
+    :items="$sortItems"
+/>
+```
+
+**ฟีเจอร์:**
+- ลากวางเพื่อจัดลำดับ
+- แสดงรูปภาพ (ถ้ามี)
+- ปุ่มบันทึก/ยกเลิก
+
+---
+
+### `backend/action-button.blade.php`
+
+**หน้าที่:** ปุ่ม Action แบบหลากสี พร้อม SVG icon
+
+**Props:**
+- `color` (string) - สี: gray, yellow, yellow-outline, red, red-outline, blue, blue-link
+- `action` (string) - Livewire action ที่จะเรียก
+- `label` (string) - ข้อความปุ่ม
+- `title` (string) - Tooltip
+- `dispatch` (string) - Livewire event ที่จะ dispatch
+- `href` (string) - URL สำหรับลิงก์
+- `confirm` (string) - ข้อความยืนยันก่อนทำ action
+- `target` (string) - target ของลิงก์
+
+**การใช้งาน:**
+```blade
+<x-backend.action-button color="yellow" action="edit({{ $id }})" label="แก้ไข" />
+<x-backend.action-button color="red" action="delete({{ $id }})" label="ลบ" confirm="ยืนยันการลบ?" />
+<x-backend.action-button color="blue" href="/admin/reports/{{ $year }}" label="จัดการ" />
 ```
 
 ---
@@ -527,11 +651,122 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 ---
 
+### `frontend/breadcrumb.blade.php`
+
+**หน้าที่:** Breadcrumb navigation แนวนอน
+
+**Props:** `items` - array ของ `[url, label]`
+
+**การใช้งาน:**
+```blade
+<x-frontend.breadcrumb :items="[
+    ['url' => '/', 'label' => 'หน้าหลัก'],
+    ['url' => '/scd/2026', 'label' => 'SCD 2026'],
+    ['label' => 'ประกาศ'],
+]" />
+```
+
+**ผลลัพธ์:** `หน้าหลัก >> SCD 2026 >> ประกาศ`  
+**หมายเหตุ:** Item สุดท้ายแสดงเป็นข้อความ (ไม่ใช่ลิงก์)
+
+---
+
+### `frontend/content-tree.blade.php`
+
+**หน้าที่:** แสดงโครงสร้าง tree ของเอกสาร (recursive)
+
+**Props:**
+- `items` - Collection ของ items (Announcement/Order/ContentSection)
+- `level` (int) - ระดับลึก (default: 0)
+- `isTopLevel` (boolean) - เป็นระดับบนสุดหรือไม่ (default: true)
+
+**การใช้งาน:**
+```blade
+<x-frontend.content-tree :items="$announcements" />
+```
+
+**ฟีเจอร์:**
+- Indent 24px ต่อ level
+- แสดง folder/file icons
+- คลิกโฟลเดอร์เพื่อเปิดดูไฟล์ย่อย
+
+---
+
+### `frontend/section-header.blade.php`
+
+**หน้าที่:** Hero-style header สำหรับ content section
+
+**Props:**
+- `title` (string) - ชื่อหมวด
+- `image` (string) - URL รูปภาพ
+- `year` (string) - ปี
+- `itemCount` (int) - จำนวนรายการ
+- `report` (object) - SCD Report (ถ้ามี)
+- `yearId` (int) - ID ของปี
+
+**การใช้งาน:**
+```blade
+<x-frontend.section-header 
+    :title="$section->name"
+    :image="Storage::url($section->image_path)"
+    :year="$year->year"
+    :itemCount="$items->count()"
+/>
+```
+
+---
+
+### `frontend/section-content.blade.php`
+
+**หน้าที่:** กล่องแสดงรายการเนื้อหาพร้อมหัวข้อสีแดง
+
+**Props:**
+- `title` (string) - หัวข้อ (default: 'Indicators')
+- `items` - Collection ของ items
+- `emptyTitle` (string) - หัวข้อเมื่อไม่มีข้อมูล
+- `emptyMessage` (string) - ข้อความเมื่อไม่มีข้อมูล
+- `backUrl` (string) - URL ปุ่มย้อนกลับ
+
+**การใช้งาน:**
+```blade
+<x-frontend.section-content 
+    title="รายการเอกสาร"
+    :items="$items"
+    emptyTitle="ไม่พบเอกสาร"
+/>
+```
+
+**ฟีเจอร์:**
+- แถบหัวข้อสีแดง
+- ใช้ `<x-frontend.content-tree>` แสดงรายการ
+- Empty state messaging
+
+---
+
+### `frontend/related-sections.blade.php`
+
+**หน้าที่:** Grid แสดง content sections ที่เกี่ยวข้อง
+
+**Props:**
+- `sections` (Collection) - รายการ sections
+- `title` (string) - หัวข้อ (default: 'หมวดหมู่อื่นๆ')
+
+**การใช้งาน:**
+```blade
+<x-frontend.related-sections :sections="$otherSections" title="หมวดหมู่อื่นๆ" />
+```
+
+**ฟีเจอร์:**
+- Card grid (รูปภาพ + ชื่อ)
+- คลิกเพื่อนำทางไปหมวดนั้น
+
+---
+
 # 📁 FRONTEND PAGES - หน้าเว็บสำหรับผู้เยี่ยมชม
 
 ## `frontend/pages/home.blade.php`
 
-**Route:** `GET /` หรือ `GET /?year={id}`
+**Route:** `GET /` หรือ `GET /scd/{year}`
 
 **หน้าที่:** หน้าแรกของเว็บไซต์
 
@@ -545,12 +780,14 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 **เนื้อหา:**
 1. Banner Slider (`<livewire:frontend.banner-slider />`)
 2. ARU-SCD [ปี] Banner (แถบสีแดง)
-3. Content Sections Grid (4 คอลัมน์)
+3. Content Sections Grid
 
 **ข้อมูลที่รับ:**
 - `$activeYear` - ปีที่เลือก
-- `$contentSections` - เนื้อหาของปีนั้น
 - `$publishedYears` - รายการปี (ส่งไป layout)
+- `$announcements` - ประกาศ (root, ไม่ซ่อน, max 6)
+- `$contentSections` - เนื้อหา (root, ไม่ซ่อน)
+- `$isYearPage` - เป็นหน้าเลือกปีหรือไม่
 
 ---
 
@@ -580,7 +817,7 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 ## `frontend/pages/announcements.blade.php`
 
-**Route:** `GET /announcements/{year}`
+**Route:** `GET /announcements-directives/{year}`
 
 **หน้าที่:** หน้าประกาศ/คำสั่งตามปี
 
@@ -588,11 +825,49 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 - Breadcrumb
 - ตารางประกาศ (ลำดับ, ชื่อ, ดาวน์โหลด)
 - ตารางคำสั่ง (ลำดับ, ชื่อ, ดาวน์โหลด)
+- รองรับโฟลเดอร์ย่อย (route: `/announcements-directives/{year}/folder/{folder}`)
 
 **ข้อมูลที่รับ:**
-- `$year` - ปีที่เลือก
+- `$year` - ปีที่เลือก (ScdYear object)
 - `$announcements` - รายการประกาศ
 - `$orders` - รายการคำสั่ง
+- `$folder` - โฟลเดอร์ปัจจุบัน (ถ้าเข้าโฟลเดอร์ย่อย)
+
+---
+
+## `frontend/pages/content-section.blade.php`
+
+**Route:** `GET /scd/{year}/{section}`
+
+**หน้าที่:** หน้าแสดงเนื้อหา Content Section พร้อม Indicators
+
+**เนื้อหา:**
+- Breadcrumb (หน้าหลัก > SCD{ปี} > ชื่อส่วน)
+- ชื่อ Section
+- Indicators ผ่าน `<x-frontend.content-tree />` component
+- รองรับโฟลเดอร์ย่อย (route: `/scd/{year}/{sectionId}/folder/{folder}`)
+
+**ข้อมูลที่รับ:**
+- `$section` - ContentSection object
+- `$items` - รายการไฟล์/โฟลเดอร์
+
+---
+
+## `frontend/pages/scd-report.blade.php`
+
+**Route:** `GET /scd-report/{year}/view/{filename}`
+
+**หน้าที่:** หน้ารายงาน SCD ประจำปี + ดาวน์โหลด PDF
+
+**เนื้อหา:**
+- Header ไล่สี (gradient แดง) "ARU-SCD{ปี}"
+- กล่องดาวน์โหลด PDF (ปุ่มเปิดดู + ดาวน์โหลด)
+- Content Sections Grid (รูปภาพ + ชื่อ, ลิงก์ไปหน้า content-section)
+
+**ข้อมูลที่รับ:**
+- `$year` - ScdYear object
+- `$report` - ScdReport object (file_name, file_path)
+- `$contentSections` - รายการ Content Sections ของปีนั้น
 
 ---
 
@@ -622,7 +897,11 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 ### `auth/login.blade.php`
 
-**Component:** `App\Livewire\Auth\Login`
+**Component:** `App\Livewire\Auth\Login` (class: `LoginForm`)
+
+**Route:** `GET /aru-scdur-panel`
+
+> ⚠️ URL ซ่อนไว้เพื่อความปลอดภัย — `/login` redirect ไป `/` แทน
 
 **หน้าที่:** ฟอร์ม Login
 
@@ -630,7 +909,6 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 - อีเมล
 - รหัสผ่าน
 - Remember me (checkbox)
-- ลิงก์ Forgot Password
 
 **การทำงาน:**
 1. กรอกอีเมล + รหัสผ่าน
@@ -648,11 +926,12 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 **หน้าที่:** Dashboard หน้าหลัก Admin
 
 **แสดง:**
+- Welcome Banner + ลิงก์ "ดูหน้าเว็บหลัก"
 - 4 Stat Cards:
-  - จำนวนปี
-  - เผยแพร่แล้ว
-  - รายงาน
-  - ประกาศ
+  - จำนวนปี (`total_years`)
+  - เผยแพร่แล้ว (`published_years`)
+  - รายงาน (`total_reports`)
+  - แบนเนอร์ (`total_banners`)
 
 ---
 
@@ -681,12 +960,11 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 **Component:** `App\Livewire\Backend\ReportsIndex`
 
-**Route:** `/admin/years/{year}/reports`
+**Route:** `/admin/reports/{year?}`
 
 **หน้าที่:** จัดการรายงาน PDF
 
 **ฟีเจอร์:**
-- Year tabs (รายงาน | รูปสไลด์ | ประกาศ/คำสั่ง | เนื้อหา)
 - ตารางรายงาน (ชื่อ, ไฟล์ PDF, อัปเดต)
 - ปุ่มเพิ่มรายงาน
 - ปุ่มแก้ไข/ลบ
@@ -698,12 +976,11 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 **Component:** `App\Livewire\Backend\BannersIndex`
 
-**Route:** `/admin/years/{year}/banners`
+**Route:** `/admin/banners/{year?}`
 
 **หน้าที่:** จัดการ Banner Slider
 
 **ฟีเจอร์:**
-- Year tabs
 - Include `partials/banners-table.blade.php`
 - Modal เพิ่ม/แก้ไข banner:
   - ลำดับที่
@@ -717,12 +994,11 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 **Component:** `App\Livewire\Backend\ContentsIndex`
 
-**Route:** `/admin/years/{year}/contents`
+**Route:** `/admin/contents/{year?}` หรือ `/admin/contents/{year}/folder/{folderId}`
 
 **หน้าที่:** จัดการ Content Sections
 
 **ฟีเจอร์:**
-- Year tabs
 - Breadcrumbs (นำทางโฟลเดอร์)
 - Include `partials/contents-table.blade.php`
 - รองรับโครงสร้าง tree (โฟลเดอร์ซ้อนกัน)
@@ -733,12 +1009,14 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 **Component:** `App\Livewire\Backend\AnnouncementsIndex`
 
-**Route:** `/admin/years/{year}/announcements`
+**Route:** `/admin/announcements/{year?}` หรือ `/admin/directives/{year?}`
+
+> ⚠️ Component เดียวกัน (`AnnouncementsIndex`) ใช้สำหรับทั้งประกาศและคำสั่ง  
+> รองรับ folder: `/admin/announcements/{year}/folder/{folderId}`
 
 **หน้าที่:** จัดการประกาศ/คำสั่ง
 
 **ฟีเจอร์:**
-- Year tabs
 - แถบสลับ: ประกาศ | คำสั่ง
 - Breadcrumbs
 - Include `partials/announcements-table.blade.php`
@@ -837,9 +1115,12 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 > **Volt** = Livewire แบบ single-file (PHP + Blade อยู่ไฟล์เดียว)  
 > ใช้สำหรับหน้าที่ไม่ค่อยแก้ไข
 
+> ⚠️ **Route ทั้งหมดถูก comment ไว้** เพราะยังไม่ได้ตั้งค่า Mail  
+> ไฟล์ยังอยู่ใน codebase แต่เข้าถึงไม่ได้ผ่าน URL
+
 ## `pages/auth/forgot-password.blade.php`
 
-**Route:** `GET /forgot-password`
+**Route:** ~~`GET /forgot-password`~~ (ถูก comment ไว้)
 
 **หน้าที่:** ฟอร์มขอรีเซ็ตรหัสผ่าน
 
@@ -852,7 +1133,7 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 ## `pages/auth/reset-password.blade.php`
 
-**Route:** `GET /reset-password/{token}`
+**Route:** ~~`GET /reset-password/{token}`~~ (ถูก comment ไว้)
 
 **หน้าที่:** ฟอร์มตั้งรหัสผ่านใหม่
 
@@ -865,7 +1146,7 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 ## `pages/auth/verify-email.blade.php`
 
-**Route:** `GET /verify-email`
+**Route:** ~~`GET /verify-email`~~ (ถูก comment ไว้)
 
 **หน้าที่:** หน้ายืนยันอีเมล
 
@@ -878,7 +1159,7 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 ## `pages/auth/confirm-password.blade.php`
 
-**Route:** `GET /confirm-password`
+**Route:** ~~`GET /confirm-password`~~ (ถูก comment ไว้)
 
 **หน้าที่:** ยืนยันรหัสผ่านก่อนทำ action สำคัญ
 
@@ -888,23 +1169,42 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 
 ---
 
-# 🔄 วิธีหาไฟล์จาก URL/Component
+# � ERROR PAGES - หน้าแสดงข้อผิดพลาด
+
+> ไฟล์ใน `errors/` เป็น standalone HTML + Tailwind CDN (ไม่ใช้ Layout)  
+> Admin สามารถ preview ได้ที่ `/error-preview/{code}`
+
+| ไฟล์ | HTTP Code | ข้อความ |
+|------|-----------|----------|
+| `errors/403.blade.php` | 403 | Forbidden - ไม่มีสิทธิ์เข้าถึง |
+| `errors/404.blade.php` | 404 | Not Found - ไม่พบหน้าที่ต้องการ |
+| `errors/419.blade.php` | 419 | Page Expired - session หมดอายุ |
+| `errors/500.blade.php` | 500 | Server Error - เซิร์ฟเวอร์มีปัญหา |
+| `errors/503.blade.php` | 503 | Maintenance - ปิดปรับปรุง |
+
+---
+
+# �🔄 วิธีหาไฟล์จาก URL/Component
 
 ## จาก URL
 
 | URL | ไฟล์ |
 |-----|------|
 | `/` | `frontend/pages/home.blade.php` |
+| `/scd/{year}` | `frontend/pages/home.blade.php` |
 | `/about` | `frontend/pages/about.blade.php` |
 | `/contact` | `frontend/pages/contact.blade.php` |
-| `/announcements/1` | `frontend/pages/announcements.blade.php` |
-| `/login` | `livewire/auth/login.blade.php` |
+| `/announcements-directives/{year}` | `frontend/pages/announcements.blade.php` |
+| `/scd/{year}/{section}` | `frontend/pages/content-section.blade.php` |
+| `/scd-report/{year}/view/{filename}` | `frontend/pages/scd-report.blade.php` |
+| `/aru-scdur-panel` | `livewire/auth/login.blade.php` |
 | `/admin/dashboard` | `livewire/backend/admin-dashboard.blade.php` |
 | `/admin/years` | `livewire/backend/years-index.blade.php` |
-| `/admin/years/2026/reports` | `livewire/backend/reports-index.blade.php` |
-| `/admin/years/2026/banners` | `livewire/backend/banners-index.blade.php` |
-| `/admin/years/2026/contents` | `livewire/backend/contents-index.blade.php` |
-| `/admin/years/2026/announcements` | `livewire/backend/announcements-index.blade.php` |
+| `/admin/reports/{year?}` | `livewire/backend/reports-index.blade.php` |
+| `/admin/banners/{year?}` | `livewire/backend/banners-index.blade.php` |
+| `/admin/contents/{year?}` | `livewire/backend/contents-index.blade.php` |
+| `/admin/announcements/{year?}` | `livewire/backend/announcements-index.blade.php` |
+| `/admin/directives/{year?}` | `livewire/backend/announcements-index.blade.php` |
 | `/admin/profile` | `admin/pages/profile.blade.php` |
 
 ## จาก Component Syntax
@@ -915,7 +1215,16 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 | `<x-layouts.admin>` | `components/layouts/admin.blade.php` |
 | `<x-layouts.guest>` | `components/layouts/guest.blade.php` |
 | `<x-frontend.header />` | `components/frontend/header.blade.php` |
+| `<x-frontend.breadcrumb />` | `components/frontend/breadcrumb.blade.php` |
+| `<x-frontend.content-tree />` | `components/frontend/content-tree.blade.php` |
+| `<x-frontend.section-header />` | `components/frontend/section-header.blade.php` |
+| `<x-frontend.section-content />` | `components/frontend/section-content.blade.php` |
+| `<x-frontend.related-sections />` | `components/frontend/related-sections.blade.php` |
 | `<x-backend.modal />` | `components/backend/modal.blade.php` |
+| `<x-backend.modal-alpine />` | `components/backend/modal-alpine.blade.php` |
+| `<x-backend.sort-modal />` | `components/backend/sort-modal.blade.php` |
+| `<x-backend.action-button />` | `components/backend/action-button.blade.php` |
+| `<x-image-cropper-simple />` | `components/image-cropper-simple.blade.php` |
 | `@livewire('backend.years-index')` | `livewire/backend/years-index.blade.php` |
 | `<livewire:frontend.banner-slider />` | `livewire/frontend/banner-slider.blade.php` |
 
@@ -933,13 +1242,21 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 | Banner Slider | `livewire/frontend/banner-slider.blade.php` |
 | หน้าแรก | `frontend/pages/home.blade.php` |
 | หน้าติดต่อ | `frontend/pages/contact.blade.php` |
+| หน้า Content Section | `frontend/pages/content-section.blade.php` |
+| หน้ารายงาน SCD | `frontend/pages/scd-report.blade.php` |
 | Dashboard สถิติ | `livewire/backend/admin-dashboard.blade.php` |
 | ตาราง Years | `livewire/backend/years-index.blade.php` |
 | ตาราง Banners | `livewire/backend/partials/banners-table.blade.php` |
+| Sort modal | `components/backend/sort-modal.blade.php` |
+| Image cropper | `components/image-cropper-simple.blade.php` |
+| Breadcrumb | `components/frontend/breadcrumb.blade.php` |
+| Content tree | `components/frontend/content-tree.blade.php` |
 | ฟอร์ม Login | `livewire/auth/login.blade.php` |
 | Modal style | `components/backend/modal.blade.php` |
+| Modal (Alpine) | `components/backend/modal-alpine.blade.php` |
 | ปุ่มหลัก | `components/primary-button.blade.php` |
 | Input field | `components/text-input.blade.php` |
+| Error pages | `errors/{403,404,419,500,503}.blade.php` |
 
 ---
 
@@ -959,4 +1276,4 @@ $this->dispatch('notify', message: 'บันทึกสำเร็จ!', type
 ---
 
 **เอกสารนี้อธิบายทุกไฟล์ใน `resources/` โฟลเดอร์**  
-**อัปเดตล่าสุด:** 20 มกราคม 2026
+**อัปเดตล่าสุด:** 4 มีนาคม 2026

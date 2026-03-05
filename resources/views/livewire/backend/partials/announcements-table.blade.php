@@ -40,7 +40,7 @@
         {{-- ========== มือถือเท่านั้น ========== --}}
         <div class="md:hidden divide-y divide-gray-100">
             @foreach ($items as $item)
-                <div class="px-4 py-3 {{ $item->is_hidden ? 'bg-red-50' : '' }}">
+                <div class="px-4 py-3 {{ $item->is_hidden ? 'bg-red-100' : '' }}">
                     <div class="flex items-start gap-2 mb-2">
                         <span
                             class="text-xs text-gray-400 font-medium mt-0.5 w-4 flex-shrink-0">{{ $loop->iteration }}</span>
@@ -113,7 +113,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach ($items as $item)
-                        <tr class="{{ $item->is_hidden ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50' }}">
+                        <tr class="{{ $item->is_hidden ? 'bg-red-100 hover:bg-red-200' : 'hover:bg-gray-50' }}">
                             <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {{ $loop->iteration }}
                             </td>

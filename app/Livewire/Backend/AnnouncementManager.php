@@ -93,11 +93,6 @@ class AnnouncementManager extends Component
             'name' => 'required|string|max:255',
         ];
 
-        // เฉพาะ editMode เท่านั้นที่ validate sequence (เพราะตอน create ใช้ auto)
-        if ($this->editMode) {
-            $rules['sequence'] = 'required|integer|min:1';
-        }
-
         $messages = [
             'file.max' => config('upload.messages.pdf', 'ไฟล์ PDF ต้องมีขนาดไม่เกิน ' . ($maxPdfSize / 1024) . ' MB'),
             'file.required' => 'กรุณาเลือกไฟล์ PDF',
@@ -114,24 +109,6 @@ class AnnouncementManager extends Component
 
         $this->validate($rules, $messages);
 
-        // เฉพาะ editMode: เช็ค duplicate sequence
-        if ($this->editMode) {
-            $model = $this->getModel();
-            $existingNode = $model::where('scd_year_id', $this->year->id)
-                ->where('parent_id', $this->parentId)
-                ->where('sequence', $this->sequence)
-                ->where('id', '!=', $this->nodeId)
-                ->first();
-
-            if ($existingNode) {
-                $this->dispatch('notify', [
-                    'message' => 'ลำดับที่ ' . $this->sequence . ' มีอยู่แล้ว กรุณาเลือกลำดับอื่น',
-                    'type' => 'error'
-                ]);
-                return;
-            }
-        }
-
         if ($this->editMode) {
             $this->updateNode();
         } else {
@@ -143,10 +120,11 @@ class AnnouncementManager extends Component
     {
         $model = $this->getModel();
 
-        // Auto sequence: ต่อท้ายรายการล่าสุด
-        $nextSequence = $model::where('scd_year_id', $this->year->id)
+        // Auto sequence: ต่อท้ายกลุ่มเดียวกัน (visible/hidden)
+        $nextSequence = ($model::where('scd_year_id', $this->year->id)
             ->where('parent_id', $this->parentId)
-            ->max('sequence') + 1;
+            ->where('is_hidden', $this->is_hidden)
+            ->max('sequence') ?? 0) + 1;
 
         $data = [
             'scd_year_id' => $this->year->id,
@@ -184,9 +162,9 @@ class AnnouncementManager extends Component
     {
         $model = $this->getModel();
         $node = $model::findOrFail($this->nodeId);
+        $oldHidden = (bool) $node->is_hidden;
 
         $data = [
-            'sequence' => $this->sequence,
             'name' => $this->name,
             'is_hidden' => $this->is_hidden,
         ];
@@ -201,6 +179,26 @@ class AnnouncementManager extends Component
         }
 
         $node->update($data);
+
+        // ถ้าเปลี่ยน is_hidden ให้ re-sequence ทั้งสองกลุ่ม
+        if ($oldHidden !== (bool) $this->is_hidden) {
+            // re-sequence กลุ่มเดิม
+            $oldGroup = $model::where('scd_year_id', $this->year->id)
+                ->where('parent_id', $this->parentId)
+                ->where('is_hidden', $oldHidden)
+                ->orderBy('sequence')
+                ->get();
+            foreach ($oldGroup as $index => $item) {
+                $item->update(['sequence' => $index + 1]);
+            }
+            // ใส่ท้ายกลุ่มใหม่
+            $newMax = $model::where('scd_year_id', $this->year->id)
+                ->where('parent_id', $this->parentId)
+                ->where('is_hidden', $this->is_hidden)
+                ->where('id', '!=', $node->id)
+                ->max('sequence') ?? 0;
+            $node->update(['sequence' => $newMax + 1]);
+        }
 
         $this->showModal = false;
         $this->dispatch('notify', [
@@ -219,8 +217,19 @@ class AnnouncementManager extends Component
             Storage::disk('public')->delete($node->file_path);
         }
 
+        $deletedHidden = (bool) $node->is_hidden;
         $this->deleteChildren($node->id);
         $node->delete();
+
+        // Re-sequence เฉพาะกลุ่มเดียวกัน (visible/hidden แยกกัน)
+        $remaining = $model::where('scd_year_id', $this->year->id)
+            ->where('parent_id', $this->parentId)
+            ->where('is_hidden', $deletedHidden)
+            ->orderBy('sequence')
+            ->get();
+        foreach ($remaining as $index => $item) {
+            $item->update(['sequence' => $index + 1]);
+        }
 
         $remainingFiles = $model::where('scd_year_id', $this->year->id)
             ->where('parent_id', $this->parentId)

@@ -45,7 +45,7 @@
         <!-- Mobile Card View (< md) -->
         <div class="md:hidden divide-y divide-gray-200">
             @foreach ($contents as $content)
-                <div class="p-4 {{ $content->is_hidden ? 'bg-red-50' : 'hover:bg-gray-50' }}">
+                <div class="p-4 {{ $content->is_hidden ? 'bg-red-100' : 'hover:bg-gray-50' }}">
                     <!-- Header Row -->
                     <div class="flex items-start gap-3 mb-3">
                         {{-- แสดง thumbnail เฉพาะเมื่อมีรูปจริงๆ --}}
@@ -140,7 +140,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach ($contents as $content)
-                        <tr class="{{ $content->is_hidden ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50' }}">
+                        <tr class="{{ $content->is_hidden ? 'bg-red-100 hover:bg-red-200' : 'hover:bg-gray-50' }}">
                             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {{ $loop->iteration }}
                             </td>

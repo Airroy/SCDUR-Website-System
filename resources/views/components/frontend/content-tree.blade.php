@@ -18,8 +18,9 @@
             </div>
         </div>
 
-        @if ($item->children->count() > 0)
-            <x-frontend.content-tree :items="$item->children" :level="$level + 1" :isTopLevel="false" />
+        @php $visibleChildren = $item->children->where('is_hidden', false); @endphp
+        @if ($visibleChildren->count() > 0)
+            <x-frontend.content-tree :items="$visibleChildren" :level="$level + 1" :isTopLevel="false" />
         @endif
     @else
         {{-- ================= FILE ================= --}}

@@ -1,6 +1,6 @@
 # 🚀 คู่มือติดตั้ง SCD Project
 
-> **อัปเดตล่าสุด:** 28 มกราคม 2026  
+> **อัปเดตล่าสุด:** 4 มีนาคม 2026  
 > **PHP:** 8.4 | **Laravel:** 12.x | **Database:** MySQL 8.4 | **Cache:** Redis
 
 ---
@@ -107,7 +107,9 @@ cd scd-project
 ./vendor/bin/sail artisan admin:create
 ```
 
-กรอก: ชื่อ, อีเมล, รหัสผ่าน
+กรอก: ชื่อ, อีเมล, รหัสผ่าน (มีค่าเริ่มต้น: Admin / admin@aru.ac.th / 1234)
+
+> 💡 ถ้า user มีอยู่แล้ว จะเสนอให้อัปเดตรหัสผ่านแทน
 
 ---
 
@@ -116,8 +118,10 @@ cd scd-project
 | URL | หน้า |
 |-----|------|
 | http://localhost | เว็บไซต์หลัก |
-| http://localhost/login | เข้าสู่ระบบ Admin |
+| http://localhost/aru-scdur-panel | เข้าสู่ระบบ Admin (URL ซ่อน) |
 | http://localhost:8080 | phpMyAdmin (จัดการ DB) |
+
+> ⚠️ **หมายเหตุ:** URL `/login` จะ redirect ไปหน้าแรก เพื่อซ่อนหน้า Admin
 
 ---
 
@@ -164,10 +168,12 @@ sail npm run dev     # แทน ./vendor/bin/sail npm run dev
 
 | ประเภทไฟล์ | ขนาดสูงสุด | ใช้สำหรับ |
 |-----------|-----------|-----------|
-| **Banner/Slider** | 10 MB | รูป Banner หน้าแรก |
-| **รูปปก Content** | 5 MB | รูปปกหมวดหมู่ |
-| **ไฟล์ PDF** | 20 MB | เอกสาร/ประกาศ/คำสั่ง |
-| **รูปโปรไฟล์** | 2 MB | รูปโปรไฟล์ผู้ใช้ |
+| **Banner/Slider** | 100 MB | รูป Banner หน้าแรก |
+| **รูปปก Content** | 100 MB | รูปปกหมวดหมู่ |
+| **ไฟล์ PDF** | 100 MB | เอกสาร/ประกาศ/คำสั่ง/รายงาน |
+| **รูปโปรไฟล์** | 100 MB | รูปโปรไฟล์ผู้ใช้ |
+
+> 💡 ทุกประเภทตั้งไว้ที่ 100 MB เท่ากัน (ปรับได้ใน `config/upload.php`)
 
 ### การตั้งค่า
 
@@ -201,9 +207,10 @@ post_max_size => 100M => 100M
 แก้ไขที่ `config/upload.php`:
 ```php
 'max_file_sizes' => [
-    'banner' => 10240,  // 10 MB
-    'cover' => 5120,    // 5 MB
-    'pdf' => 20480,     // 20 MB
+    'banner' => 102400,     // 100 MB (ค่าปัจจุบัน)
+    'cover' => 102400,      // 100 MB
+    'pdf' => 102400,        // 100 MB
+    'profile' => 102400,    // 100 MB
 ],
 ```
 
@@ -219,17 +226,28 @@ sail artisan config:clear
 ```
 scd-project/
 ├── app/
+│   ├── Console/Commands/   # ← Artisan commands (admin:create, logs:clear)
+│   ├── Http/
+│   │   ├── Controllers/    # ← Frontend Controllers
+│   │   └── Middleware/     #    AdminAuth, AccessLog
 │   ├── Livewire/           # ← Components หลัก (แก้ไขบ่อย)
-│   │   ├── Backend/        #    Admin Panel
-│   │   └── Frontend/       #    หน้าบ้าน
-│   └── Models/             # ← Database Models
+│   │   ├── Backend/        #    Admin Panel (Full-Page Components)
+│   │   ├── Frontend/       #    หน้าบ้าน (BannerSlider)
+│   │   └── Profile/        #    จัดการโปรไฟล์
+│   ├── Models/             # ← Database Models (7 models)
+│   └── Services/           # ← Business Logic
+│       ├── FileUploadService.php
+│       ├── BannerService.php
+│       └── ContentNodeService.php
 ├── config/
 │   └── upload.php          # ← การตั้งค่าอัปโหลดไฟล์
 ├── resources/views/        # ← Blade Templates (แก้ไขบ่อย)
-│   ├── layouts/            #    โครงร่างหน้า
+│   ├── components/layouts/ #    Layouts (admin, frontend, guest)
 │   ├── livewire/           #    Views ของ Livewire
-│   └── components/         #    Components ย่อย
-├── routes/web.php          # ← Routes ทั้งหมด
+│   └── components/         #    Components ย่อย (backend, frontend)
+├── routes/
+│   ├── web.php             # ← Routes ทั้งหมด
+│   └── auth.php            #    Authentication routes
 ├── docker/8.4/             # ← Docker configuration
 │   └── php.ini             #    PHP settings (upload limits)
 └── compose.yaml            # ← Docker Compose
@@ -385,7 +403,9 @@ docker compose restart
 | `sail artisan config:clear` | Clear config cache |
 | `sail artisan optimize:clear` | Clear ทุก cache |
 | `sail artisan storage:link` | สร้าง storage symlink |
-| `sail artisan admin:create` | สร้าง admin user |
+| `sail artisan admin:create` | สร้าง admin user (default: Admin/admin@aru.ac.th/1234) |
+| `sail artisan logs:clear` | ลบ log files เก่า (default: 7 วัน) |
+| `sail artisan content:monitor` | ตรวจสอบ performance ตาราง content |
 
 ## NPM
 
@@ -490,9 +510,7 @@ sail artisan cache:clear
 ```
 
 **ตรวจสอบว่าไฟล์ไม่เกินขนาดที่กำหนด:**
-- Banner: ≤ 10 MB
-- Cover: ≤ 5 MB
-- PDF: ≤ 20 MB
+- ทุกประเภท: ≤ 100 MB (ค่าปัจจุบันใน config/upload.php)
 
 ---
 
@@ -503,17 +521,17 @@ sail artisan cache:clear
 - [ ] `sail up -d` สำเร็จ
 - [ ] เข้า http://localhost ได้
 - [ ] `sail npm run dev` รันอยู่
-- [ ] Login เข้า Admin ได้
-- [ ] อัปโหลดรูป Banner (8-9 MB) ได้
-- [ ] อัปโหลดรูปปก (4 MB) ได้
-- [ ] อัปโหลด PDF (15-18 MB) ได้
+- [ ] Login เข้า Admin ได้ (URL: /aru-scdur-panel)
+- [ ] อัปโหลดรูป Banner ได้
+- [ ] อัปโหลดรูปปก Content ได้
+- [ ] อัปโหลด PDF ได้
 
 ## สำหรับ Production
 - [ ] `docker compose ps` เห็น 4 containers running
 - [ ] เข้า http://your-domain ได้
-- [ ] Login เข้า Admin ได้
+- [ ] Login เข้า Admin ได้ (URL: /aru-scdur-panel)
 - [ ] อัปโหลดรูปภาพได้
-- [ ] อัปโหลดไฟล์ PDF ขนาดใหญ่ได้ (ทดสอบ 15-20 MB)
+- [ ] อัปโหลดไฟล์ PDF ได้
 - [ ] ตั้งค่า SSL/HTTPS
 
 ---
