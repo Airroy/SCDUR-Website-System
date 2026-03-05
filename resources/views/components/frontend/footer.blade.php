@@ -8,7 +8,7 @@
             <h3 class="text-gray-600 text-xl font-semibold mb-5">
                 แนะนำหน่วยงาน
             </h3>
-            <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
+            <p class="text-gray-600 leading-content my-2.5 text-nav">
                 <a href="/" class="text-gray-600 underline transition-colors duration-300 hover:text-red-600">มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน</a>
             </p>
         </div>
@@ -18,7 +18,7 @@
             <h3 class="text-gray-600 text-xl font-semibold mb-5">
                 เอกสารประชาสัมพันธ์
             </h3>
-            <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
+            <p class="text-gray-600 leading-content my-2.5 text-nav">
                 <a href="#" class="text-gray-600 underline transition-colors duration-300 hover:text-red-600">เอกสารแนบฟอร์ม</a>
             </p>
         </div>
@@ -28,19 +28,19 @@
             <h3 class="text-gray-600 text-xl font-semibold mb-5">
                 ติดต่อเรา
             </h3>
-            <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
+            <p class="text-gray-600 leading-content my-2.5 text-nav">
                 มหาวิทยาลัยกับการพัฒนาชุมชนอย่างยั่งยืน<br>
                 มหาวิทยาลัยราชภัฏพระนครศรีอยุธยา
             </p>
-            <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
+            <p class="text-gray-600 leading-content my-2.5 text-nav">
                 เลขที่ 96 ถ.ปรีดีพนมยงค์ ต.ประตูชัย อ.พระนครศรีอยุธยา<br>
                 จ.พระนครศรีอยุธยา 13000
             </p>
-            <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
+            <p class="text-gray-600 leading-content my-2.5 text-nav">
                 Email: <a href="mailto:ISC@aru.ac.th"
                     class="text-gray-600 underline transition-colors duration-300 hover:text-red-600">ISC@aru.ac.th</a>
             </p>
-            <p class="text-gray-600 leading-[1.8] my-2.5 text-[15px]">
+            <p class="text-gray-600 leading-content my-2.5 text-nav">
                 TEL: <a href="tel:0-3532-2589"
                     class="text-gray-600 underline transition-colors duration-300 hover:text-red-600">0-3532-2589</a>
             </p>
@@ -48,7 +48,7 @@
     </div>
 
     <!-- Footer Bottom -->
-    <div class="bg-[#2d2921] text-center py-5 text-white text-sm">
+    <div class="bg-brand-dark text-center py-5 text-white text-sm">
         <p>
             Sustainable Community Development University Ranking: SCDUR .
             Designed By <a href="#" class="text-yellow-600 no-underline hover:underline">Thitirat Kawbonsut</a>

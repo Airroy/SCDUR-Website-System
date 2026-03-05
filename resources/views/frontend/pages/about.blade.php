@@ -8,16 +8,16 @@
                 class="bg-white relative w-full overflow-hidden shadow-lg border border-gray-200 p-6 sm:p-8 mb-6 sm:mb-8">
                 <!-- Breadcrumb -->
                 <nav class="text-sm text-gray-600 mb-2">
-                    <a href="{{ route('home') }}" class="hover:text-[#af1a00] hover:underline transition-all">
+                    <a href="{{ route('home') }}" class="hover:text-brand-red hover:underline transition-all">
                         หน้าหลัก
                     </a>
                     <span class="mx-2 text-gray-400">›</span>
-                    <span class="text-[#af1a00] font-semibold">เกี่ยวกับหน่วยงาน</span>
+                    <span class="text-brand-red font-semibold">เกี่ยวกับหน่วยงาน</span>
                 </nav>
 
                 <!-- เส้นสีแดงสวยๆ -->
                 <div class="mb-6">
-                    <div class="h-1 bg-[#af1a00] shadow-sm"></div>
+                    <div class="h-1 bg-brand-red shadow-sm"></div>
                 </div>
 
                 <h1 class="text-3xl font-bold text-gray-900 mb-6">เกี่ยวกับหน่วยงาน</h1>

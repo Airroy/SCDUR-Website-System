@@ -36,11 +36,11 @@
                     @endif
                     @if ($lastBanner->link_type === 'url' && $lastBanner->link_url)
                         <a href="{{ $lastBanner->link_url }}" target="_blank" rel="noopener noreferrer"
-                            class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
+                            class="absolute inset-0 left-15pct right-15pct bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                     @elseif($lastBanner->link_type === 'pdf' && $lastBanner->pdf_path)
                         <a href="{{ route('banner.pdf.view', [$lastBanner->id, basename($lastBanner->pdf_path)]) }}"
                             target="_blank" rel="noopener noreferrer"
-                            class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
+                            class="absolute inset-0 left-15pct right-15pct bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                     @endif
                 </div>
 
@@ -62,11 +62,11 @@
                         @endif
                         @if ($banner->link_type === 'url' && $banner->link_url)
                             <a href="{{ $banner->link_url }}" target="_blank" rel="noopener noreferrer"
-                                class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
+                                class="absolute inset-0 left-15pct right-15pct bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                         @elseif($banner->link_type === 'pdf' && $banner->pdf_path)
                             <a href="{{ route('banner.pdf.view', [$banner->id, basename($banner->pdf_path)]) }}"
                                 target="_blank" rel="noopener noreferrer"
-                                class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
+                                class="absolute inset-0 left-15pct right-15pct bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                         @endif
                     </div>
                 @endforeach
@@ -88,11 +88,11 @@
                     @endif
                     @if ($firstBanner->link_type === 'url' && $firstBanner->link_url)
                         <a href="{{ $firstBanner->link_url }}" target="_blank" rel="noopener noreferrer"
-                            class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
+                            class="absolute inset-0 left-15pct right-15pct bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                     @elseif($firstBanner->link_type === 'pdf' && $firstBanner->pdf_path)
                         <a href="{{ route('banner.pdf.view', [$firstBanner->id, basename($firstBanner->pdf_path)]) }}"
                             target="_blank" rel="noopener noreferrer"
-                            class="absolute inset-0 left-[15%] right-[15%] bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
+                            class="absolute inset-0 left-15pct right-15pct bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer z-10"></a>
                     @endif
                 </div>
             </div>
@@ -131,7 +131,7 @@
                     @foreach ($slides as $index => $banner)
                         <button @click="goTo({{ $index }})"
                             class="w-3 h-3 rounded-full cursor-pointer transition-all duration-300 shadow-sm"
-                            :class="currentSlide === {{ $index }} ? 'bg-[#af1a00] scale-125' :
+                            :class="currentSlide === {{ $index }} ? 'bg-brand-red scale-125' :
                                 'bg-white/60 hover:bg-white'"
                             aria-label="Go to slide {{ $index + 1 }}">
                         </button>

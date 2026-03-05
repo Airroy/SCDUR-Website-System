@@ -25,7 +25,7 @@
                     {{-- ชื่อหมวดหมู่ --}}
                     <div class="p-3">
                         <p
-                            class="text-sm font-semibold text-gray-800 text-center group-hover:text-[#af1a00] transition-colors line-clamp-2">
+                            class="text-sm font-semibold text-gray-800 text-center group-hover:text-brand-red transition-colors line-clamp-2">
                             {{ $section->name }}
                         </p>
                     </div>

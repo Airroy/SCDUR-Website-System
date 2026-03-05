@@ -12,9 +12,9 @@
 <body class="antialiased bg-gray-50 flex flex-col min-h-screen">
     
     <!-- Top Bar -->
-    <div class="bg-[#FFD87F]">
+    <div class="bg-brand-yellow">
         <div class="max-w-7xl mx-auto px-4 py-2.5">
-            <p class="text-center text-base font-light text-[#1e3c72]">
+            <p class="text-center text-base font-light text-brand-blue">
                 Phranakhon Si Ayutthaya Rajabhat University
             </p>
         </div>
@@ -28,7 +28,7 @@
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                 
                 <!-- Header -->
-                <div class="bg-gradient-to-r from-[#af1a00] to-red-700 px-8 py-6 text-center">
+                <div class="bg-gradient-to-r from-brand-red to-red-700 px-8 py-6 text-center">
                     <h1 class="text-7xl md:text-8xl font-bold text-white mb-2">503</h1>
                     <p class="text-red-200 text-sm font-medium tracking-wider">SERVICE UNAVAILABLE</p>
                 </div>
@@ -71,7 +71,7 @@
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-3 justify-center">
                         <button onclick="location.reload()"
-                            class="px-6 py-3 bg-[#af1a00] text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200">
+                            class="px-6 py-3 bg-brand-red text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200">
                             รีเฟรชหน้า
                         </button>
                         <a href="{{ url('/') }}"
@@ -86,7 +86,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-[#2d2921] text-center py-4 text-white text-sm">
+    <footer class="bg-brand-dark text-center py-4 text-white text-sm">
         <p>&copy; {{ date('Y') }} {{ config('app.name', 'ARU-SCD') }} - Sustainable Community Development</p>
     </footer>
 

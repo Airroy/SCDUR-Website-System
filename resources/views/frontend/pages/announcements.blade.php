@@ -7,14 +7,14 @@
                 class="bg-white relative w-full overflow-hidden shadow-lg border border-gray-200 p-6 sm:p-8 mb-6 sm:mb-8">
                 <!-- Breadcrumb -->
                 <nav class="text-sm text-gray-600 mb-2">
-                    <a href="{{ route('home') }}" class="hover:text-[#af1a00] transition-colors">หน้าหลัก</a>
+                    <a href="{{ route('home') }}" class="hover:text-brand-red transition-colors">หน้าหลัก</a>
                     <span class="mx-2 text-gray-400">›</span>
-                    <span class="text-[#af1a00] font-semibold">ประกาศ/คำสั่ง SCD {{ $year->year }}</span>
+                    <span class="text-brand-red font-semibold">ประกาศ/คำสั่ง SCD {{ $year->year }}</span>
                 </nav>
 
                 <!-- เส้นสีแดงสวยๆ -->
                 <div class="mb-6">
-                    <div class="h-1 bg-[#af1a00] shadow-sm"></div>
+                    <div class="h-1 bg-brand-red shadow-sm"></div>
                 </div>
 
                 <!-- Title -->
@@ -26,7 +26,7 @@
             <!-- ประกาศ -->
             <div class="mb-8 sm:mb-12">
                 <div class="bg-white shadow-md border border-gray-200 overflow-hidden">
-                    <div class="bg-[#af1a00] px-4 sm:px-6 py-3 sm:py-4">
+                    <div class="bg-brand-red px-4 sm:px-6 py-3 sm:py-4">
                         <h2 class="text-lg sm:text-xl font-semibold text-white">
                             ประกาศ
                         </h2>
@@ -52,7 +52,7 @@
             <!-- คำสั่ง -->
             <div>
                 <div class="bg-white shadow-md border border-gray-200 overflow-hidden">
-                    <div class="bg-[#af1a00] px-4 sm:px-6 py-3 sm:py-4">
+                    <div class="bg-brand-red px-4 sm:px-6 py-3 sm:py-4">
                         <h2 class="text-lg sm:text-xl font-semibold text-white">
                             คำสั่ง
                         </h2>

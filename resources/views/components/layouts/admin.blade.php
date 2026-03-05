@@ -20,7 +20,7 @@
 
         <!-- Sidebar -->
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-            class="fixed lg:static inset-y-0 left-0 z-[60] w-64 flex-shrink-0 bg-gradient-to-b from-red-600 to-red-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0">
+            class="fixed lg:static inset-y-0 left-0 z-dropdown w-64 flex-shrink-0 bg-gradient-to-b from-red-600 to-red-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0">
             @php
                 $allYears = \App\Models\ScdYear::orderBy('year', 'desc')->get();
                 $currentYear = $allYears->where('is_published', true)->first() ?? $allYears->first();
@@ -110,7 +110,7 @@
                             <!-- ปุ่มเพิ่ม/จัดการปี -->
                             <div class="px-3 pt-2 pb-2 border-b border-gray-100">
                                 <a href="{{ route('admin.years.index') }}"
-                                    class="flex items-center justify-center gap-1.5 w-full px-2 py-2.5 rounded-md text-[11px] font-semibold transition-all
+                                    class="flex items-center justify-center gap-1.5 w-full px-2 py-2.5 rounded-md text-micro font-semibold transition-all
                                         {{ request()->routeIs('admin.years.*') ? 'bg-red-600 text-white' : 'bg-red-100 text-red-600 hover:bg-red-100' }}">
                                     <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -250,7 +250,7 @@
             x-transition:leave="transition-opacity ease-linear duration-300"
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 bg-gray-600 bg-opacity-75 z-[55] lg:hidden">
+            class="fixed inset-0 bg-gray-600 bg-opacity-75 z-overlay lg:hidden">
         </div>
     </div>
 

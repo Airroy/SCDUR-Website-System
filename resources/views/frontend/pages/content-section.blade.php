@@ -9,21 +9,21 @@
             <div class="bg-white shadow-md border border-gray-200 p-6 sm:p-8 mb-6 sm:mb-8">
                 <!-- Breadcrumb -->
                 <nav class="text-sm text-gray-600 mb-2">
-                    <a href="{{ route('home') }}" class="hover:text-[#af1a00] hover:underline transition-all">
+                    <a href="{{ route('home') }}" class="hover:text-brand-red hover:underline transition-all">
                         หน้าหลัก
                     </a>
                     <span class="mx-2 text-gray-400">›</span>
                     <a href="{{ route('scd.year', $section->scdYear->year) }}"
-                        class="hover:text-[#af1a00] hover:underline transition-all">
+                        class="hover:text-brand-red hover:underline transition-all">
                         SCD{{ $section->scdYear->year }}
                     </a>
                     <span class="mx-2 text-gray-400">›</span>
-                    <span class="text-[#af1a00] font-semibold">{{ $section->name }}</span>
+                    <span class="text-brand-red font-semibold">{{ $section->name }}</span>
                 </nav>
 
                 <!-- เส้นสีแดงสวยๆ -->
                 <div class="mb-6">
-                    <div class="h-1 bg-[#af1a00] shadow-sm"></div>
+                    <div class="h-1 bg-brand-red shadow-sm"></div>
                 </div>
 
                 <!-- Title -->
@@ -35,7 +35,7 @@
             <!-- Items Section -->
             <div>
                 <div class="bg-white relative w-full overflow-hidden shadow-lg">
-                    <div class="bg-[#af1a00] px-4 sm:px-6 py-3 sm:py-4 flex justify-center">
+                    <div class="bg-brand-red px-4 sm:px-6 py-3 sm:py-4 flex justify-center">
                         <h2 class="text-lg sm:text-xl font-semibold text-white">
                             Indicators
                         </h2>

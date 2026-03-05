@@ -133,7 +133,7 @@
                 <div style='
                     padding:${isMobile ? '1rem' : '1.25rem'};
                     border-bottom:1px solid #e5e7eb;
-                    background:linear-gradient(to right,#dc2626,#b91c1c);
+                    background:linear-gradient(to right,var(--brand-red),var(--brand-red-medium));
                     flex-shrink:0;
                 '>
                     <div style='display:flex;align-items:center;justify-content:space-between;'>
@@ -142,7 +142,7 @@
                                 <svg width='20' height='20' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z'/></svg>
                                 ครอปรูปภาพ ({{ $aspectRatioLabel }})
                             </h3>
-                            <p style='font-size:0.75rem;color:#fecaca;margin:0.25rem 0 0;'>
+                            <p style='font-size:0.75rem;color:var(--brand-red-light);margin:0.25rem 0 0;'>
                                 ${isMobile ? 'Pinch เพื่อซูม หรือลากเพื่อปรับตำแหน่ง' : 'ลากเพื่อปรับตำแหน่ง หรือใช้ scroll เพื่อซูม'}
                             </p>
                         </div>
@@ -160,8 +160,8 @@
                 </div>
 
                 <!-- Hint -->
-                <div style='padding:0.625rem 1rem;background:#fef2f2;border-top:1px solid #fecaca;flex-shrink:0;'>
-                    <div style='display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;color:#991b1b;'>
+                <div style='padding:0.625rem 1rem;background:var(--brand-red-lightest);border-top:1px solid var(--brand-red-light);flex-shrink:0;'>
+                    <div style='display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;color:var(--brand-red-darker);'>
                         <svg width='16' height='16' fill='currentColor' viewBox='0 0 20 20' style='flex-shrink:0;'><path fill-rule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z' clip-rule='evenodd'/></svg>
                         <span>${isMobile ? 'ใช้นิ้วสองนิ้ว Pinch เพื่อซูม ลากเพื่อปรับตำแหน่ง' : 'ลากรูปภาพเพื่อปรับตำแหน่ง หรือใช้ลูกกลิ้งเมาส์เพื่อซูม'}</span>
                     </div>

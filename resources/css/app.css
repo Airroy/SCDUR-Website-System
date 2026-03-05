@@ -2,11 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --brand-yellow: #FFD87F;
+    --brand-blue: #1e3c72;
+    --brand-pink: #ff9f8e;
+    --brand-red: #af1a00;
+    --brand-red-medium: #a82200;
+    --brand-red-dark: #8a1500;
+    --brand-red-darker: #6b1000;
+    --brand-red-light: #fecaca;
+    --brand-red-lightest: #fef2f2;
+    --brand-orange: #ff6d54;
+    --brand-gold: #cba351;
+    --brand-dark: #2d2921;
+}
+
 @layer utilities {
     .scrollbar-hide {
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
     }

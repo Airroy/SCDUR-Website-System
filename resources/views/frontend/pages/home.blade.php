@@ -22,10 +22,10 @@
                 <div class="bg-white relative w-full overflow-hidden shadow-lg p-8 md:p-12 border border-gray-200">
                     <!-- Title with bottom border -->
                     <div class="mb-10">
-                        <h1 class="text-4xl md:text-3xl font-normal text-[#af1a00]">
+                        <h1 class="text-4xl md:text-3xl font-normal text-brand-red">
                             ARU-SCD{{ $activeYear->year }}
                         </h1>
-                        <div class="mt-3 h-1 bg-[#af1a00] w-full"></div>
+                        <div class="mt-3 h-1 bg-brand-red w-full"></div>
                     </div>
 
                     <!-- Content Grid -->
@@ -79,10 +79,10 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="bg-white shadow-xl p-8 md:p-12 border border-gray-200">
                     <div class="mb-10">
-                        <h1 class="text-4xl md:text-5xl font-bold text-[#af1a00]">
+                        <h1 class="text-4xl md:text-5xl font-bold text-brand-red">
                             ARU-SCD{{ $activeYear->year }}
                         </h1>
-                        <div class="mt-3 h-1 bg-[#af1a00] w-full"></div>
+                        <div class="mt-3 h-1 bg-brand-red w-full"></div>
                     </div>
                     <div class="text-center py-16">
                         <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor"

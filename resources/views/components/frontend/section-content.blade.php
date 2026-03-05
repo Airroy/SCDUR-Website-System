@@ -8,7 +8,7 @@
 
 <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 mb-8">
     {{-- Header --}}
-    <div class="bg-[#af1a00] px-6 py-4 flex justify-center items-center">
+    <div class="bg-brand-red px-6 py-4 flex justify-center items-center">
         <h2 class="text-xl font-semibold text-white">{{ $title }}</h2>
     </div>
 

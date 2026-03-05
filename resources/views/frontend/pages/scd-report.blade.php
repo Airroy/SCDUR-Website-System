@@ -2,7 +2,7 @@
     <x-slot:title>ARU-SCD{{ $year->year }} - รายงาน SCD</x-slot:title>
 
     <!-- Header Section - Improved Mobile -->
-    <section class="py-8 sm:py-12 bg-gradient-to-b from-[#af1a00] to-[#8b1500]">
+    <section class="py-8 sm:py-12 bg-gradient-to-b from-brand-red to-brand-red-dark">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center break-words">
                 ARU-SCD{{ $year->year }}
@@ -22,7 +22,7 @@
                         <!-- Icon & Text -->
                         <div class="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
                             <div class="flex-shrink-0">
-                                <svg class="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-[#af1a00]" fill="none"
+                                <svg class="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-brand-red" fill="none"
                                     stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -56,7 +56,7 @@
 
                             <!-- Download Button -->
                             <a href="{{ route('scd-report.download', $year->year) }}"
-                                class="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#af1a00] hover:bg-[#8b1500] text-white text-sm sm:text-base font-semibold rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg whitespace-nowrap">
+                                class="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-brand-red hover:bg-brand-red-dark text-white text-sm sm:text-base font-semibold rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg whitespace-nowrap">
                                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -80,7 +80,7 @@
                     <h2 class="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-800 text-center mb-2">
                         เนื้อหาภายในรายงาน
                     </h2>
-                    <div class="w-20 sm:w-24 h-1 bg-[#af1a00] mx-auto"></div>
+                    <div class="w-20 sm:w-24 h-1 bg-brand-red mx-auto"></div>
                 </div>
 
                 <!-- Content Grid - Responsive -->
@@ -100,13 +100,13 @@
                                         <!-- Image Container -->
                                         @if ($section->image_path)
                                             <div
-                                                class="relative w-full aspect-video overflow-hidden rounded-lg shadow-[0_4px_15px_rgba(0,0,0,0.15)] group-hover:shadow-[0_8px_25px_rgba(0,0,0,0.25)] transition-shadow duration-300">
+                                                class="relative w-full aspect-video overflow-hidden rounded-lg shadow-soft group-hover:shadow-card transition-shadow duration-300">
                                                 <img src="{{ Storage::url($section->image_path) }}"
                                                     alt="{{ $section->name }}" class="w-full h-full object-cover">
                                             </div>
                                         @else
                                             <div
-                                                class="relative w-full aspect-video overflow-hidden rounded-lg shadow-[0_4px_15px_rgba(0,0,0,0.15)] group-hover:shadow-[0_8px_25px_rgba(0,0,0,0.25)] transition-shadow duration-300 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                                class="relative w-full aspect-video overflow-hidden rounded-lg shadow-soft group-hover:shadow-card transition-shadow duration-300 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                                                 <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400" fill="none"
                                                     stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -118,7 +118,7 @@
 
                                         <!-- Text -->
                                         <p
-                                            class="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-gray-800 group-hover:text-[#af1a00] transition-colors duration-200 break-words px-1">
+                                            class="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-gray-800 group-hover:text-brand-red transition-colors duration-200 break-words px-1">
                                             {{ $section->name }}
                                         </p>
                                         @if (isset($section->files_count) && $section->files_count > 0)

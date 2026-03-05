@@ -135,7 +135,7 @@
         {{-- Custom Confirm Modal (teleport ไป body) --}}
         <template x-teleport="body">
             <div x-show="showConfirm" style="display:none;"
-                class="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                class="fixed inset-0 z-modal flex items-center justify-center p-4">
                 {{-- Overlay --}}
                 <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showConfirm = false">
                 </div>

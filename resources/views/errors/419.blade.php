@@ -18,9 +18,9 @@
 <body class="antialiased bg-gray-50 flex flex-col min-h-screen">
 
     <!-- Top Bar -->
-    <div class="bg-[#FFD87F]">
+    <div class="bg-brand-yellow">
         <div class="max-w-7xl mx-auto px-4 py-2.5">
-            <p class="text-center text-base font-light text-[#1e3c72]">
+            <p class="text-center text-base font-light text-brand-blue">
                 Phranakhon Si Ayutthaya Rajabhat University
             </p>
         </div>
@@ -34,7 +34,7 @@
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
 
                 <!-- Header -->
-                <div class="bg-gradient-to-r from-[#af1a00] to-red-700 px-8 py-6 text-center">
+                <div class="bg-gradient-to-r from-brand-red to-red-700 px-8 py-6 text-center">
                     <h1 class="text-7xl md:text-8xl font-bold text-white mb-2">419</h1>
                     <p class="text-red-200 text-sm font-medium tracking-wider">SESSION EXPIRED</p>
                 </div>
@@ -45,7 +45,7 @@
                     <!-- Icon -->
                     <div class="mb-6">
                         <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 rounded-full">
-                            <svg class="w-8 h-8 text-[#af1a00]" fill="none" stroke="currentColor"
+                            <svg class="w-8 h-8 text-brand-red" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -78,7 +78,7 @@
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-3 justify-center">
                         <button onclick="location.reload()"
-                            class="px-6 py-3 bg-[#af1a00] text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200">
+                            class="px-6 py-3 bg-brand-red text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200">
                             รีเฟรชหน้า
                         </button>
                         <a href="{{ url('/') }}"
@@ -93,7 +93,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-[#2d2921] text-center py-4 text-white text-sm">
+    <footer class="bg-brand-dark text-center py-4 text-white text-sm">
         <p>&copy; {{ date('Y') }} {{ config('app.name', 'ARU-SCD') }} - Sustainable Community Development</p>
     </footer>
 </body>
