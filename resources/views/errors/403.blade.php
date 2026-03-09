@@ -4,14 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>403 - ไม่มีสิทธิ์เข้าถึง | {{ config('app.name', 'ARU-SCD') }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-    <style>
-        body {
-            font-family: 'Figtree', sans-serif;
-        }
-    </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="antialiased bg-gray-50 flex flex-col min-h-screen">
     <!-- Top Bar -->
@@ -68,7 +61,7 @@
 
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center">
-                        <a href="{{ url('/') }}"
+                        <a href="{{ auth()->check() ? route('admin.dashboard') : url('/') }}"
                             class="w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-brand-red text-white text-sm sm:text-base font-medium rounded-lg hover:bg-red-700 transition-colors duration-200">
                             กลับหน้าหลัก
                         </a>

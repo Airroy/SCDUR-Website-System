@@ -70,26 +70,3 @@ Route::prefix('admin')->name('admin.')->middleware(['admin.auth'])->group(functi
 });
 
 require __DIR__ . '/auth.php';
-
-// Error Pages Preview Routes - เฉพาะ Admin เท่านั้น
-Route::prefix('error-preview')->middleware('auth')->group(function () {
-    Route::get('/403', function () {
-        return view('errors.403');
-    })->name('preview.error.403');
-
-    Route::get('/404', function () {
-        return view('errors.404');
-    })->name('preview.error.404');
-
-    Route::get('/419', function () {
-        return view('errors.419');
-    })->name('preview.error.419');
-
-    Route::get('/500', function () {
-        return view('errors.500');
-    })->name('preview.error.500');
-
-    Route::get('/503', function () {
-        return view('errors.503');
-    })->name('preview.error.503');
-});

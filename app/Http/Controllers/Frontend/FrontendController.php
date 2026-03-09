@@ -102,7 +102,7 @@ class FrontendController extends Controller
         // นับจำนวนการดู (ป้องกันนับซ้ำใน session เดียวกัน)
         $sessionKey = "viewed_{$source}_{$id}";
         if (!session()->has($sessionKey)) {
-            $item->withoutTimestamps()->increment('view_count');
+            $item::withoutTimestamps(fn () => $item->increment('view_count'));
             session()->put($sessionKey, true);
         }
 
@@ -141,7 +141,7 @@ class FrontendController extends Controller
         // นับจำนวนดาวน์โหลด (ป้องกันนับซ้ำใน session เดียวกัน)
         $sessionKey = "downloaded_{$source}_{$id}";
         if (!session()->has($sessionKey)) {
-            $item->withoutTimestamps()->increment('download_count');
+            $item::withoutTimestamps(fn () => $item->increment('download_count'));
             session()->put($sessionKey, true);
         }
 

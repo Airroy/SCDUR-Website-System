@@ -112,32 +112,32 @@
 
         <!-- Desktop Table View (>= md) -->
         <div class="hidden md:block overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="min-w-full table-fixed divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col"
-                            class="w-20 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="w-[5%] px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ลำดับ</th>
                         {{-- แสดง column รูปภาพเฉพาะเมื่อมีรูปจริงๆ ใน contents --}}
                         @if ($hasAnyImage)
                             <th scope="col"
-                                class="hidden lg:table-cell w-40 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                class="hidden lg:table-cell w-[10%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 รูปภาพ</th>
                         @endif
                         <th scope="col"
                             class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ชื่อรายการ</th>
                         <th scope="col"
-                            class="w-28 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="w-[8%] px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ประเภท</th>
                         <th scope="col"
-                            class="w-28 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="w-[8%] px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             สถานะ</th>
                         <th scope="col"
-                            class="hidden lg:table-cell w-36 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="hidden lg:table-cell w-[12%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             วันที่อัปเดตล่าสุด</th>
                         <th scope="col"
-                            class="w-72 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="w-[20%] px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                             จัดการ</th>
                     </tr>
                 </thead>
@@ -159,7 +159,7 @@
                                 </td>
                             @endif
                             <td class="px-4 lg:px-6 py-4">
-                                <div class="max-w-md overflow-hidden">
+                                <div class="overflow-hidden">
                                     @if ($content->type === 'folder')
                                         <button type="button" wire:click="navigateToFolder({{ $content->id }})"
                                             class="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate block w-full text-left"
@@ -167,11 +167,11 @@
                                             {{ $content->name }}
                                         </button>
                                     @else
-                                        <div class="text-sm font-medium text-gray-900 truncate w-full"
+                                        <div class="text-sm font-medium text-gray-900 truncate"
                                             title="{{ $content->name }}">{{ $content->name }}</div>
                                     @endif
                                     @if ($content->type === 'file' && $content->file_path)
-                                        <div class="text-xs text-gray-500 truncate w-full mt-0.5"
+                                        <div class="text-xs text-gray-500 truncate mt-0.5"
                                             title="{{ basename($content->file_path) }}">
                                             {{ basename($content->file_path) }}</div>
                                     @endif
@@ -202,7 +202,7 @@
                                 {{ $content->updated_at->toThaiDateFull() }}
                             </td>
                             <td class="px-4 lg:px-6 py-4 text-sm font-medium">
-                                <div class="flex flex-wrap items-center gap-2">
+                                <div class="flex flex-nowrap items-center justify-end gap-2">
                                     @if ($content->type === 'folder')
                                         <x-backend.action-button color="blue" label="เปิด"
                                             action="navigateToFolder({{ $content->id }})" />

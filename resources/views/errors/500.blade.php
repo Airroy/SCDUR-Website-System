@@ -5,14 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>500 - เกิดข้อผิดพลาด | {{ config('app.name', 'ARU-SCD') }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-    <style>
-        body {
-            font-family: 'Figtree', sans-serif;
-        }
-    </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body class="antialiased bg-gray-50 flex flex-col min-h-screen">
@@ -77,7 +70,7 @@
                             class="px-6 py-3 bg-brand-red text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200">
                             ลองอีกครั้ง
                         </button>
-                        <a href="{{ url('/') }}"
+                        <a href="{{ auth()->check() ? route('admin.dashboard') : url('/') }}"
                             class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200">
                             กลับหน้าหลัก
                         </a>
