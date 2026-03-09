@@ -48,4 +48,5 @@ class ScdYear extends Model
     {
         return 'SCD ' . $this->year;
     }
+
 }

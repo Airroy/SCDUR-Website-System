@@ -23,6 +23,7 @@
                         <tr>
                             <th class="w-36 px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">ปี</th>
                             <th class="hidden sm:table-cell w-44 px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">วันที่สร้าง</th>
+                            <th class="hidden sm:table-cell w-44 px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">วันที่อัปเดตล่าสุด</th>
                             <th class="w-40 px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">สถานะ</th>
                             <th class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">จัดการ</th>
                         </tr>
@@ -32,6 +33,9 @@
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{{ $year->year }}</td>
                             <td class="hidden sm:table-cell px-4 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">{{ $year->created_date->toThaiDateFull() }}</td>
+                            <td class="hidden sm:table-cell px-4 sm:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
+                                {{ $year->updated_at ? $year->updated_at->toThaiDateFull() : '-' }}
+                            </td>
                             <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                                 <button wire:click="togglePublish({{ $year->id }})" 
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition {{ $year->is_published ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-gray-100 text-gray-800 hover:bg-gray-200' }}">

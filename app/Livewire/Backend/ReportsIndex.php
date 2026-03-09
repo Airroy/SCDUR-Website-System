@@ -80,6 +80,7 @@ class ReportsIndex extends Component
         }
 
         ScdReport::create($data);
+        $this->selectedYear->touch();
         $this->resetForm();
         $this->showModal = false;
     }
@@ -97,6 +98,7 @@ class ReportsIndex extends Component
         }
 
         $report->update($data);
+        $this->selectedYear->touch();
         $this->resetForm();
         $this->showModal = false;
     }
@@ -106,6 +108,7 @@ class ReportsIndex extends Component
         $report = ScdReport::findOrFail($reportId);
         if ($report->file_path) Storage::disk('public')->delete($report->file_path);
         $report->delete();
+        $this->selectedYear->touch();
     }
 
     private function resetForm()

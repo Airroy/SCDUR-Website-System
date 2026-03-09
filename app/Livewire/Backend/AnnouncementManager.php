@@ -19,12 +19,10 @@ class AnnouncementManager extends Component
     public $hasFilesInParent = false;
     public $hasFoldersInParent = false;
 
-    // Modal state
     public $showModal = false;
     public $editMode = false;
     public $nodeId = null;
 
-    // Form fields
     public $sequence;
     public $name;
     public $type = 'folder';
@@ -120,7 +118,6 @@ class AnnouncementManager extends Component
     {
         $model = $this->getModel();
 
-        // Auto sequence: ต่อท้ายกลุ่มเดียวกัน (visible/hidden)
         $nextSequence = ($model::where('scd_year_id', $this->year->id)
             ->where('parent_id', $this->parentId)
             ->where('is_hidden', $this->is_hidden)
@@ -142,6 +139,7 @@ class AnnouncementManager extends Component
         }
 
         $model::create($data);
+        $this->year->touch();
 
         $this->showModal = false;
         $this->dispatch('notify', [
@@ -179,10 +177,9 @@ class AnnouncementManager extends Component
         }
 
         $node->update($data);
+        $this->year->touch();
 
-        // ถ้าเปลี่ยน is_hidden ให้ re-sequence ทั้งสองกลุ่ม
         if ($oldHidden !== (bool) $this->is_hidden) {
-            // re-sequence กลุ่มเดิม
             $oldGroup = $model::where('scd_year_id', $this->year->id)
                 ->where('parent_id', $this->parentId)
                 ->where('is_hidden', $oldHidden)
@@ -191,7 +188,6 @@ class AnnouncementManager extends Component
             foreach ($oldGroup as $index => $item) {
                 $item->update(['sequence' => $index + 1]);
             }
-            // ใส่ท้ายกลุ่มใหม่
             $newMax = $model::where('scd_year_id', $this->year->id)
                 ->where('parent_id', $this->parentId)
                 ->where('is_hidden', $this->is_hidden)
@@ -221,7 +217,6 @@ class AnnouncementManager extends Component
         $this->deleteChildren($node->id);
         $node->delete();
 
-        // Re-sequence เฉพาะกลุ่มเดียวกัน (visible/hidden แยกกัน)
         $remaining = $model::where('scd_year_id', $this->year->id)
             ->where('parent_id', $this->parentId)
             ->where('is_hidden', $deletedHidden)
@@ -230,6 +225,8 @@ class AnnouncementManager extends Component
         foreach ($remaining as $index => $item) {
             $item->update(['sequence' => $index + 1]);
         }
+
+        $this->year->touch();
 
         $remainingFiles = $model::where('scd_year_id', $this->year->id)
             ->where('parent_id', $this->parentId)

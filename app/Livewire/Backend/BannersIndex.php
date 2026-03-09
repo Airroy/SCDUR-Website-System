@@ -74,6 +74,7 @@ class BannersIndex extends Component
         foreach ($orderedIds as $index => $id) {
             Banner::where('id', $id)->update(['sequence' => $index + 1]);
         }
+        $this->selectedYear->touch();
         $this->showSortModal = false;
         $this->sortableItems = [];
         $this->dispatch('notify', ['message' => 'บันทึกลำดับสำเร็จ', 'type' => 'success']);
@@ -163,6 +164,7 @@ class BannersIndex extends Component
         }
 
         Banner::create($data);
+        $this->selectedYear->touch();
         $this->showModal = false;
         $this->dispatch('notify', ['message' => 'เพิ่มรูปภาพสไลด์สำเร็จ', 'type' => 'success']);
     }
@@ -198,10 +200,9 @@ class BannersIndex extends Component
 
         $oldCategory = $banner->category;
         $banner->update($data);
+        $this->selectedYear->touch();
 
-        // ถ้าเปลี่ยน category ให้ re-sequence ทั้งสอง category
         if ((int)$oldCategory !== (int)$this->category) {
-            // re-sequence category เดิม
             $remaining = Banner::where('scd_year_id', $this->selectedYear->id)
                 ->where('category', $oldCategory)
                 ->orderBy('sequence')
@@ -209,7 +210,6 @@ class BannersIndex extends Component
             foreach ($remaining as $index => $item) {
                 $item->update(['sequence' => $index + 1]);
             }
-            // ใส่ที่ท้าย category ใหม่ (ไม่นับ banner ตัวนี้)
             $newMax = Banner::where('scd_year_id', $this->selectedYear->id)
                 ->where('category', $this->category)
                 ->where('id', '!=', $banner->id)
@@ -227,6 +227,7 @@ class BannersIndex extends Component
         if ($banner->image_path) Storage::disk('public')->delete($banner->image_path);
         if ($banner->pdf_path) Storage::disk('public')->delete($banner->pdf_path);
         $banner->delete();
+        $this->selectedYear->touch();
         $this->dispatch('notify', ['message' => 'ลบรูปภาพสไลด์สำเร็จ', 'type' => 'success']);
     }
 

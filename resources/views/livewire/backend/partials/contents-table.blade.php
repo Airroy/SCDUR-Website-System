@@ -129,10 +129,13 @@
                             ชื่อรายการ</th>
                         <th scope="col"
                             class="w-28 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ชนิด</th>
+                            ประเภท</th>
                         <th scope="col"
                             class="w-28 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             สถานะ</th>
+                        <th scope="col"
+                            class="hidden lg:table-cell w-36 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            วันที่อัปเดตล่าสุด</th>
                         <th scope="col"
                             class="w-72 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             จัดการ</th>
@@ -194,6 +197,9 @@
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap {{ $content->is_hidden ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-800' }}">
                                     {{ $content->is_hidden ? 'ซ่อน' : 'แสดงผล' }}
                                 </span>
+                            </td>
+                            <td class="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $content->updated_at->toThaiDateFull() }}
                             </td>
                             <td class="px-4 lg:px-6 py-4 text-sm font-medium">
                                 <div class="flex flex-wrap items-center gap-2">

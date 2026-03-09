@@ -20,7 +20,7 @@
                 <!-- หน้าหลัก -->
                 <li class="relative">
                     <a href="{{ route('home') }}"
-                        class="block py-nav-y px-5 text-white no-underline text-nav font-normal transition-all duration-200 hover:bg-brand-red-dark whitespace-nowrap">
+                        class="block py-nav-y px-8 text-white no-underline text-nav font-normal transition-all duration-200 hover:bg-brand-red-dark whitespace-nowrap">
                         หน้าหลัก
                     </a>
                 </li>
@@ -28,7 +28,7 @@
                 <!-- เกี่ยวกับหน่วยงาน -->
                 <li class="relative">
                     <a href="{{ route('about') }}"
-                        class="block py-nav-y px-5 text-white no-underline text-nav font-normal transition-all duration-200 hover:bg-brand-red-dark whitespace-nowrap">
+                        class="block py-nav-y px-8 text-white no-underline text-nav font-normal transition-all duration-200 hover:bg-brand-red-dark whitespace-nowrap">
                         เกี่ยวกับหน่วยงาน
                     </a>
                 </li>
@@ -36,12 +36,12 @@
                 <!-- SCD Rankings Dropdown -->
                 <li class="relative group">
                     <a href="#"
-                        class="dropdown-toggle block py-nav-y px-5 text-white no-underline text-nav font-normal transition-all duration-200 hover:bg-brand-red-dark whitespace-nowrap">
+                        class="dropdown-toggle block py-nav-y px-8 text-white no-underline text-nav font-normal transition-all duration-200 hover:bg-brand-red-dark whitespace-nowrap">
                         SCD Rankings <i class="fa fa-chevron-down ml-1 text-badge"></i>
                     </a>
                     <!-- Dropdown -->
                     <ul
-                        class="absolute top-full left-0 bg-brand-red-medium min-w-dropdown list-none p-0 m-0 shadow-dropdown opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
+                        class="absolute top-full left-0 w-full bg-brand-red-medium list-none p-0 m-0 shadow-dropdown opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
                         @forelse($publishedYears as $year)
                             <li class="border-b border-white/5 last:border-0">
                                 <a href="{{ route('scd.year', $year->year) }}"
@@ -60,12 +60,12 @@
                 <!-- รายงานผล SCD Dropdown -->
                 <li class="relative group">
                     <a href="#"
-                        class="dropdown-toggle block py-nav-y px-5 text-white no-underline text-nav font-normal transition-all duration-200 hover:bg-brand-red-dark whitespace-nowrap">
+                        class="dropdown-toggle block py-nav-y px-8 text-white no-underline text-nav font-normal transition-all duration-200 hover:bg-brand-red-dark whitespace-nowrap">
                         รายงานผล SCD <i class="fa fa-chevron-down ml-1 text-badge"></i>
                     </a>
                     <!-- Dropdown -->
                     <ul
-                        class="absolute top-full left-0 bg-brand-red-medium min-w-dropdown list-none p-0 m-0 shadow-dropdown opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
+                        class="absolute top-full left-0 min-w-full bg-brand-red-medium list-none p-0 m-0 shadow-dropdown opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
                         @forelse($publishedYears as $year)
                             @if ($year->report && $year->report->file_path)
                                 <li class="border-b border-white/5 last:border-0">
@@ -87,12 +87,12 @@
                 <!-- ประกาศ/คำสั่ง Dropdown -->
                 <li class="relative group">
                     <a href="#"
-                        class="dropdown-toggle block py-nav-y px-5 text-white no-underline text-nav font-normal transition-all duration-200 hover:bg-brand-red-dark whitespace-nowrap">
+                        class="dropdown-toggle block py-nav-y px-8 text-white no-underline text-nav font-normal transition-all duration-200 hover:bg-brand-red-dark whitespace-nowrap">
                         ประกาศ/คำสั่ง <i class="fa fa-chevron-down ml-1 text-badge"></i>
                     </a>
                     <!-- Dropdown -->
                     <ul
-                        class="absolute top-full left-0 bg-brand-red-medium min-w-dropdown list-none p-0 m-0 shadow-dropdown opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
+                        class="absolute top-full left-0 min-w-full bg-brand-red-medium list-none p-0 m-0 shadow-dropdown opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 rounded-b-lg">
                         @forelse($publishedYears as $year)
                             <li class="border-b border-white/5 last:border-0">
                                 <a href="{{ route('announcements', $year->year) }}"
@@ -111,7 +111,7 @@
                 <!-- ติดต่อเรา -->
                 <li class="relative">
                     <a href="{{ route('contact') }}"
-                        class="block py-nav-y px-5 text-white no-underline text-nav font-normal transition-all duration-200 hover:bg-brand-red-dark whitespace-nowrap">
+                        class="block py-nav-y px-8 text-white no-underline text-nav font-normal transition-all duration-200 hover:bg-brand-red-dark whitespace-nowrap">
                         ติดต่อเรา
                     </a>
                 </li>

@@ -80,7 +80,10 @@
                             สถานะ</th>
                         <th
                             class="w-28 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ลิงค์</th>
+                            ไฟล์/ลิงค์</th>
+                        <th
+                            class="hidden lg:table-cell w-36 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            วันที่อัปเดตล่าสุด</th>
                         <th
                             class="w-56 px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             จัดการ</th>
@@ -116,6 +119,9 @@
                                 @else
                                     <span class="text-gray-400 text-xs">-</span>
                                 @endif
+                            </td>
+                            <td class="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $banner->updated_at->toThaiDateFull() }}
                             </td>
                             <td class="px-4 lg:px-6 py-4 text-sm font-medium">
                                 <div class="flex flex-wrap items-center gap-2">

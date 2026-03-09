@@ -27,8 +27,8 @@ class ContentsIndex extends Component
     public $nodeId = null;
 
     public $name;
-    public $image;              // base64 string จาก cropper
-    public $file;               // Livewire file upload (PDF)
+    public $image;
+    public $file;
     public $existingImage = null;
     public $existingFile = null;
     public $is_hidden = false;
@@ -115,6 +115,7 @@ class ContentsIndex extends Component
             ContentSection::where('id', $id)->update(['sequence' => $index + 1]);
         }
 
+        $this->selectedYear->touch();
         $this->showSortModal = false;
         $this->sortableItems = [];
         $this->dispatch('notify', ['message' => 'บันทึกลำดับสำเร็จ', 'type' => 'success']);
@@ -153,7 +154,6 @@ class ContentsIndex extends Component
             'name' => 'required|string|max:255',
         ];
 
-        // รูปภาพเป็น base64 string (จาก cropper) เฉพาะ folder ระดับบนสุด
         if ($this->type === 'folder' && $this->currentParentId === null) {
             $rules['image'] = $this->editMode
                 ? 'nullable|string'
@@ -182,9 +182,6 @@ class ContentsIndex extends Component
         $this->resetForm();
     }
 
-    /**
-     * บันทึก base64 image ลง disk แล้วคืน path
-     */
     private function saveBase64Image(string $base64): string
     {
         $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $base64);
@@ -198,7 +195,6 @@ class ContentsIndex extends Component
 
     private function createNode()
     {
-        // คำนวณ sequence อัตโนมัติ (ต่อท้ายเสมอ)
         $maxSequence = ContentSection::where('scd_year_id', $this->selectedYear->id)
             ->where('parent_id', $this->currentParentId)
             ->max('sequence') ?? 0;
@@ -222,6 +218,7 @@ class ContentsIndex extends Component
         }
 
         ContentSection::create($data);
+        $this->selectedYear->touch();
         session()->flash('success', 'เพิ่มสำเร็จ');
     }
 
@@ -248,10 +245,9 @@ class ContentsIndex extends Component
         }
 
         $node->update($data);
+        $this->selectedYear->touch();
 
-        // ถ้าเปลี่ยน is_hidden ให้ re-sequence ทั้งสองกลุ่ม
         if ($oldHidden !== (bool) $this->is_hidden) {
-            // re-sequence กลุ่มเดิม
             $oldGroup = ContentSection::where('scd_year_id', $this->selectedYear->id)
                 ->where('parent_id', $this->currentParentId)
                 ->where('is_hidden', $oldHidden)
@@ -260,7 +256,6 @@ class ContentsIndex extends Component
             foreach ($oldGroup as $index => $item) {
                 $item->update(['sequence' => $index + 1]);
             }
-            // ใส่ท้ายกลุ่มใหม่
             $newMax = ContentSection::where('scd_year_id', $this->selectedYear->id)
                 ->where('parent_id', $this->currentParentId)
                 ->where('is_hidden', $this->is_hidden)
@@ -280,7 +275,6 @@ class ContentsIndex extends Component
         $deletedHidden = (bool) $node->is_hidden;
         $node->delete();
 
-        // Re-sequence เฉพาะกลุ่มเดียวกัน (visible/hidden แยกกัน)
         $remaining = ContentSection::where('scd_year_id', $this->selectedYear->id)
             ->where('parent_id', $this->currentParentId)
             ->where('is_hidden', $deletedHidden)
@@ -291,6 +285,7 @@ class ContentsIndex extends Component
             $item->update(['sequence' => $index + 1]);
         }
 
+        $this->selectedYear->touch();
         session()->flash('success', 'ลบสำเร็จ');
     }
 

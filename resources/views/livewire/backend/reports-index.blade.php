@@ -44,8 +44,7 @@
                                         class="hidden md:table-cell w-40 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         ไฟล์ PDF</th>
                                     <th scope="col"
-                                        class="hidden lg:table-cell w-48 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        อัปเดต</th>
+                                        class="hidden lg:table-cell w-48 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่อัปเดตล่าสุด</th>
                                     <th scope="col"
                                         class="w-56 px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         จัดการ</th>
