@@ -103,6 +103,8 @@
                         @endif
                         <x-backend.action-button color="yellow-outline" label="แก้ไข"
                             action="editNode({{ $content->id }})" />
+                        <x-backend.action-button :color="$content->is_hidden ? 'blue' : 'gray'" :label="$content->is_hidden ? 'แสดง' : 'ซ่อน'"
+                            action="toggleHidden({{ $content->id }})" />
                         <x-backend.action-button color="red-outline" label="ลบ"
                             action="deleteNode({{ $content->id }})" confirm="คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?" />
                     </div>
@@ -211,6 +213,8 @@
                                     @endif
                                     <x-backend.action-button color="yellow-outline" label="แก้ไข"
                                         action="editNode({{ $content->id }})" />
+                                    <x-backend.action-button :color="$content->is_hidden ? 'blue' : 'gray'" :label="$content->is_hidden ? 'แสดง' : 'ซ่อน'"
+                                        action="toggleHidden({{ $content->id }})" />
                                     <x-backend.action-button color="red-outline" label="ลบ"
                                         action="deleteNode({{ $content->id }})"
                                         confirm="คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?" />

@@ -36,8 +36,8 @@
             return;
         }
 
-        if (file.size > 10 * 1024 * 1024) {
-            alert('ไฟล์รูปภาพมีขนาดใหญ่เกิน 10MB');
+        if (file.size > 100 * 1024 * 1024) {
+            alert('ไฟล์รูปภาพมีขนาดใหญ่เกิน 100MB');
             event.target.value = '';
             return;
         }
@@ -380,7 +380,7 @@
             <p class="text-xs text-gray-500">{{ $helpText }}</p>
         @else
             <p class="text-xs text-gray-500">
-                รองรับไฟล์ JPG, PNG ขนาดไม่เกิน 10 MB (แนะนำขนาด {{ $aspectRatioLabel }} px)
+                รองรับไฟล์ JPG, PNG ขนาดไม่เกิน 100 MB (แนะนำขนาด {{ $aspectRatioLabel }} px)
             </p>
         @endif
     </div>

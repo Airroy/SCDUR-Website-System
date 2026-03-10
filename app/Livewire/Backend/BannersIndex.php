@@ -72,9 +72,9 @@ class BannersIndex extends Component
     public function saveSortOrder($orderedIds)
     {
         foreach ($orderedIds as $index => $id) {
-            Banner::where('id', $id)->update(['sequence' => $index + 1]);
+            $newSeq = $index + 1;
+            Banner::where('id', $id)->where('sequence', '!=', $newSeq)->update(['sequence' => $newSeq]);
         }
-        $this->selectedYear->touch();
         $this->showSortModal = false;
         $this->sortableItems = [];
         $this->dispatch('notify', ['message' => 'บันทึกลำดับสำเร็จ', 'type' => 'success']);

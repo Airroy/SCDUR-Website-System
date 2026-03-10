@@ -81,6 +81,8 @@
                         @endif
                         <x-backend.action-button color="yellow-outline" label="แก้ไข"
                             action="$dispatch('openEditAnnouncementModal', { announcementId: {{ $item->id }} })" />
+                        <x-backend.action-button :color="$item->is_hidden ? 'blue' : 'gray'" :label="$item->is_hidden ? 'แสดง' : 'ซ่อน'"
+                            action="toggleHidden({{ $item->id }})" />
                         <x-backend.action-button color="red-outline" label="ลบ"
                             action="$dispatch('deleteAnnouncement', { announcementId: {{ $item->id }} })"
                             confirm="คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?" />
@@ -171,6 +173,8 @@
                                     @endif
                                     <x-backend.action-button color="yellow-outline" label="แก้ไข"
                                         action="$dispatch('openEditAnnouncementModal', { announcementId: {{ $item->id }} })" />
+                                    <x-backend.action-button :color="$item->is_hidden ? 'blue' : 'gray'" :label="$item->is_hidden ? 'แสดง' : 'ซ่อน'"
+                                        action="toggleHidden({{ $item->id }})" />
                                     <x-backend.action-button color="red-outline" label="ลบ"
                                         action="$dispatch('deleteAnnouncement', { announcementId: {{ $item->id }} })"
                                         confirm="คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?" />

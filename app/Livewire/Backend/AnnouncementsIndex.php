@@ -145,11 +145,41 @@ class AnnouncementsIndex extends Component
     {
         $model = $this->getModel();
         foreach ($orderedIds as $index => $id) {
-            $model::where('id', $id)->update(['sequence' => $index + 1]);
+            $newSeq = $index + 1;
+            $model::where('id', $id)->where('sequence', '!=', $newSeq)->update(['sequence' => $newSeq]);
         }
         $this->showSortModal = false;
         $this->sortableItems = [];
         $this->dispatch('notify', ['message' => 'บันทึกลำดับสำเร็จ', 'type' => 'success']);
+    }
+
+    public function toggleHidden($nodeId)
+    {
+        $model = $this->getModel();
+        $node = $model::findOrFail($nodeId);
+        $oldHidden = (bool) $node->is_hidden;
+        $newHidden = !$oldHidden;
+
+        $node->update(['is_hidden' => $newHidden]);
+
+        $oldGroup = $model::where('scd_year_id', $this->selectedYear->id)
+            ->where('parent_id', $this->currentParentId)
+            ->where('is_hidden', $oldHidden)
+            ->where('id', '!=', $node->id)
+            ->orderBy('sequence')
+            ->get();
+        $model::withoutTimestamps(function () use ($oldGroup) {
+            foreach ($oldGroup as $index => $item) {
+                $item->update(['sequence' => $index + 1]);
+            }
+        });
+
+        $newMax = $model::where('scd_year_id', $this->selectedYear->id)
+            ->where('parent_id', $this->currentParentId)
+            ->where('is_hidden', $newHidden)
+            ->where('id', '!=', $node->id)
+            ->max('sequence') ?? 0;
+        $node->withoutTimestamps(fn() => $node->update(['sequence' => $newMax + 1]));
     }
 
     public function render()

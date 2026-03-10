@@ -112,10 +112,10 @@ class ContentsIndex extends Component
     public function saveSortOrder($orderedIds)
     {
         foreach ($orderedIds as $index => $id) {
-            ContentSection::where('id', $id)->update(['sequence' => $index + 1]);
+            $newSeq = $index + 1;
+            ContentSection::where('id', $id)->where('sequence', '!=', $newSeq)->update(['sequence' => $newSeq]);
         }
 
-        $this->selectedYear->touch();
         $this->showSortModal = false;
         $this->sortableItems = [];
         $this->dispatch('notify', ['message' => 'บันทึกลำดับสำเร็จ', 'type' => 'success']);
@@ -253,15 +253,17 @@ class ContentsIndex extends Component
                 ->where('is_hidden', $oldHidden)
                 ->orderBy('sequence')
                 ->get();
-            foreach ($oldGroup as $index => $item) {
-                $item->update(['sequence' => $index + 1]);
-            }
+            ContentSection::withoutTimestamps(function () use ($oldGroup) {
+                foreach ($oldGroup as $index => $item) {
+                    $item->update(['sequence' => $index + 1]);
+                }
+            });
             $newMax = ContentSection::where('scd_year_id', $this->selectedYear->id)
                 ->where('parent_id', $this->currentParentId)
                 ->where('is_hidden', $this->is_hidden)
                 ->where('id', '!=', $node->id)
                 ->max('sequence') ?? 0;
-            $node->update(['sequence' => $newMax + 1]);
+            $node->withoutTimestamps(fn() => $node->update(['sequence' => $newMax + 1]));
         }
 
         session()->flash('success', 'อัพเดทสำเร็จ');
@@ -287,6 +289,34 @@ class ContentsIndex extends Component
 
         $this->selectedYear->touch();
         session()->flash('success', 'ลบสำเร็จ');
+    }
+
+    public function toggleHidden($contentId)
+    {
+        $node = ContentSection::findOrFail($contentId);
+        $oldHidden = (bool) $node->is_hidden;
+        $newHidden = !$oldHidden;
+
+        $node->update(['is_hidden' => $newHidden]);
+
+        $oldGroup = ContentSection::where('scd_year_id', $this->selectedYear->id)
+            ->where('parent_id', $this->currentParentId)
+            ->where('is_hidden', $oldHidden)
+            ->where('id', '!=', $node->id)
+            ->orderBy('sequence')
+            ->get();
+        ContentSection::withoutTimestamps(function () use ($oldGroup) {
+            foreach ($oldGroup as $index => $item) {
+                $item->update(['sequence' => $index + 1]);
+            }
+        });
+
+        $newMax = ContentSection::where('scd_year_id', $this->selectedYear->id)
+            ->where('parent_id', $this->currentParentId)
+            ->where('is_hidden', $newHidden)
+            ->where('id', '!=', $node->id)
+            ->max('sequence') ?? 0;
+        $node->withoutTimestamps(fn() => $node->update(['sequence' => $newMax + 1]));
     }
 
     private function resetForm()

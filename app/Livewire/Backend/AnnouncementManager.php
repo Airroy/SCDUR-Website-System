@@ -186,14 +186,14 @@ class AnnouncementManager extends Component
                 ->orderBy('sequence')
                 ->get();
             foreach ($oldGroup as $index => $item) {
-                $item->update(['sequence' => $index + 1]);
+                $item->withoutTimestamps(fn() => $item->update(['sequence' => $index + 1]));
             }
             $newMax = $model::where('scd_year_id', $this->year->id)
                 ->where('parent_id', $this->parentId)
                 ->where('is_hidden', $this->is_hidden)
                 ->where('id', '!=', $node->id)
                 ->max('sequence') ?? 0;
-            $node->update(['sequence' => $newMax + 1]);
+            $node->withoutTimestamps(fn() => $node->update(['sequence' => $newMax + 1]));
         }
 
         $this->showModal = false;
@@ -223,7 +223,7 @@ class AnnouncementManager extends Component
             ->orderBy('sequence')
             ->get();
         foreach ($remaining as $index => $item) {
-            $item->update(['sequence' => $index + 1]);
+            $item->withoutTimestamps(fn() => $item->update(['sequence' => $index + 1]));
         }
 
         $this->year->touch();

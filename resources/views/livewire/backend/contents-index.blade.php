@@ -146,7 +146,7 @@
 
                         <x-image-cropper-simple name="image" label="" :required="!$editMode" :existingImage="$existingImage ? Storage::url($existingImage) : null"
                             aspectRatio="16/9" :outputWidth="1280" :outputHeight="720"
-                            helpText="รองรับ JPG, PNG (สูงสุด 10MB)" />
+                            helpText="รองรับ JPG, PNG (สูงสุด 100MB)" />
 
                         @error('image')
                             <span class="text-red-500 text-xs">{{ $message }}</span>
