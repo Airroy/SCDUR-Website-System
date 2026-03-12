@@ -103,8 +103,6 @@
                         @endif
                         <x-backend.action-button color="yellow-outline" label="แก้ไข"
                             action="editNode({{ $content->id }})" />
-                        <x-backend.action-button :color="$content->is_hidden ? 'blue' : 'gray'" :label="$content->is_hidden ? 'แสดง' : 'ซ่อน'"
-                            action="toggleHidden({{ $content->id }})" />
                         <x-backend.action-button color="red-outline" label="ลบ"
                             action="deleteNode({{ $content->id }})" confirm="คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?" />
                     </div>
@@ -161,20 +159,17 @@
                                 </td>
                             @endif
                             <td class="px-4 lg:px-6 py-4">
-                                <div class="overflow-hidden">
+                                <div>
                                     @if ($content->type === 'folder')
                                         <button type="button" wire:click="navigateToFolder({{ $content->id }})"
-                                            class="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate block w-full text-left"
-                                            title="{{ $content->name }}">
+                                            class="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline text-left break-words">
                                             {{ $content->name }}
                                         </button>
                                     @else
-                                        <div class="text-sm font-medium text-gray-900 truncate"
-                                            title="{{ $content->name }}">{{ $content->name }}</div>
+                                        <div class="text-sm font-medium text-gray-900 break-words">{{ $content->name }}</div>
                                     @endif
                                     @if ($content->type === 'file' && $content->file_path)
-                                        <div class="text-xs text-gray-500 truncate mt-0.5"
-                                            title="{{ basename($content->file_path) }}">
+                                        <div class="text-xs text-gray-500 break-all mt-0.5">
                                             {{ basename($content->file_path) }}</div>
                                     @endif
                                 </div>
@@ -213,8 +208,6 @@
                                     @endif
                                     <x-backend.action-button color="yellow-outline" label="แก้ไข"
                                         action="editNode({{ $content->id }})" />
-                                    <x-backend.action-button :color="$content->is_hidden ? 'blue' : 'gray'" :label="$content->is_hidden ? 'แสดง' : 'ซ่อน'"
-                                        action="toggleHidden({{ $content->id }})" />
                                     <x-backend.action-button color="red-outline" label="ลบ"
                                         action="deleteNode({{ $content->id }})"
                                         confirm="คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?" />

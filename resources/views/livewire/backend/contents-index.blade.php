@@ -127,11 +127,11 @@
                 <!-- Name -->
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700">
-                        {{ $type === 'folder' ? 'ชื่อหมวดหมู่' : 'ชื่อไฟล์' }} <span class="text-red-600">*</span>
+                        {{ $type === 'folder' ? 'ชื่อหมวดหมู่' : 'ชื่อรายการ' }} <span class="text-red-600">*</span>
                     </label>
                     <input type="text" wire:model="name" id="name"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
-                        placeholder="{{ $type === 'folder' ? 'กรอกชื่อหมวดหมู่' : 'กรอกชื่อไฟล์' }}">
+                        placeholder="{{ $type === 'folder' ? 'กรอกชื่อหมวดหมู่' : 'กรอกชื่อรายการ' }}">
                     @error('name')
                         <span class="text-red-500 text-xs">{{ $message }}</span>
                     @enderror

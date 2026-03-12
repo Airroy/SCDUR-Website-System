@@ -79,7 +79,7 @@
     $isBadge = $config['badge'] ?? false;
     $baseClass = $isBadge
         ? "inline-flex items-center gap-1 border focus:outline-none focus:ring-2 transition-colors {$config['class']}"
-        : "inline-flex items-center px-3 py-2 text-sm font-medium border focus:outline-none focus:ring-2 transition-colors rounded-lg {$config['class']}";
+        : "inline-flex items-center whitespace-nowrap px-3 py-2 text-sm font-medium border focus:outline-none focus:ring-2 transition-colors rounded-lg {$config['class']}";
 @endphp
 
 @if ($href)
