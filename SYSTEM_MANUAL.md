@@ -88,7 +88,6 @@ scd-project/
 │   │   │   └── Frontend/          # Frontend Controllers
 │   │   │       ├── HomeController.php
 │   │   │       ├── FrontendController.php
-│   │   │       └── AnnouncementOrderController.php
 │   │   ├── Middleware/
 │   │   │   ├── AdminAuth.php      # ป้องกัน Admin routes (abort 404)
 │   │   │   └── AccessLog.php      # บันทึก access log
@@ -174,10 +173,9 @@ scd-project/
 | Column | Type | หมายเหตุ |
 |--------|------|--------|
 | `id` | bigint PK | |
-| `year` | integer UNIQUE | ปี ค.ศ. เช่น 2024 |
+| `year` | string (varchar) UNIQUE | ปี ค.ศ. เช่น 2024 |
 | `created_date` | date | วันที่อ้างอิงทางการ |
 | `is_published` | boolean | เผยแพร่ต่อสาธารณะ |
-| `last_content_updated_at` | timestamp nullable | อัปเดตล่าสุด (content changes) |
 | `created_at`, `updated_at` | timestamps | |
 
 #### `scd_reports` — รายงาน PDF
@@ -200,7 +198,7 @@ scd-project/
 | `category` | integer | 0 = Slider หลัก, 1 = Slider รอง |
 | `sequence` | integer | ลำดับในการแสดงผล |
 | `image_path` | string | path รูปภาพ |
-| `link_type` | enum(none,url,pdf) | ประเภทลิงก์ |
+| `link_type` | string (varchar) | ประเภทลิงก์ (none, url, pdf) |
 | `link_url` | string nullable | URL ปลายทาง |
 | `pdf_name` | string nullable | ชื่อ PDF |
 | `pdf_path` | string nullable | path ไฟล์ PDF |
@@ -213,13 +211,13 @@ scd-project/
 | `id` | bigint PK | |
 | `scd_year_id` | FK → scd_years | |
 | `parent_id` | FK → self nullable | null = root node |
-| `type` | enum(folder,file) | |
+| `type` | string (varchar) | |
 | `name` | string | ชื่อที่แสดง |
 | `sequence` | integer | ลำดับ |
 | `image_path` | string nullable | รูปประกอบ |
 | `file_path` | string nullable | PDF path |
-| `view_count` | integer default 0 | |
-| `download_count` | integer default 0 | |
+| `view_count` | bigint default 0 | |
+| `download_count` | bigint default 0 | |
 | `is_hidden` | boolean default false | ซ่อนจากสาธารณะ |
 | `created_at`, `updated_at` | timestamps | |
 
@@ -383,9 +381,8 @@ docker run --rm \
 | GET | `/scd/{year}` | `HomeController@index` | หน้าแรกกรองตามปี |
 | GET | `/about` | `FrontendController@about` | |
 | GET | `/contact` | `FrontendController@contact` | |
-| GET | `/announcements-directives/{year}` | `FrontendController@announcements` | (Legacy) |
-| GET | `/announcements-directives/{year}/folder/{folder}` | `FrontendController@announcementFolder` | (Legacy) |
-| GET | `/year/{year}/announcements-orders` | `AnnouncementOrderController@index` | |
+| GET | `/announcements-directives/{year}` | `FrontendController@announcements` | |
+| GET | `/announcements-directives/{year}/folder/{folder}` | `FrontendController@announcementFolder` | |
 | GET | `/file/{source}/{id}/view/{filename}` | `FrontendController@viewFile` | แสดง PDF inline |
 | GET | `/file/{source}/{id}/download` | `FrontendController@downloadFile` | ดาวน์โหลด PDF |
 | GET | `/banner/{id}/view/{filename}` | `FrontendController@viewBannerPdf` | แสดง Banner PDF |

@@ -100,7 +100,7 @@ class CreateAdminUser extends Command
         );
 
         $this->newLine();
-        $this->info('You can now login at: ' . config('app.url') . '/login');
+        $this->info('You can now login at: ' . config('app.url') . '/aru-scdur-panel');
 
         return 0;
     }
