@@ -3,7 +3,7 @@
 > **ระบบจัดอันดับมหาวิทยาลัยด้านการพัฒนาชุมชนอย่างยั่งยืน**  
 > **Sustainable Community Development University Ranking System**  
 > มหาวิทยาลัยราชภัฏพระนครศรีอยุธยา  
-> **เวอร์ชัน:** 1.1.0 | **อัปเดตล่าสุด:** 10 มีนาคม 2026
+> **เวอร์ชัน:** 1.2.0 | **อัปเดตล่าสุด:** 12 มีนาคม 2026
 
 > คู่มือนี้จัดทำขึ้นสำหรับ **ผู้ดูแลระบบ IT และ Developer** ที่รับผิดชอบติดตั้ง บำรุงรักษา และพัฒนาระบบ  
 > สำหรับคู่มือผู้เยี่ยมชม ดูที่ [USER_MANUAL.md](USER_MANUAL.md)  
@@ -35,14 +35,15 @@
 
 | ส่วน | Technology | เวอร์ชัน |
 |------|-----------|--------|
-| Backend Framework | Laravel | 12.x |
+| Backend Framework | Laravel | 12.46.0 |
 | PHP | PHP | 8.4 |
-| Frontend Reactive | Livewire | 3.x |
-| Frontend Interactive | Alpine.js | 3.x |
-| CSS Framework | Tailwind CSS | 3.x |
-| Build Tool | Vite | 5.x |
+| Frontend Reactive | Livewire | 3.7.3 |
+| Frontend Interactive | Alpine.js | 3.x (bundled กับ Livewire) |
+| CSS Framework | Tailwind CSS | 3.4.19 |
+| Build Tool | Vite | 7.3.1 |
 | Database | MySQL | 8.4 |
-| Cache / Queue | Redis | Alpine |
+| Cache | Redis | Alpine |
+| Redis Client | predis/predis | ^3.4 |
 | Container | Docker (Laravel Sail) | — |
 | DB Management | phpMyAdmin | Latest |
 
@@ -68,7 +69,7 @@ Laravel Router (routes/web.php)
 |---------|-------|------|--------|
 | `laravel.test` | sail-8.4/app | 80 (APP), 5173 (Vite) | PHP Application |
 | `mysql` | mysql:8.4 | 3306 | Database |
-| `redis` | redis:alpine | 6379 | Cache / Session |
+| `redis` | redis:alpine | 6379 | Cache |
 | `phpmyadmin` | phpmyadmin:latest | 8080 | Database GUI |
 
 ---
@@ -92,7 +93,11 @@ scd-project/
 │   │   │   ├── AdminAuth.php      # ป้องกัน Admin routes (abort 404)
 │   │   │   └── AccessLog.php      # บันทึก access log
 │   │   └── Requests/Backend/     # Form Request Validation
+│   │       ├── StoreScdYearRequest.php
+│   │       └── UpdateScdYearRequest.php
 │   ├── Livewire/
+│   │   ├── Actions/
+│   │   │   └── Logout.php         # Logout action
 │   │   ├── Auth/                  # Login component
 │   │   ├── Backend/               # Admin Panel components
 │   │   │   ├── AdminDashboard.php
@@ -101,10 +106,16 @@ scd-project/
 │   │   │   ├── ReportsIndex.php
 │   │   │   ├── AnnouncementsIndex.php  # ใช้ร่วมกับคำสั่ง
 │   │   │   ├── AnnouncementManager.php
-│   │   │   └── ContentsIndex.php
+│   │   │   ├── ContentsIndex.php
+│   │   │   └── ContentSectionManager.php  # จัดการ content section
+│   │   ├── Forms/
+│   │   │   └── LoginForm.php      # Login form logic
 │   │   ├── Frontend/              # Frontend components
 │   │   │   └── BannerSlider.php
 │   │   └── Profile/               # Profile management
+│   │       ├── DeleteUser.php
+│   │       ├── UpdatePassword.php
+│   │       └── UpdateProfileInformation.php
 │   ├── Models/
 │   │   ├── ScdYear.php            # ปี SCD
 │   │   ├── ScdReport.php          # รายงาน PDF ประจำปี
@@ -267,7 +278,7 @@ cd scd-project
 cp .env.example .env
 
 # 3. แก้ไข .env ตามที่ต้องการ
-# DB_DATABASE=scd_db
+# DB_DATABASE=scd_project
 # DB_USERNAME=sail
 # DB_PASSWORD=password
 
@@ -420,7 +431,8 @@ public function handle(Request $request, Closure $next): Response
 
 **Security design:**
 - ถ้าไม่ได้ login → `abort(404)` (ไม่ใช่ redirect ไป login) เพื่อซ่อนการมีอยู่ของ Admin Panel
-- `GET /login` redirect ไปหน้าแรก (ซ่อน login URL จากสาธารณะ) — Admin ต้องรู้ URL ด้วยตนเอง
+- `GET /login` redirect ไปหน้าแรก — Admin Login URL จริงคือ `/aru-scdur-panel` (ซ่อนจากสาธารณะ)
+- Register, Forgot Password, Verify Email — ปิดไว้ทั้งหมด (commented out ใน auth.php)
 - ระบบ Rate Limiting ของ Laravel ป้องกัน Brute Force (5 ครั้ง / นาที)
 
 ### AccessLog Middleware
@@ -549,8 +561,17 @@ $service->replaceFile($newFile, $oldPath, 'dir'); // แทนที่ไฟล
 **Log format (AccessLog middleware):**
 ```
 --- REQUEST LOG ---
-[2026-03-10 10:30:00] [GET] /scd/2024 → 200 | 45.23ms [FAST]
-IP: 192.168.1.100 | Desktop | Chrome
+Time: 2026-03-10 10:30:00
+Method: GET
+Status: 200 (OK)
+Duration: 45.23ms (FAST)
+Path: scd/2024
+IP: 192.168.1.100
+User: Guest
+Device: Desktop
+Browser: Chrome
+Session: a1b2c3d4
+Memory: 12.5MB
 ```
 
 ### ล้าง Log ที่เก่า
@@ -589,23 +610,31 @@ IP: 192.168.1.100 | Desktop | Chrome
 ### Environment Variables สำคัญ (.env)
 
 ```dotenv
-APP_NAME="SCD System"
+APP_NAME="SCD Project"
 APP_ENV=production          # production | local
 APP_DEBUG=false             # false ใน production เสมอ
-APP_URL=http://localhost
+APP_URL=https://www.tamamimi-mimimi.xyz
+
+APP_LOCALE=th
+APP_FALLBACK_LOCALE=en
 
 DB_CONNECTION=mysql
 DB_HOST=mysql               # Docker service name
 DB_PORT=3306
-DB_DATABASE=scd_db
+DB_DATABASE=scd_project
 DB_USERNAME=sail
 DB_PASSWORD=yourpassword
 
-CACHE_DRIVER=redis
-SESSION_DRIVER=redis
-QUEUE_DRIVER=redis
+SESSION_DRIVER=cookie       # เก็บ session ใน browser cookie
+SESSION_LIFETIME=120
 
+CACHE_STORE=redis           # ใช้ Redis สำหรับ cache
+QUEUE_CONNECTION=sync       # รัน queue ทันที (ไม่มีคิว)
+
+# Redis Configuration
+REDIS_CLIENT=predis
 REDIS_HOST=redis            # Docker service name
+REDIS_PASSWORD=null
 REDIS_PORT=6379
 
 # Docker ports
@@ -638,7 +667,7 @@ FORWARD_PHPMYADMIN_PORT=8080
 ```bash
 # Backup ผ่าน Docker exec
 docker exec scd-project-mysql-1 mysqldump \
-    -u sail -pyourpassword scd_db > backup_$(date +%Y%m%d).sql
+    -u sail -pyourpassword scd_project > backup_$(date +%Y%m%d).sql
 
 # หรือใช้ phpMyAdmin: http://localhost:8080 → Export
 ```
@@ -654,7 +683,7 @@ cp -r storage/app/public/ /backup/storage_$(date +%Y%m%d)/
 
 ```bash
 docker exec -i scd-project-mysql-1 mysql \
-    -u sail -pyourpassword scd_db < backup_YYYYMMDD.sql
+    -u sail -pyourpassword scd_project < backup_YYYYMMDD.sql
 ```
 
 ### การ Update ระบบ
@@ -727,13 +756,12 @@ phpMyAdmin มีการตั้ง `UPLOAD_LIMIT: 100M` ไว้ใน `com
 ### ปัญหา: Session หมดเร็ว / Login หลุดบ่อย
 
 ```bash
-# ตรวจสอบ Redis
-./vendor/bin/sail logs redis
-
 # ตรวจ .env
-# SESSION_DRIVER=redis
+# SESSION_DRIVER=cookie
 # SESSION_LIFETIME=120  (นาที)
 ```
+
+ระบบใช้ cookie-based session — session จะหมดอายุตามค่า `SESSION_LIFETIME` หรือเมื่อ browser ปิด
 
 ### ปัญหา: Cache ไม่อัปเดต
 
@@ -790,4 +818,4 @@ docker restart scd-project-redis-1
 
 ---
 
-*คู่มือระบบ SCD เวอร์ชัน 1.1.0 | Laravel 12.x + PHP 8.4 + MySQL 8.4 | อัปเดตล่าสุด: 10 มีนาคม 2026*
+*คู่มือระบบ SCD เวอร์ชัน 1.2.0 | Laravel 12.46.0 + PHP 8.4.17 + MySQL 8.4 | อัปเดตล่าสุด: 12 มีนาคม 2026*

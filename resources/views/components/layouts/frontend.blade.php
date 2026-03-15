@@ -17,7 +17,10 @@
 <body class="font-sans antialiased bg-white text-gray-900">
     
     @php
-        $publishedYears = \App\Models\ScdYear::where('is_published', true)->orderBy('year', 'desc')->get();
+        $publishedYears = \App\Models\ScdYear::with('report')
+            ->where('is_published', true)
+            ->orderBy('year', 'desc')
+            ->get();
     @endphp
     <!-- Header Component -->
     <x-frontend.header :publishedYears="$publishedYears" />

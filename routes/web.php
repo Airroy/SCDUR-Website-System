@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\FrontendController;
-use App\Http\Controllers\Frontend\AnnouncementOrderController;
 use Illuminate\Support\Facades\Route;
 
 // Frontend Routes
@@ -15,10 +14,6 @@ Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
 Route::get('/announcements-directives/{year}', [FrontendController::class, 'announcements'])->where('year', '[0-9]{4}')->name('announcements');
 Route::get('/announcements-directives/{year}/folder/{folder}', [FrontendController::class, 'announcementFolder'])->where('year', '[0-9]{4}')->name('announcements.folder');
 
-// ประกาศและคำสั่ง (แบบใหม่ - รวมกัน)
-Route::get('/year/{year}/announcements-orders', [AnnouncementOrderController::class, 'index'])
-    ->where('year', '[0-9]{4}')
-    ->name('announcements-orders');
 
 // ดู/ดาวน์โหลดเอกสาร (นับจำนวน)
 Route::get('/file/{source}/{id}/view/{filename}', [FrontendController::class, 'viewFile'])->where(['source' => 'announcement|directive|content', 'filename' => '.*'])->name('file.view');

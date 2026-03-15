@@ -6,7 +6,10 @@
 
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             @foreach ($sections as $section)
-                <a href="{{ route('content.section', $section->id) }}"
+                @php
+                    $sectionSlug = \Illuminate\Support\Str::slug($section->name) ?: 'section-' . $section->id;
+                @endphp
+                <a href="{{ route('scd.section', [$section->scdYear->year, $sectionSlug]) }}"
                     class="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
 
                     {{-- รูปภาพ --}}

@@ -15,7 +15,7 @@
     {{-- Content - ใช้ document-tree เหมือนหน้าประกาศ --}}
     @if ($items->count() > 0)
         <div class="divide-y divide-gray-200">
-            <x-frontend.document-tree :items="$items" />
+            <x-frontend.content-tree :items="$items" />
         </div>
     @else
         <div class="text-center py-12">

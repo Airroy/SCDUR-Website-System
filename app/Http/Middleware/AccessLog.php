@@ -31,7 +31,7 @@ class AccessLog
         }
 
         // Device Type
-        $userAgent = $request->userAgent();
+        $userAgent = $request->userAgent() ?? '';
         if (str_contains($userAgent, 'Mobile')) {
             $device = 'Mobile';
         } elseif (str_contains($userAgent, 'Tablet')) {

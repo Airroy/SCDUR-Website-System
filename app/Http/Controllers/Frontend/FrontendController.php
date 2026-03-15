@@ -31,12 +31,18 @@ class FrontendController extends Controller
         $announcements = Announcement::where('scd_year_id', $year->id)
             ->whereNull('parent_id')
             ->where('is_hidden', false)
+            ->with(['children' => function ($query) {
+                $query->where('is_hidden', false);
+            }])
             ->orderBy('sequence')
             ->get();
 
         $orders = Order::where('scd_year_id', $year->id)
             ->whereNull('parent_id')
             ->where('is_hidden', false)
+            ->with(['children' => function ($query) {
+                $query->where('is_hidden', false);
+            }])
             ->orderBy('sequence')
             ->get();
 
@@ -72,6 +78,9 @@ class FrontendController extends Controller
         // รายการย่อยในหมวด
         $items = ContentSection::where('parent_id', $section->id)
             ->where('is_hidden', false)
+            ->with(['children' => function ($query) {
+                $query->where('is_hidden', false);
+            }])
             ->orderBy('sequence')
             ->get();
 
