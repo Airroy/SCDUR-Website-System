@@ -237,3 +237,28 @@ scd-project/
 - `/login` ถูก redirect ไปหน้าแรก
 - Email verification / password reset routes ถูกคอมเมนต์ไว้ (ยังไม่เปิดใช้)
 
+### ภาพรวมหน้าที่คล้ายกัน: ตัวชี้วัด / ประกาศ / คำสั่ง
+
+ทั้ง 3 หน้ามีโครงทำงานคล้ายกันมาก คือเป็นหน้าแบบ tree (folder/file), มี breadcrumb, sort, modal เพิ่ม/แก้ไข/ลบ และทำงานตามปี (`year`) เหมือนกัน
+
+| หน้า | Route หลัก | Index Component | Manager Component | Model หลัก | หมายเหตุ |
+|---|---|---|---|---|---|
+| ตัวชี้วัด | `/admin/contents/{year?}` | `ContentsIndex` | `ContentSectionManager` | `ContentSection` | รองรับรูปภาพ (โดยเฉพาะ folder ระดับ root) + PDF |
+| ประกาศ | `/admin/announcements/{year?}` | `AnnouncementsIndex` | `AnnouncementManager` | `Announcement` | ใช้โค้ดชุดเดียวกับคำสั่ง โดยแยกด้วย `category=announcement` |
+| คำสั่ง | `/admin/directives/{year?}` | `AnnouncementsIndex` | `AnnouncementManager` | `Order` | ใช้โค้ดชุดเดียวกับประกาศ โดยแยกด้วย `category=order` |
+
+สิ่งที่ "เหมือนกัน":
+- มี route แบบเข้าโฟลเดอร์: `.../folder/{folderId}`
+- โครง UI คล้ายกัน: ตารางรายการ + ปุ่มเพิ่มหมวด/เพิ่มไฟล์ + modal form
+- มีการจัดลำดับ (`sequence`) และสถานะซ่อน (`is_hidden`)
+
+สิ่งที่ "ต่างกัน":
+- ตัวชี้วัดแยกเป็นคอมโพเนนต์คนละชุด (`ContentsIndex` / `ContentSectionManager`)
+- ประกาศและคำสั่งแชร์คอมโพเนนต์เดียวกัน (`AnnouncementsIndex` / `AnnouncementManager`) แล้วสลับ model ตาม route
+- ตัวชี้วัดมีงานเกี่ยวกับรูปภาพมากกว่า ส่วนประกาศ/คำสั่งเน้นไฟล์ PDF เป็นหลัก
+
+ข้อควรระวังเวลาแก้โค้ด:
+- ถ้าแก้ไฟล์ shared ของประกาศ/คำสั่ง จะกระทบทั้ง 2 หน้า
+- ถ้าต้องการเปลี่ยนเฉพาะประกาศหรือเฉพาะคำสั่ง ให้ใช้เงื่อนไขจาก route หรือค่า `category`
+- ทุกครั้งที่แก้ ควรเทสอย่างน้อย 3 หน้า: `contents`, `announcements`, `directives`
+

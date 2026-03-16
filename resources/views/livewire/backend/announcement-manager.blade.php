@@ -124,6 +124,17 @@
                         กำลังอัปโหลด...
                     </div>
                 </div>
+
+                <div wire:loading.remove wire:target="file">
+                    @if($file)
+                        <div class="mt-2 flex items-center text-sm text-green-600">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            อัปโหลดไฟล์เรียบร้อยแล้ว
+                        </div>
+                    @endif
+                </div>
             </div>
             @endif
         </x-backend.modal-form>
