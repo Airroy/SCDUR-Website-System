@@ -18,6 +18,20 @@
 }
 
 @layer utilities {
+    .banner-nav-left-hover {
+        background: linear-gradient(to right,
+                rgba(0, 0, 0, 0.3) 0%,
+                rgba(0, 0, 0, 0.15) 50%,
+                rgba(0, 0, 0, 0) 100%);
+    }
+
+    .banner-nav-right-hover {
+        background: linear-gradient(to left,
+                rgba(0, 0, 0, 0.3) 0%,
+                rgba(0, 0, 0, 0.15) 50%,
+                rgba(0, 0, 0, 0) 100%);
+    }
+
     .scrollbar-hide {
         -ms-overflow-style: none;
         scrollbar-width: none;

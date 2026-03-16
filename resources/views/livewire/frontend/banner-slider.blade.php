@@ -99,10 +99,8 @@
 
             {{-- Previous Button Area - กดพื้นที่ซ้ายทั้งหมด --}}
             <button @click="prev()"
-                class="absolute top-0 left-0 bottom-0 w-[30%] flex items-center justify-start pl-8 z-20 group"
-                style="background: transparent; transition: all 0.3s ease-out;"
-                onmouseenter="this.style.background='linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0) 100%)';"
-                onmouseleave="this.style.background='transparent';" aria-label="Previous slide">
+                class="absolute top-0 left-0 bottom-0 w-[30%] flex items-center justify-start pl-8 z-20 group transition-all duration-300 bg-transparent hover:banner-nav-left-hover"
+                aria-label="Previous slide">
                 <svg class="w-10 h-10 text-white drop-shadow-lg
                            group-hover:scale-110 group-hover:-translate-x-1
                            transition-all duration-300"
@@ -113,10 +111,8 @@
 
             {{-- Next Button Area - กดพื้นที่ขวาทั้งหมด --}}
             <button @click="next()"
-                class="absolute top-0 right-0 bottom-0 w-[30%] flex items-center justify-end pr-8 z-20 group"
-                style="background: transparent; transition: all 0.3s ease-out;"
-                onmouseenter="this.style.background='linear-gradient(to left, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0) 100%)';"
-                onmouseleave="this.style.background='transparent';" aria-label="Next slide">
+                class="absolute top-0 right-0 bottom-0 w-[30%] flex items-center justify-end pr-8 z-20 group transition-all duration-300 bg-transparent hover:banner-nav-right-hover"
+                aria-label="Next slide">
                 <svg class="w-10 h-10 text-white drop-shadow-lg
                            group-hover:scale-110 group-hover:translate-x-1
                            transition-all duration-300"

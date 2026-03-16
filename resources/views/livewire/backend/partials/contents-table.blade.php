@@ -116,7 +116,7 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col"
-                            class="w-[5%] px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="w-24 px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ลำดับ</th>
                         {{-- แสดง column รูปภาพเฉพาะเมื่อมีรูปจริงๆ ใน contents --}}
                         @if ($hasAnyImage)
@@ -125,26 +125,26 @@
                                 รูปภาพ</th>
                         @endif
                         <th scope="col"
-                            class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ชื่อรายการ</th>
                         <th scope="col"
-                            class="w-[8%] px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="hidden md:table-cell w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ประเภท</th>
                         <th scope="col"
-                            class="w-[8%] px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="hidden md:table-cell w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             สถานะ</th>
                         <th scope="col"
-                            class="hidden lg:table-cell w-[12%] px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="hidden lg:table-cell w-36 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             วันที่อัปเดตล่าสุด</th>
                         <th scope="col"
-                            class="w-[20%] px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="w-80 px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             จัดการ</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach ($contents as $content)
                         <tr class="{{ $content->is_hidden ? 'bg-red-100 hover:bg-red-200' : 'hover:bg-gray-50' }}">
-                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {{ $loop->iteration }}
                             </td>
                             {{-- แสดง td รูปภาพเฉพาะเมื่อมีรูปจริงๆ ใน contents --}}
@@ -158,7 +158,7 @@
                                     @endif
                                 </td>
                             @endif
-                            <td class="px-4 lg:px-6 py-4">
+                            <td class="px-3 sm:px-6 py-4">
                                 <div>
                                     @if ($content->type === 'folder')
                                         <button type="button" wire:click="navigateToFolder({{ $content->id }})"
@@ -175,7 +175,7 @@
                                 </div>
                             </td>
                             {{-- Badge ชนิด (desktop) --}}
-                            <td class="px-4 lg:px-6 py-4">
+                            <td class="hidden md:table-cell px-6 py-4">
                                 @if ($content->type === 'folder')
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap bg-yellow-100 text-yellow-800">
@@ -189,7 +189,7 @@
                                 @endif
                             </td>
                             {{-- Badge สถานะ (desktop) --}}
-                            <td class="px-4 lg:px-6 py-4">
+                            <td class="hidden md:table-cell px-6 py-4">
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap {{ $content->is_hidden ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-800' }}">
                                     {{ $content->is_hidden ? 'ซ่อน' : 'แสดงผล' }}
@@ -198,8 +198,8 @@
                             <td class="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ $content->updated_at->toThaiDateFull() }}
                             </td>
-                            <td class="px-4 lg:px-6 py-4 text-sm font-medium">
-                                <div class="flex flex-nowrap items-center justify-end gap-2">
+                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                                <div class="flex flex-wrap items-center gap-1 sm:gap-2">
                                     @if ($content->type === 'folder')
                                         <x-backend.action-button color="blue" label="เปิด"
                                             action="navigateToFolder({{ $content->id }})" />
